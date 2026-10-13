@@ -86,7 +86,17 @@ Reviewers can verify every reported number without the ~8 GB raw downloads
 (`data/raw/`, `data/interim/` — regenerable via `scripts/01_*`, documented
 in `data/DATA_PROVENANCE.md`):
 
-- **Benchmark metrics:** `results/benchmark.json` (tier AUROC/AUPRC, baselines)
+> **Note (2026-10-13):** the exact pinned ClinVar weekly file
+> (`clinvar_20261004.vcf.gz`) has rotated off NCBI's FTP — only newer weeklies
+> remain. A full raw-data rerun today would use a different ClinVar snapshot,
+> so exact reproduction of the locked results from raw inputs is no longer
+> possible. The shipped processed tables and results JSONs remain the
+> verifiable record.
+
+- **Benchmark metrics:** `results/benchmark.json` (tier AUROC/AUPRC, baselines).
+  Structure: `tiers.<M1..M5>.test.{auroc, auprc, ...}`, `tiers.<M>.test.auroc_ci95`,
+  `baselines.{cadd,spliceai,alphamissense}`, `recovery_M5_vs_M1`.
+  Example: `python -c "import json; b=json.load(open('results/benchmark.json')); print(b['tiers']['M4']['test']['auprc'])"`
 - **Statistical strengthening:** `results/statistics.json` (paired AUPRC-difference
   CIs, permutation p-values, CADD held-out subgroup analysis) and
   `results/per_model_cis.json` (per-model 95% CIs)
@@ -98,13 +108,21 @@ in `data/DATA_PROVENANCE.md`):
 
 ## Installation
 
+Requires **Python 3.10+** (tested on 3.11 and 3.12).
+
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 pip install -e .
 ```
 
-Or with conda: `conda env create -f environment.yml`.
+Or with conda: `conda env create -f environment.yml` (pins Python 3.11).
+
+Run the test suite:
+
+```bash
+pytest tests/ -q        # 37 tests, ~5 s
+```
 
 ## Citation
 

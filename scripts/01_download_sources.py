@@ -68,12 +68,25 @@ def download(url: str, dest: Path) -> None:
     dest.parent.mkdir(parents=True, exist_ok=True)
     tmp = dest.with_suffix(dest.suffix + ".part")
     req = urllib.request.Request(url, headers={"User-Agent": "IsoformVUS/0.1.0 (research)"})
-    with urllib.request.urlopen(req) as resp, open(tmp, "wb") as fh:
-        while True:
-            chunk = resp.read(1 << 20)
-            if not chunk:
-                break
-            fh.write(chunk)
+    try:
+        with urllib.request.urlopen(req) as resp, open(tmp, "wb") as fh:
+            while True:
+                chunk = resp.read(1 << 20)
+                if not chunk:
+                    break
+                fh.write(chunk)
+    except Exception as e:
+        if tmp.exists():
+            tmp.unlink()
+        print(f"\n[ERROR] Could not download {url}\n"
+              f"        Reason: {type(e).__name__}: {e}\n"
+              f"        The raw-data sources listed in data/DATA_PROVENANCE.md may have\n"
+              f"        rotated or moved (e.g. NCBI keeps only recent ClinVar weeklies).\n"
+              f"        You can still verify all reported results from the shipped\n"
+              f"        artifacts without raw data — see README 'Verify without\n"
+              f"        re-downloading raw data'.",
+              file=sys.stderr)
+        raise SystemExit(1)
     tmp.rename(dest)
 
 

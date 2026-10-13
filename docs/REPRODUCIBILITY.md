@@ -36,7 +36,13 @@ see `data/DATA_PROVENANCE.md` for exact re-download sources).
 
 ## Steps that cannot be fully reproduced
 
-1. **gnomAD AF enrichment** — deferred; the gnomAD REST API was unreachable from the
+1. **Exact ClinVar input unrecoverable (confirmed 2026-10-13).** The pinned
+   `clinvar_20261004.vcf.gz` returns HTTP 404 from NCBI's FTP — weeklies rotate
+   and only newer snapshots remain. A raw-data rerun today would use a different
+   ClinVar version, so bit-exact reproduction of the locked results from raw
+   inputs is no longer possible. The shipped `data/processed/` tables and
+   `results/*.json` remain the verifiable record.
+2. **gnomAD AF enrichment** — deferred; the gnomAD REST API was unreachable from the
    build environment (documented in `data/DATA_PROVENANCE.md`). Not part of any claim.
 2. **CADD baseline re-query** — reproducible in principle but requires the CADD REST API
    and is rate-limited; the scored table ships as `data/processed/variant_cadd.tsv.gz`.
