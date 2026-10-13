@@ -1,0 +1,59 @@
+# IsoformVUS base configuration
+# All paths relative to the repository root.
+
+seed: 20261006
+genome_build: "GRCh38"
+gencode_release: "v46"          # primary transcript annotation; confirm in DATA_PROVENANCE.md
+mane_version: "v1.5"            # MANE Select mapping version (2026-10-06: current/ serves v1.5; supersedes v1.4 plan)
+
+paths:
+  raw: "data/raw"
+  interim: "data/interim"
+  processed: "data/processed"
+  metadata: "metadata"
+  results: "results"
+  figures: "figures"
+
+# Gene-panel design (see metadata/gene_selection.md for justification)
+gene_panel:
+  target_size: 100
+  min_pathogenic_variants_per_gene: 10
+  max_genes: 200
+
+# Leakage-safe splits: genes are assigned to splits, never variants of the same gene
+# split across train/validation/test. See docs/leakage_prevention.md.
+splits:
+  train: 0.60
+  validation: 0.20
+  test: 0.20
+  method: "gene_level_grouped"
+  stratify_by: "disease_category"
+
+models:
+  logistic_regression:
+    C: 1.0
+    max_iter: 5000
+    class_weight: "balanced"
+  lightgbm:
+    n_estimators: 1000
+    learning_rate: 0.03
+    num_leaves: 31
+    min_child_samples: 50
+    subsample: 0.8
+    subsample_freq: 1
+    colsample_bytree: 0.8
+    reg_lambda: 1.0
+    class_weight: "balanced"
+
+evaluation:
+  metrics: ["auroc", "auprc", "precision", "recall", "f1", "top1_recall", "top5_recall", "top10_recall", "top20_recall"]
+  n_bootstrap: 1000
+  alpha: 0.05
+
+# Feature tiers (see src/isoformvus/features/spec.py)
+feature_tiers:
+  model_1_variant_only: ["variant"]
+  model_2_plus_phenotype: ["variant", "phenotype"]
+  model_3_plus_celltype: ["variant", "phenotype", "celltype"]
+  model_4_plus_isoform: ["variant", "phenotype", "celltype", "isoform"]
+  model_5_plus_isoform_effect: ["variant", "phenotype", "celltype", "isoform", "isoform_effect"]

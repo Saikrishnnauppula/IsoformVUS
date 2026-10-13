@@ -1,0 +1,515 @@
+{
+  "seed_note": "deterministic SHA-256 shuffle; see data/splits.py",
+  "assignments": [
+    {
+      "gene": "ABCA4",
+      "split": "train",
+      "disease_category": "eye"
+    },
+    {
+      "gene": "ABCD1",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "ACVRL1",
+      "split": "train",
+      "disease_category": "cardiovascular_system"
+    },
+    {
+      "gene": "ADGRV1",
+      "split": "test",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "AGL",
+      "split": "train",
+      "disease_category": "head_or_neck"
+    },
+    {
+      "gene": "ALMS1",
+      "split": "test",
+      "disease_category": "genitourinary_system"
+    },
+    {
+      "gene": "ALPL",
+      "split": "train",
+      "disease_category": "musculoskeletal_system"
+    },
+    {
+      "gene": "ANK1",
+      "split": "train",
+      "disease_category": "musculoskeletal_system"
+    },
+    {
+      "gene": "ANKRD11",
+      "split": "train",
+      "disease_category": "head_or_neck"
+    },
+    {
+      "gene": "APC",
+      "split": "train",
+      "disease_category": "musculoskeletal_system"
+    },
+    {
+      "gene": "ARID1B",
+      "split": "test",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "ATM",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "ATP7B",
+      "split": "validation",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "BARD1",
+      "split": "train",
+      "disease_category": "genitourinary_system"
+    },
+    {
+      "gene": "BLM",
+      "split": "train",
+      "disease_category": "immune_system"
+    },
+    {
+      "gene": "BRCA1",
+      "split": "train",
+      "disease_category": "digestive_system"
+    },
+    {
+      "gene": "BRCA2",
+      "split": "validation",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "BRIP1",
+      "split": "train",
+      "disease_category": "limbs"
+    },
+    {
+      "gene": "CACNA1A",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "CDH23",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "CDKL5",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "CEP290",
+      "split": "validation",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "CFTR",
+      "split": "test",
+      "disease_category": "digestive_system"
+    },
+    {
+      "gene": "CHD7",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "CHEK2",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "COL1A1",
+      "split": "test",
+      "disease_category": "musculoskeletal_system"
+    },
+    {
+      "gene": "COL2A1",
+      "split": "train",
+      "disease_category": "musculoskeletal_system"
+    },
+    {
+      "gene": "COL3A1",
+      "split": "train",
+      "disease_category": "musculoskeletal_system"
+    },
+    {
+      "gene": "COL4A3",
+      "split": "validation",
+      "disease_category": "genitourinary_system"
+    },
+    {
+      "gene": "COL4A4",
+      "split": "train",
+      "disease_category": "genitourinary_system"
+    },
+    {
+      "gene": "COL4A5",
+      "split": "train",
+      "disease_category": "genitourinary_system"
+    },
+    {
+      "gene": "COL7A1",
+      "split": "train",
+      "disease_category": "integument"
+    },
+    {
+      "gene": "CRB1",
+      "split": "test",
+      "disease_category": "eye"
+    },
+    {
+      "gene": "CREBBP",
+      "split": "test",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "DICER1",
+      "split": "train",
+      "disease_category": "neoplasm"
+    },
+    {
+      "gene": "DMD",
+      "split": "validation",
+      "disease_category": "musculoskeletal_system"
+    },
+    {
+      "gene": "DNAH11",
+      "split": "test",
+      "disease_category": "respiratory_system"
+    },
+    {
+      "gene": "DNAH5",
+      "split": "train",
+      "disease_category": "respiratory_system"
+    },
+    {
+      "gene": "DNM1",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "DSP",
+      "split": "test",
+      "disease_category": "integument"
+    },
+    {
+      "gene": "DYNC2H1",
+      "split": "train",
+      "disease_category": "limbs"
+    },
+    {
+      "gene": "DYSF",
+      "split": "validation",
+      "disease_category": "musculoskeletal_system"
+    },
+    {
+      "gene": "ENG",
+      "split": "train",
+      "disease_category": "cardiovascular_system"
+    },
+    {
+      "gene": "EYS",
+      "split": "test",
+      "disease_category": "eye"
+    },
+    {
+      "gene": "F8",
+      "split": "train",
+      "disease_category": "blood_and_blood-forming_tissues"
+    },
+    {
+      "gene": "FANCA",
+      "split": "test",
+      "disease_category": "limbs"
+    },
+    {
+      "gene": "FBN1",
+      "split": "train",
+      "disease_category": "musculoskeletal_system"
+    },
+    {
+      "gene": "FLNC",
+      "split": "test",
+      "disease_category": "cardiovascular_system"
+    },
+    {
+      "gene": "GAA",
+      "split": "train",
+      "disease_category": "cardiovascular_system"
+    },
+    {
+      "gene": "GLA",
+      "split": "validation",
+      "disease_category": "cardiovascular_system"
+    },
+    {
+      "gene": "IDS",
+      "split": "train",
+      "disease_category": "musculoskeletal_system"
+    },
+    {
+      "gene": "JAG1",
+      "split": "validation",
+      "disease_category": "limbs"
+    },
+    {
+      "gene": "KCNH2",
+      "split": "test",
+      "disease_category": "cardiovascular_system"
+    },
+    {
+      "gene": "KCNQ1",
+      "split": "validation",
+      "disease_category": "cardiovascular_system"
+    },
+    {
+      "gene": "KCNQ2",
+      "split": "validation",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "KMT2A",
+      "split": "train",
+      "disease_category": "head_or_neck"
+    },
+    {
+      "gene": "KMT2D",
+      "split": "train",
+      "disease_category": "head_or_neck"
+    },
+    {
+      "gene": "LAMA2",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "LDLR",
+      "split": "train",
+      "disease_category": "cardiovascular_system"
+    },
+    {
+      "gene": "LMNA",
+      "split": "test",
+      "disease_category": "musculoskeletal_system"
+    },
+    {
+      "gene": "LZTR1",
+      "split": "test",
+      "disease_category": "head_or_neck"
+    },
+    {
+      "gene": "MECP2",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "MEN1",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "MLH1",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "MSH2",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "MSH3",
+      "split": "test",
+      "disease_category": "neoplasm"
+    },
+    {
+      "gene": "MSH6",
+      "split": "validation",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "MYBPC3",
+      "split": "train",
+      "disease_category": "cardiovascular_system"
+    },
+    {
+      "gene": "MYO15A",
+      "split": "train",
+      "disease_category": "ear"
+    },
+    {
+      "gene": "MYO7A",
+      "split": "train",
+      "disease_category": "eye"
+    },
+    {
+      "gene": "NBN",
+      "split": "validation",
+      "disease_category": "head_or_neck"
+    },
+    {
+      "gene": "NEB",
+      "split": "validation",
+      "disease_category": "musculoskeletal_system"
+    },
+    {
+      "gene": "NF1",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "NIPBL",
+      "split": "train",
+      "disease_category": "limbs"
+    },
+    {
+      "gene": "NPC1",
+      "split": "test",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "NSD1",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "PALB2",
+      "split": "train",
+      "disease_category": "digestive_system"
+    },
+    {
+      "gene": "PCDH15",
+      "split": "test",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "PHEX",
+      "split": "train",
+      "disease_category": "musculoskeletal_system"
+    },
+    {
+      "gene": "PKD1",
+      "split": "train",
+      "disease_category": "genitourinary_system"
+    },
+    {
+      "gene": "PKHD1",
+      "split": "validation",
+      "disease_category": "digestive_system"
+    },
+    {
+      "gene": "PMS2",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "PTCH1",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "PTEN",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "RB1",
+      "split": "train",
+      "disease_category": "musculoskeletal_system"
+    },
+    {
+      "gene": "RPGR",
+      "split": "validation",
+      "disease_category": "eye"
+    },
+    {
+      "gene": "RYR1",
+      "split": "test",
+      "disease_category": "musculoskeletal_system"
+    },
+    {
+      "gene": "SACS",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "SCN1A",
+      "split": "validation",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "SCN2A",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "SCN5A",
+      "split": "train",
+      "disease_category": "cardiovascular_system"
+    },
+    {
+      "gene": "SLC26A4",
+      "split": "test",
+      "disease_category": "ear"
+    },
+    {
+      "gene": "SPAST",
+      "split": "test",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "SPG11",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "SPTB",
+      "split": "test",
+      "disease_category": "blood_and_blood-forming_tissues"
+    },
+    {
+      "gene": "TP53",
+      "split": "train",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "TRNT1",
+      "split": "train",
+      "disease_category": "eye"
+    },
+    {
+      "gene": "TSC1",
+      "split": "validation",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "TSC2",
+      "split": "test",
+      "disease_category": "nervous_system"
+    },
+    {
+      "gene": "TTN",
+      "split": "train",
+      "disease_category": "musculoskeletal_system"
+    },
+    {
+      "gene": "USH2A",
+      "split": "train",
+      "disease_category": "eye"
+    },
+    {
+      "gene": "VPS13B",
+      "split": "test",
+      "disease_category": "head_or_neck"
+    }
+  ]
+}

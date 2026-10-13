@@ -1,0 +1,112 @@
+{
+  "seed": 20261006,
+  "n_boot": 5000,
+  "n_perm": 2000,
+  "test_n": 14400,
+  "auprc_diffs": {
+    "M4_minus_M1": {
+      "mean": 0.0509,
+      "ci_lo": 0.0473,
+      "ci_hi": 0.0546,
+      "perm_p": 0.0005,
+      "significant": true,
+      "alpha": 0.01
+    },
+    "M5_minus_M1": {
+      "mean": 0.0507,
+      "ci_lo": 0.0472,
+      "ci_hi": 0.0545,
+      "perm_p": 0.0005,
+      "significant": true,
+      "alpha": 0.01
+    },
+    "M2_minus_M1": {
+      "mean": 0.031,
+      "ci_lo": 0.029,
+      "ci_hi": 0.033,
+      "perm_p": 0.0005,
+      "significant": true,
+      "alpha": 0.01
+    },
+    "M3_minus_M1": {
+      "mean": 0.0317,
+      "ci_lo": 0.0297,
+      "ci_hi": 0.0336,
+      "perm_p": 0.0005,
+      "significant": true,
+      "alpha": 0.01
+    },
+    "M5_minus_M4": {
+      "mean": -0.0001,
+      "ci_lo": -0.0003,
+      "ci_hi": -0.0,
+      "perm_p": 0.017,
+      "significant": false,
+      "alpha": 0.01
+    }
+  },
+  "m2_m3_clarification": {
+    "M2": {
+      "auroc": {
+        "mean": -0.0019,
+        "ci_lo": -0.0047,
+        "ci_hi": 0.0009,
+        "perm_p": 0.3013,
+        "significant": false,
+        "alpha": 0.01
+      },
+      "auprc": {
+        "mean": 0.031,
+        "ci_lo": 0.029,
+        "ci_hi": 0.033,
+        "perm_p": 0.0005,
+        "significant": true,
+        "alpha": 0.01
+      }
+    },
+    "M3": {
+      "auroc": {
+        "mean": -0.0018,
+        "ci_lo": -0.0045,
+        "ci_hi": 0.0009,
+        "perm_p": 0.3188,
+        "significant": false,
+        "alpha": 0.01
+      },
+      "auprc": {
+        "mean": 0.0317,
+        "ci_lo": 0.0297,
+        "ci_hi": 0.0336,
+        "perm_p": 0.0005,
+        "significant": true,
+        "alpha": 0.01
+      }
+    }
+  },
+  "cadd_complementarity": {
+    "threshold_source": "validation pathogenic median",
+    "threshold_T": 28.8,
+    "test_cadd_scored_n": 11240,
+    "weak_n": 8601,
+    "weak_pathogenic_n": 1915,
+    "m5_auroc_weak": 0.861,
+    "m5_auroc_weak_ci": [
+      0.8484,
+      0.8737
+    ],
+    "m5_auprc_weak": 0.8277,
+    "m5_auprc_weak_ci": [
+      0.8125,
+      0.8429
+    ],
+    "top_decile_precision": 0.9709302325581395,
+    "top_decile_base_rate": 0.22264852924078596,
+    "top_decile_enrichment_ratio": 4.36
+  },
+  "significance_rule": {
+    "method": "Bonferroni correction across the 5 paired tier comparisons",
+    "n_comparisons": 5,
+    "per_comparison_alpha": 0.01,
+    "note": "M5-M4 permutation p=0.017 is nominally < 0.05 but does not clear the Bonferroni-corrected per-comparison alpha of 0.01, hence marked non-significant. The bootstrap 95% CI [-0.0003, -0.0000] is also entirely negative -- a tiny decrease, not an improvement."
+  }
+}

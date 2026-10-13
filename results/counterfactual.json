@@ -1,0 +1,325 @@
+{
+  "variant": "chr1:156115000:C>T",
+  "gene": "LMNA",
+  "mane_select": "ENST00000368300.9",
+  "score_assuming_irrelevant_isoform": 0.9466506470600075,
+  "score_observed_isoform_context": 0.9883066969174085,
+  "delta": 0.04165604985740101,
+  "per_transcript": [
+    {
+      "transcript": "ENST00000713747.1",
+      "biotype": "protein_coding_CDS_not_defined",
+      "effect": "none",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000502751.5",
+      "biotype": "protein_coding_CDS_not_defined",
+      "effect": "intronic",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000368301.6",
+      "biotype": "protein_coding",
+      "effect": "coding_specific",
+      "in_cds": true,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000495341.5",
+      "biotype": "protein_coding_CDS_not_defined",
+      "effect": "none",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000470835.1",
+      "biotype": "protein_coding_CDS_not_defined",
+      "effect": "none",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000713746.1",
+      "biotype": "protein_coding_CDS_not_defined",
+      "effect": "none",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000713748.1",
+      "biotype": "protein_coding_CDS_not_defined",
+      "effect": "none",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000676385.2",
+      "biotype": "protein_coding",
+      "effect": "coding_specific",
+      "in_cds": true,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000675939.1",
+      "biotype": "protein_coding",
+      "effect": "coding_specific",
+      "in_cds": true,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000515711.1",
+      "biotype": "protein_coding_CDS_not_defined",
+      "effect": "none",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000496738.6",
+      "biotype": "retained_intron",
+      "effect": "exon_specific",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000674720.1",
+      "biotype": "nonsense_mediated_decay",
+      "effect": "coding_specific",
+      "in_cds": true,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000676283.1",
+      "biotype": "retained_intron",
+      "effect": "exon_specific",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000675989.1",
+      "biotype": "retained_intron",
+      "effect": "exon_specific",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000675667.1",
+      "biotype": "protein_coding",
+      "effect": "coding_specific",
+      "in_cds": true,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000676434.1",
+      "biotype": "nonsense_mediated_decay",
+      "effect": "coding_specific",
+      "in_cds": true,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000674518.1",
+      "biotype": "nonsense_mediated_decay",
+      "effect": "coding_specific",
+      "in_cds": true,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000674600.1",
+      "biotype": "nonsense_mediated_decay",
+      "effect": "coding_specific",
+      "in_cds": true,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000675874.1",
+      "biotype": "nonsense_mediated_decay",
+      "effect": "coding_specific",
+      "in_cds": true,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000676208.1",
+      "biotype": "nonsense_mediated_decay",
+      "effect": "coding_specific",
+      "in_cds": true,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000683032.1",
+      "biotype": "protein_coding",
+      "effect": "coding_specific",
+      "in_cds": true,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000684195.1",
+      "biotype": "nonsense_mediated_decay",
+      "effect": "coding_specific",
+      "in_cds": true,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000682650.1",
+      "biotype": "protein_coding",
+      "effect": "coding_specific",
+      "in_cds": true,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000361308.9",
+      "biotype": "protein_coding",
+      "effect": "coding_specific",
+      "in_cds": true,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000478063.2",
+      "biotype": "protein_coding_CDS_not_defined",
+      "effect": "exon_specific",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000470199.2",
+      "biotype": "protein_coding_CDS_not_defined",
+      "effect": "exon_specific",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000677389.1",
+      "biotype": "protein_coding",
+      "effect": "coding_specific",
+      "in_cds": true,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000675455.1",
+      "biotype": "nonsense_mediated_decay",
+      "effect": "junction_specific",
+      "in_cds": true,
+      "junction_proximal": true
+    },
+    {
+      "transcript": "ENST00000368300.9",
+      "biotype": "protein_coding",
+      "effect": "coding_specific",
+      "in_cds": true,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000675881.1",
+      "biotype": "nonsense_mediated_decay",
+      "effect": "coding_specific",
+      "in_cds": true,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000469565.6",
+      "biotype": "protein_coding_CDS_not_defined",
+      "effect": "exon_specific",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000368299.7",
+      "biotype": "protein_coding",
+      "effect": "coding_specific",
+      "in_cds": true,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000502357.5",
+      "biotype": "protein_coding_CDS_not_defined",
+      "effect": "none",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000448611.6",
+      "biotype": "protein_coding",
+      "effect": "none",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000515459.5",
+      "biotype": "nonsense_mediated_decay",
+      "effect": "none",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000675431.1",
+      "biotype": "retained_intron",
+      "effect": "none",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000368297.5",
+      "biotype": "protein_coding",
+      "effect": "none",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000504687.7",
+      "biotype": "protein_coding",
+      "effect": "none",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000473598.6",
+      "biotype": "protein_coding",
+      "effect": "none",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000515824.1",
+      "biotype": "retained_intron",
+      "effect": "none",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000368298.2",
+      "biotype": "retained_intron",
+      "effect": "none",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000498722.3",
+      "biotype": "retained_intron",
+      "effect": "none",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000459904.2",
+      "biotype": "retained_intron",
+      "effect": "none",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000506981.1",
+      "biotype": "retained_intron",
+      "effect": "none",
+      "in_cds": false,
+      "junction_proximal": false
+    },
+    {
+      "transcript": "ENST00000683773.1",
+      "biotype": "protein_coding_CDS_not_defined",
+      "effect": "none",
+      "in_cds": false,
+      "junction_proximal": false
+    }
+  ]
+}

@@ -1,0 +1,88 @@
+# IsoformVUS public data sources
+# Fill in version + download_date when each source is fetched.
+# Genome build is GRCh38 everywhere; any liftOver is documented in DATA_PROVENANCE.md.
+
+sources:
+  - name: ClinVar
+    role: variant labels (pathogenic/likely pathogenic vs benign/likely benign)
+    url: "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/"
+    version: null
+    download_date: null
+    genome_build: GRCh38
+    license: "NCBI public domain; see https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
+    file: "data/raw/clinvar.vcf.gz"
+
+  - name: gnomAD
+    role: population allele frequencies; benign/common-variant controls
+    url: "https://gnomad.broadinstitute.org/downloads"
+    version: "v4.1.0"
+    download_date: null
+    genome_build: GRCh38
+    license: "ODC-ODbL / CC-BY per file; see https://gnomad.broadinstitute.org/about"
+    notes: "Use allele frequency only; never assume rare=pathogenic or common=benign."
+
+  - name: GENCODE
+    role: transcript annotation (exons, isoforms, biotypes)
+    url: "https://www.gencodegenes.org/human/"
+    version: "v46"
+    download_date: null
+    genome_build: GRCh38
+    license: "freely available for academic/commercial use"
+
+  - name: MANE
+    role: canonical transcript per gene (MANE Select)
+    url: "https://ftp.ncbi.nlm.nih.gov/refseq/MANE/MANE_human/"
+    version: "v1.5"
+    download_date: "2026-10-06"
+    genome_build: GRCh38
+    license: "NCBI public domain"
+
+  - name: HPO
+    role: phenotype ontology; patient phenotype -> HPO term mapping
+    url: "https://hpo.jax.org/app/download/ontology"
+    version: null
+    download_date: null
+    genome_build: n/a
+    license: "HPO license (free for academic use)"
+
+  - name: GTEx
+    role: bulk tissue expression to seed tissue->gene context
+    url: "https://gtexportal.org/home/datasets"
+    version: "v8"
+    download_date: null
+    genome_build: GRCh38
+    license: "dbGaP controlled access for raw data; summary data open"
+
+  - name: CELLxGENE
+    role: single-cell expression for cell-type -> isoform usage
+    url: "https://cellxgene.cziscience.com/"
+    version: null
+    download_date: null
+    genome_build: GRCh38
+    license: "CC-BY per dataset"
+
+  - name: SpliceAI
+    role: splice-effect predictions (delta scores)
+    url: "https://github.com/Illumina/SpliceAI"
+    version: "v1.3.1"
+    download_date: null
+    genome_build: GRCh38
+    license: "MIT (code); model weights per repo license"
+    notes: "Run on GRCh38 reference with GENCODE v46 annotation context; record exact reference FASTA."
+
+  - name: CADD
+    role: baseline deleteriousness score (SNVs/indels)
+    url: "https://cadd.gs.washington.edu/download"
+    version: "v1.7"
+    download_date: null
+    genome_build: GRCh38
+    license: "free for academic/non-commercial use"
+
+  - name: AlphaMissense
+    role: baseline missense pathogenicity score
+    url: "https://github.com/google-deepmind/alphamissense"
+    version: "2023 release"
+    download_date: null
+    genome_build: GRCh38
+    license: "CC-BY-NC 4.0 (non-commercial)"
+    notes: "Missense only; comparisons restricted to compatible variant classes."

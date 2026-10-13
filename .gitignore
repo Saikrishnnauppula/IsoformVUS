@@ -1,0 +1,42 @@
+# IsoformVUS .gitignore
+# Principle: exclude large downloads and intermediates; INCLUDE the small
+# derived results, figures, and processed tables that the publication shares.
+# data/raw/ (genome FASTA, ClinVar VCF, etc., ~5 GB) and data/interim/
+# (SpliceAI VCFs, ~3 GB) are regenerated via scripts/01_* and documented in
+# data/DATA_PROVENANCE.md — they must NOT be committed.
+
+# Large raw downloads and intermediates (regenerable)
+data/raw/
+data/interim/
+
+# Large bioinformatics file types, wherever they appear
+*.vcf.gz
+*.vcf.gz.tbi
+*.bcf
+*.bam
+*.cram
+*.fastq.gz
+*.fq.gz
+*.gtf.gz
+*.gff3.gz
+*.fa
+*.fasta
+*.fasta.gz
+*.fa.gz
+*.2bit
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+*.egg-info/
+.pytest_cache/
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/

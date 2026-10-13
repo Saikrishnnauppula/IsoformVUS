@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "isoformvus"
+version = "0.1.0"
+description = "Phenotype- and cell-type-aware isoform-level variant prioritization for rare-disease VUS interpretation (research)"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+dependencies = [
+    "numpy", "pandas", "scipy", "scikit-learn", "lightgbm",
+    "pysam", "biopython", "matplotlib", "seaborn",
+    "pyyaml", "click", "tqdm", "joblib", "shap", "pytest",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

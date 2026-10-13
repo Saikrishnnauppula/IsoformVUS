@@ -1,0 +1,22 @@
+cff-version: 1.2.0
+title: "IsoformVUS: Phenotype- and Cell-Type-Aware Isoform-Level Variant Prioritization for Rare-Disease VUS Interpretation"
+message: "If you use IsoformVUS in your research, please cite it as follows."
+type: software
+authors:
+  - family-names: "Uppula"
+    given-names: "Sai Krishna"
+license: MIT
+repository-code: "https://github.com/Saikrishnnauppula/IsoformVUS"
+url: "https://github.com/Saikrishnnauppula/IsoformVUS"
+version: 0.1.0
+date-released: 2026-10-06
+keywords:
+  - variant prioritization
+  - VUS
+  - isoform
+  - cell type
+  - rare disease
+  - ClinVar
+  - SpliceAI
+  - CADD
+  - AlphaMissense
