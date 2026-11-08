@@ -3,11 +3,14 @@
 # derived results, figures, and processed tables that the publication shares.
 # data/raw/ (genome FASTA, ClinVar VCF, etc., ~5 GB) and data/interim/
 # (SpliceAI VCFs, ~3 GB) are regenerated via scripts/01_* and documented in
-# data/DATA_PROVENANCE.md — they must NOT be committed.
+# docs/data.md — they must NOT be committed.
 
 # Large raw downloads and intermediates (regenerable)
 data/raw/
 data/interim/
+
+# Deleted experiment archive; do not re-add
+breakthrough/
 
 # Large bioinformatics file types, wherever they appear
 *.vcf.gz
