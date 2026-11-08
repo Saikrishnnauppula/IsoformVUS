@@ -35,8 +35,7 @@ def parse_obo(path: Path) -> tuple[dict[str, str], dict[str, list[str]]]:
     return names, parents
 
 
-def top_level_categories(hpo_ids: set[str],
-                         parents: dict[str, list[str]]) -> Counter:
+def top_level_categories(hpo_ids: set[str], parents: dict[str, list[str]]) -> Counter:
     """Map each HPO term to its ancestor that is a direct child of
     HP:0000118. Terms that never reach it are counted as 'unmapped'."""
     cats: Counter = Counter()
@@ -58,9 +57,9 @@ def top_level_categories(hpo_ids: set[str],
     return cats
 
 
-def categorize_gene(hpo_ids: set[str],
-                    parents: dict[str, list[str]],
-                    names: dict[str, str]) -> str:
+def categorize_gene(
+    hpo_ids: set[str], parents: dict[str, list[str]], names: dict[str, str]
+) -> str:
     """Coarse category = most frequent top-level HPO category, as its name
     slugified. Ties broken alphabetically (deterministic)."""
     cats = top_level_categories(hpo_ids, parents)
@@ -69,5 +68,10 @@ def categorize_gene(hpo_ids: set[str],
         return "unmapped"
     top = sorted(cats.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
     label = names.get(top, top)
-    return label.lower().replace("abnormality of the ", "").replace("abnormality of ", "") \
-        .replace(" ", "_").replace(",", "")
+    return (
+        label.lower()
+        .replace("abnormality of the ", "")
+        .replace("abnormality of ", "")
+        .replace(" ", "_")
+        .replace(",", "")
+    )

@@ -27,9 +27,13 @@ REPO = Path(__file__).resolve().parents[1]
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--labels", default=str(REPO / "data/processed/variant_labels.tsv.gz"))
+    ap.add_argument(
+        "--labels", default=str(REPO / "data/processed/variant_labels.tsv.gz")
+    )
     ap.add_argument("--am", default=str(REPO / "data/raw/AlphaMissense_hg38.tsv.gz"))
-    ap.add_argument("--out", default=str(REPO / "data/processed/variant_alphamissense.tsv.gz"))
+    ap.add_argument(
+        "--out", default=str(REPO / "data/processed/variant_alphamissense.tsv.gz")
+    )
     args = ap.parse_args()
 
     for p in (args.labels, args.am):
@@ -76,8 +80,10 @@ def main() -> int:
             else:
                 fh.write(f"{vkey}\t\t\t1\n")
     print(f"[09c] wrote {args.out}")
-    print("[09c] NOTE: unmatched = non-missense or absent from AM; "
-          "am_missing=1 is the explicit indicator (no zero-imputation).")
+    print(
+        "[09c] NOTE: unmatched = non-missense or absent from AM; "
+        "am_missing=1 is the explicit indicator (no zero-imputation)."
+    )
     return 0
 
 

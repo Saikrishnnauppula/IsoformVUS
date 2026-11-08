@@ -15,23 +15,25 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
-from isoformvus.utils.variants import parse_variant_string  # noqa: E402
+from isoformvus.utils.variants import parse_variant_string
 
 
 def main() -> int:
     proc = REPO / "data" / "processed"
-    splits = {a["gene"]: a["split"]
-              for a in json.loads((REPO / "results/splits.json").read_text())["assignments"]}
+    splits = {
+        a["gene"]: a["split"]
+        for a in json.loads((REPO / "results/splits.json").read_text())["assignments"]
+    }
     out = REPO / "data/interim/spliceai_test.vcf"
     skipped = 0
     written = 0
-    with gzip.open(proc / "variant_labels.tsv.gz", "rt") as fh, \
-            open(out, "w") as outfh:
+    with gzip.open(proc / "variant_labels.tsv.gz", "rt") as fh, open(out, "w") as outfh:
         header = fh.readline()
         outfh.write("##fileformat=VCFv4.2\n")
         outfh.write("##reference=GRCh38\n")
-        for i in list(range(1, 23)) + ["X", "Y", "M"]:
-            outfh.write(f"##contig=<ID=chr{i}>\n")
+        outfh.writelines(
+            f"##contig=<ID=chr{i}>\n" for i in list(range(1, 23)) + ["X", "Y", "M"]
+        )
         outfh.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\n")
         for line in fh:
             c = line.rstrip("\n").split("\t")

@@ -1,7 +1,6 @@
 """Tests for GENCODE GTF parsing."""
 
 import gzip
-import tempfile
 from pathlib import Path
 
 from isoformvus.data.gencode import load_gene_transcripts, parse_attributes

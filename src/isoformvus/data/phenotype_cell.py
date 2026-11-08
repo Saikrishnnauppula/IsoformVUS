@@ -32,8 +32,8 @@ from dataclasses import dataclass, field
 class HpoTerm:
     """A Human Phenotype Ontology term."""
 
-    hpo_id: str   # e.g. "HP:0001250"
-    name: str     # e.g. "Seizure"
+    hpo_id: str  # e.g. "HP:0001250"
+    name: str  # e.g. "Seizure"
 
     def __post_init__(self) -> None:
         if not self.hpo_id.startswith("HP:"):
@@ -44,9 +44,9 @@ class HpoTerm:
 class CellTypeRelevance:
     """Relevance of one cell type to a phenotype set."""
 
-    cell_ontology_id: str   # e.g. "CL:0000540" (neuron)
+    cell_ontology_id: str  # e.g. "CL:0000540" (neuron)
     cell_type_name: str
-    score: float            # 0..1
+    score: float  # 0..1
     evidence: dict = field(default_factory=dict)
     # evidence maps source -> contribution, e.g.
     # {"phenotype_tissue": 0.6, "gene_expression": 0.3, "tier": "curated"}
@@ -57,10 +57,9 @@ def normalize_score(raw: float) -> float:
     return max(0.0, min(1.0, raw))
 
 
-def combine_evidence(phenotype_tissue: float,
-                     gene_expression: float,
-                     w1: float = 0.6,
-                     w2: float = 0.4) -> float:
+def combine_evidence(
+    phenotype_tissue: float, gene_expression: float, w1: float = 0.6, w2: float = 0.4
+) -> float:
     """Weighted combination of the two measured evidence channels.
 
     Literature co-occurrence (w3) is 0 until wired; the weights are
@@ -73,8 +72,9 @@ def combine_evidence(phenotype_tissue: float,
     return normalize_score((w1 * phenotype_tissue + w2 * gene_expression) / total_w)
 
 
-def rank_cell_types(candidates: list[CellTypeRelevance],
-                    top_k: int | None = None) -> list[CellTypeRelevance]:
+def rank_cell_types(
+    candidates: list[CellTypeRelevance], top_k: int | None = None
+) -> list[CellTypeRelevance]:
     """Rank cell types by relevance score, descending."""
     ranked = sorted(candidates, key=lambda c: c.score, reverse=True)
     return ranked[:top_k] if top_k is not None else ranked

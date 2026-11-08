@@ -25,17 +25,15 @@ import json
 import sys
 from pathlib import Path
 
-import numpy as np
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
-from isoformvus.data.gencode import load_gene_transcripts  # noqa: E402
-from isoformvus.data.transcripts import (classify_transcript_effects,  # noqa: E402
-                                         IsoformEffect)
-from isoformvus.utils.variants import parse_variant_string  # noqa: E402
+from isoformvus.data.gencode import load_gene_transcripts
+from isoformvus.data.transcripts import IsoformEffect, classify_transcript_effects
+from isoformvus.utils.variants import parse_variant_string
 
 VARIANT = "chr1:156115000:C>T"
 GENE = "LMNA"
@@ -45,8 +43,10 @@ def main() -> int:
     proc = REPO / "data" / "processed"
     df = pd.read_csv(proc / "feature_matrix.tsv.gz", sep="\t")
     tiers = json.loads((proc / "feature_tiers.json").read_text())["tiers"]
-    splits = {a["gene"]: a["split"]
-              for a in json.loads((REPO / "results/splits.json").read_text())["assignments"]}
+    splits = {
+        a["gene"]: a["split"]
+        for a in json.loads((REPO / "results/splits.json").read_text())["assignments"]
+    }
 
     # Per-transcript structural effects for the variant (real GENCODE v46).
     gtf = REPO / "data/raw/gencode.v46.primary_assembly.annotation.gtf.gz"
@@ -59,11 +59,20 @@ def main() -> int:
     print(f"LMNA protein-coding transcripts: {len(pc)}")
     print("\nPer-transcript structural effect:")
     for t, e in zip(txs, effs):
-        flag = " *" if e.effect in (IsoformEffect.CODING_SPECIFIC,
-                                    IsoformEffect.JUNCTION_SPECIFIC,
-                                    IsoformEffect.EXON_SPECIFIC) else "  "
-        print(f"{flag} {t.transcript_id} [{t.biotype[:20]:20s}] "
-              f"-> {e.effect.value} (cds={e.in_cds}, junction={e.junction_proximal})")
+        flag = (
+            " *"
+            if e.effect
+            in (
+                IsoformEffect.CODING_SPECIFIC,
+                IsoformEffect.JUNCTION_SPECIFIC,
+                IsoformEffect.EXON_SPECIFIC,
+            )
+            else "  "
+        )
+        print(
+            f"{flag} {t.transcript_id} [{t.biotype[:20]:20s}] "
+            f"-> {e.effect.value} (cds={e.in_cds}, junction={e.junction_proximal})"
+        )
 
     # Counterfactual scoring: same variant, two isoform assumptions.
     # Assumption A: the MANE Select transcript is the relevant isoform.
@@ -84,16 +93,20 @@ def main() -> int:
     row = df[df["variant_key"] == VARIANT].iloc[0]
     cols = tiers["M5"]
     train = (df["gene_symbol"].map(splits) == "train").values
-    clf = LogisticRegression(C=1.0, max_iter=5000, class_weight="balanced",
-                             random_state=20261006)
+    clf = LogisticRegression(
+        C=1.0, max_iter=5000, class_weight="balanced", random_state=20261006
+    )
     clf.fit(df.loc[train, cols].values, df.loc[train, "label"].values)
 
     base = row[cols].copy()
     # Counterfactual A: variant does NOT affect the relevant isoform
     # (set isoform-hit features to 0, usage to low).
     cf_a = base.copy()
-    for c in ["n_isoform_specific_hits", "has_junction_specific_hit",
-              "has_coding_specific_hit"]:
+    for c in [
+        "n_isoform_specific_hits",
+        "has_junction_specific_hit",
+        "has_coding_specific_hit",
+    ]:
         if c in cf_a.index:
             cf_a[c] = 0
     # Counterfactual B: as observed (variant hits isoform-specific region).
@@ -103,17 +116,26 @@ def main() -> int:
     pb = clf.predict_proba(cf_b[cols].values.reshape(1, -1))[0, 1]
     print(f"\nCounterfactual A (irrelevant isoform assumed): score={pa:.4f}")
     print(f"Counterfactual B (observed isoform context):  score={pb:.4f}")
-    print(f"Delta attributable to isoform assumption: {pb-pa:+.4f}")
+    print(f"Delta attributable to isoform assumption: {pb - pa:+.4f}")
 
-    out = {"variant": VARIANT, "gene": GENE, "mane_select": mane_tx,
-           "score_assuming_irrelevant_isoform": float(pa),
-           "score_observed_isoform_context": float(pb),
-           "delta": float(pb - pa),
-           "per_transcript": [
-               {"transcript": t.transcript_id, "biotype": t.biotype,
-                "effect": e.effect.value, "in_cds": e.in_cds,
-                "junction_proximal": e.junction_proximal}
-               for t, e in zip(txs, effs)]}
+    out = {
+        "variant": VARIANT,
+        "gene": GENE,
+        "mane_select": mane_tx,
+        "score_assuming_irrelevant_isoform": float(pa),
+        "score_observed_isoform_context": float(pb),
+        "delta": float(pb - pa),
+        "per_transcript": [
+            {
+                "transcript": t.transcript_id,
+                "biotype": t.biotype,
+                "effect": e.effect.value,
+                "in_cds": e.in_cds,
+                "junction_proximal": e.junction_proximal,
+            }
+            for t, e in zip(txs, effs)
+        ],
+    }
     (REPO / "results/counterfactual.json").write_text(json.dumps(out, indent=2))
     print("\n[wrote results/counterfactual.json]")
     return 0

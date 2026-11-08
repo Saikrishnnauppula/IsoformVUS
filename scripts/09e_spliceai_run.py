@@ -37,8 +37,21 @@ def main() -> int:
 
     # SpliceAI ships its own GRCh38 canonical annotation ("grch38"); the
     # GENCODE GTF is not in the UCSC table format SpliceAI requires.
-    cmd = [str(VENV_PY), "-m", "spliceai", "-I", str(vcf), "-O", str(out_vcf),
-           "-R", str(fa), "-A", "grch38", "-D", "500"]
+    cmd = [
+        str(VENV_PY),
+        "-m",
+        "spliceai",
+        "-I",
+        str(vcf),
+        "-O",
+        str(out_vcf),
+        "-R",
+        str(fa),
+        "-A",
+        "grch38",
+        "-D",
+        "500",
+    ]
     print("[spliceai] running:", " ".join(cmd))
     r = subprocess.run(cmd, capture_output=True, text=True, timeout=86400)
     print(r.stdout[-2000:])
@@ -63,8 +76,7 @@ def main() -> int:
                     f = entry.split("|")
                     if len(f) >= 6:
                         try:
-                            ds = [float(f[2]), float(f[3]),
-                                  float(f[4]), float(f[5])]
+                            ds = [float(f[2]), float(f[3]), float(f[4]), float(f[5])]
                         except ValueError:
                             continue
                         m = max(ds)

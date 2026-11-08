@@ -11,7 +11,6 @@ from isoformvus.data.splits import (
     verify_variant_split_integrity,
 )
 
-
 GENES = [f"GENE{i:03d}" for i in range(1, 51)]
 CATS = {g: ("neuro" if i % 2 == 0 else "cardiac") for i, g in enumerate(GENES)}
 
@@ -26,9 +25,13 @@ def test_no_gene_in_two_splits():
 def test_deterministic():
     a1 = assign_splits(GENES, CATS, seed=42)
     a2 = assign_splits(GENES, CATS, seed=42)
-    assert [(x.gene_symbol, x.split) for x in a1] == [(x.gene_symbol, x.split) for x in a2]
+    assert [(x.gene_symbol, x.split) for x in a1] == [
+        (x.gene_symbol, x.split) for x in a2
+    ]
     a3 = assign_splits(GENES, CATS, seed=43)
-    assert [(x.gene_symbol, x.split) for x in a3] != [(x.gene_symbol, x.split) for x in a1]
+    assert [(x.gene_symbol, x.split) for x in a3] != [
+        (x.gene_symbol, x.split) for x in a1
+    ]
 
 
 def test_stratification_balanced():

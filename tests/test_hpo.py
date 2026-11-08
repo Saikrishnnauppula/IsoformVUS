@@ -50,8 +50,10 @@ def test_categorize_gene(tmp_path):
     assert categorize_gene({"HP:0001250"}, parents, names) == "nervous_system"
     assert categorize_gene({"HP:0001638"}, parents, names) == "cardiovascular_system"
     # majority vote
-    assert categorize_gene({"HP:0001250", "HP:0001638", "HP:0001626"},
-                            parents, names) == "cardiovascular_system"
+    assert (
+        categorize_gene({"HP:0001250", "HP:0001638", "HP:0001626"}, parents, names)
+        == "cardiovascular_system"
+    )
     # orphan term -> unmapped
     assert categorize_gene({"HP:9999999"}, parents, names) == "unmapped"
     assert categorize_gene(set(), parents, names) == "unmapped"

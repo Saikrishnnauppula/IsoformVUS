@@ -27,7 +27,7 @@ estimate and our uncertainty about it.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from enum import Enum
 
 
@@ -46,8 +46,8 @@ class IsoformUsage:
     transcript_id: str
     cell_ontology_id: str
     cell_type_name: str
-    usage: float                  # 0..1 fraction of gene expression
-    usage_width: float = 0.0      # half-width of uncertainty interval
+    usage: float  # 0..1 fraction of gene expression
+    usage_width: float = 0.0  # half-width of uncertainty interval
     category: UsageCategory = UsageCategory.UNCERTAIN
     n_datasets: int = 0
     has_long_read_support: bool = False
@@ -60,10 +60,14 @@ class IsoformUsage:
             raise ValueError("usage_width must be >= 0")
 
 
-def categorize_usage(usage: float, usage_width: float, n_datasets: int,
-                     has_long_read_support: bool,
-                     dominant_threshold: float = 0.5,
-                     detection_threshold: float = 0.05) -> UsageCategory:
+def categorize_usage(
+    usage: float,
+    usage_width: float,
+    n_datasets: int,
+    has_long_read_support: bool,
+    dominant_threshold: float = 0.5,
+    detection_threshold: float = 0.05,
+) -> UsageCategory:
     """Assign a usage category from the estimate and its support.
 
     Rules (thresholds in config; defaults documented here):
@@ -93,6 +97,7 @@ def check_usage_sums(usages: list[IsoformUsage], tol: float = 0.05) -> list[str]
     finding, not a bug to silently normalize away.
     """
     from collections import defaultdict
+
     groups: dict[tuple[str, str], float] = defaultdict(float)
     for u in usages:
         groups[(u.gene_symbol, u.cell_ontology_id)] += u.usage
@@ -100,5 +105,6 @@ def check_usage_sums(usages: list[IsoformUsage], tol: float = 0.05) -> list[str]
     for (gene, ct), total in sorted(groups.items()):
         if abs(total - 1.0) > tol:
             warnings.append(
-                f"{gene} @ {ct}: isoform usages sum to {total:.3f} (tolerance {tol})")
+                f"{gene} @ {ct}: isoform usages sum to {total:.3f} (tolerance {tol})"
+            )
     return warnings

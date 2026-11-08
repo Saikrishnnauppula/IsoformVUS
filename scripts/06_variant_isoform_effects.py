@@ -26,11 +26,13 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
-from isoformvus.data.gencode import load_gene_transcripts  # noqa: E402
-from isoformvus.data.transcripts import (IsoformEffect,  # noqa: E402
-                                         classify_transcript_effects,
-                                         summarize_gene_effect)
-from isoformvus.utils.variants import parse_variant_string  # noqa: E402
+from isoformvus.data.gencode import load_gene_transcripts
+from isoformvus.data.transcripts import (
+    IsoformEffect,
+    classify_transcript_effects,
+    summarize_gene_effect,
+)
+from isoformvus.utils.variants import parse_variant_string
 
 
 def load_mane_select(path: Path) -> dict[str, str]:
@@ -52,8 +54,13 @@ def load_mane_select(path: Path) -> dict[str, str]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default=str(REPO / "config" / "base.yaml"))
-    ap.add_argument("--labels", default=str(REPO / "data" / "processed" / "variant_labels.tsv.gz"))
-    ap.add_argument("--out", default=str(REPO / "data" / "processed" / "variant_isoform_effects.tsv.gz"))
+    ap.add_argument(
+        "--labels", default=str(REPO / "data" / "processed" / "variant_labels.tsv.gz")
+    )
+    ap.add_argument(
+        "--out",
+        default=str(REPO / "data" / "processed" / "variant_isoform_effects.tsv.gz"),
+    )
     args = ap.parse_args()
 
     raw = REPO / "data" / "raw"
@@ -82,12 +89,22 @@ def main() -> int:
     n_var, n_iso_specific = 0, 0
     effect_counts: dict[str, int] = defaultdict(int)
     with gzip.open(out, "wt") as outfh:
-        outfh.write("\t".join(["variant_key", "gene_symbol", "n_transcripts",
-                                "n_overlapped", "gene_effect_summary",
-                                "n_isoform_specific_hits",
-                                "has_junction_specific_hit",
-                                "has_coding_specific_hit",
-                                "mane_select_effect"]) + "\n")
+        outfh.write(
+            "\t".join(
+                [
+                    "variant_key",
+                    "gene_symbol",
+                    "n_transcripts",
+                    "n_overlapped",
+                    "gene_effect_summary",
+                    "n_isoform_specific_hits",
+                    "has_junction_specific_hit",
+                    "has_coding_specific_hit",
+                    "mane_select_effect",
+                ]
+            )
+            + "\n"
+        )
         for gene in sorted(by_gene):
             txs = tx_by_gene.get(gene, [])
             mane_tx = mane.get(gene, "")
@@ -97,25 +114,48 @@ def main() -> int:
                 summary = summarize_gene_effect(effs)
                 effect_counts[summary] += 1
                 overlapped = sum(1 for e in effs if e.effect != IsoformEffect.NONE)
-                specific = {IsoformEffect.EXON_SPECIFIC,
-                            IsoformEffect.CODING_SPECIFIC,
-                            IsoformEffect.JUNCTION_SPECIFIC}
+                specific = {
+                    IsoformEffect.EXON_SPECIFIC,
+                    IsoformEffect.CODING_SPECIFIC,
+                    IsoformEffect.JUNCTION_SPECIFIC,
+                }
                 n_specific = sum(1 for e in effs if e.effect in specific)
-                has_junc = any(e.effect == IsoformEffect.JUNCTION_SPECIFIC for e in effs)
-                has_coding = any(e.effect == IsoformEffect.CODING_SPECIFIC for e in effs)
-                mane_eff = next((e.effect.value for e in effs
-                                 if e.transcript_id == mane_tx), "")
+                has_junc = any(
+                    e.effect == IsoformEffect.JUNCTION_SPECIFIC for e in effs
+                )
+                has_coding = any(
+                    e.effect == IsoformEffect.CODING_SPECIFIC for e in effs
+                )
+                mane_eff = next(
+                    (e.effect.value for e in effs if e.transcript_id == mane_tx), ""
+                )
                 if summary == "isoform_specific":
                     n_iso_specific += 1
-                outfh.write("\t".join([vkey, gene, str(len(txs)),
-                                        str(overlapped), summary,
-                                        str(n_specific), str(int(has_junc)),
-                                        str(int(has_coding)), mane_eff]) + "\n")
+                outfh.write(
+                    "\t".join(
+                        [
+                            vkey,
+                            gene,
+                            str(len(txs)),
+                            str(overlapped),
+                            summary,
+                            str(n_specific),
+                            str(int(has_junc)),
+                            str(int(has_coding)),
+                            mane_eff,
+                        ]
+                    )
+                    + "\n"
+                )
                 n_var += 1
-    print(f"[06] {n_var} variants classified; gene_effect distribution: "
-          f"{dict(effect_counts)}")
-    print(f"[06] isoform-specific variants: {n_iso_specific} "
-          f"({100*n_iso_specific/max(n_var,1):.1f}%)")
+    print(
+        f"[06] {n_var} variants classified; gene_effect distribution: "
+        f"{dict(effect_counts)}"
+    )
+    print(
+        f"[06] isoform-specific variants: {n_iso_specific} "
+        f"({100 * n_iso_specific / max(n_var, 1):.1f}%)"
+    )
     print(f"[06] wrote {out}")
     return 0
 

@@ -3,7 +3,7 @@
 Reports AUROC, AUPRC, precision, recall, F1, calibration, and top-k recall
 (k = 1, 5, 10, 20). Top-k recall is the headline clinical-relevance metric:
 of all pathogenic variants, how many does the model surface in its top-k
-ranked candidates — and crucially, how many of those did conventional
+ranked candidates, and how many of those did conventional
 baselines miss?
 
 Conventions
@@ -19,9 +19,14 @@ Conventions
 from __future__ import annotations
 
 import numpy as np
-from sklearn.metrics import (auc, average_precision_score, brier_score_loss,
-                             f1_score, precision_recall_curve, precision_score,
-                             recall_score, roc_auc_score, roc_curve)
+from sklearn.metrics import (
+    average_precision_score,
+    brier_score_loss,
+    f1_score,
+    precision_score,
+    recall_score,
+    roc_auc_score,
+)
 
 
 def top_k_recall(y_true: np.ndarray, scores: np.ndarray, k: int) -> float:
@@ -36,10 +41,9 @@ def top_k_recall(y_true: np.ndarray, scores: np.ndarray, k: int) -> float:
     return float(y_true[topk].sum() / n_pos)
 
 
-def recovered_not_in_baseline(y_true: np.ndarray,
-                              scores_new: np.ndarray,
-                              scores_base: np.ndarray,
-                              k: int) -> dict:
+def recovered_not_in_baseline(
+    y_true: np.ndarray, scores_new: np.ndarray, scores_base: np.ndarray, k: int
+) -> dict:
     """Headline metric: pathogenic variants in new model's top-k that the
     baseline's top-k missed.
 
@@ -61,8 +65,9 @@ def recovered_not_in_baseline(y_true: np.ndarray,
     }
 
 
-def full_report(y_true: np.ndarray, scores: np.ndarray,
-                ks: tuple[int, ...] = (1, 5, 10, 20)) -> dict:
+def full_report(
+    y_true: np.ndarray, scores: np.ndarray, ks: tuple[int, ...] = (1, 5, 10, 20)
+) -> dict:
     """Compute the full metric panel."""
     y_true = np.asarray(y_true, dtype=int)
     scores = np.asarray(scores, dtype=float)
@@ -82,9 +87,15 @@ def full_report(y_true: np.ndarray, scores: np.ndarray,
     return out
 
 
-def bootstrap_ci(y_true: np.ndarray, scores: np.ndarray,
-                 metric_fn=top_k_recall, n_bootstrap: int = 1000,
-                 alpha: float = 0.05, seed: int = 20261006, **kwargs) -> tuple[float, float, float]:
+def bootstrap_ci(
+    y_true: np.ndarray,
+    scores: np.ndarray,
+    metric_fn=top_k_recall,
+    n_bootstrap: int = 1000,
+    alpha: float = 0.05,
+    seed: int = 20261006,
+    **kwargs,
+) -> tuple[float, float, float]:
     """Seeded bootstrap CI for a metric. Returns (point, lo, hi)."""
     rng = np.random.default_rng(seed)
     y_true = np.asarray(y_true)

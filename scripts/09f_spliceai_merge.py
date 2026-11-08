@@ -17,8 +17,8 @@ Parse logic mirrors scripts/09e_spliceai_run.py.
 
 from __future__ import annotations
 
-import gzip
 import glob
+import gzip
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
@@ -71,8 +71,10 @@ def main() -> int:
         for vid in sorted(scored):
             best, stype = scored[vid]
             fh.write(f"{vid}\t{best:.4f}\t{stype}\n")
-    print(f"[merge] variant lines={n_lines} annotated={n_ann} "
-          f"unique scored={len(scored)} -> {out}")
+    print(
+        f"[merge] variant lines={n_lines} annotated={n_ann} "
+        f"unique scored={len(scored)} -> {out}"
+    )
     return 0
 
 

@@ -22,19 +22,19 @@ from ..utils.variants import Variant, overlaps
 class IsoformEffect(str, Enum):
     """Per-transcript structural effect of a variant."""
 
-    NONE = "none"                        # variant does not overlap this transcript
-    SHARED = "shared"                    # overlaps an exon/region present in all transcripts
-    SOME = "some"                        # overlaps the transcript but not all isoforms
-    EXON_SPECIFIC = "exon_specific"      # overlaps an exon unique to a subset of isoforms
+    NONE = "none"  # variant does not overlap this transcript
+    SHARED = "shared"  # overlaps an exon/region present in all transcripts
+    SOME = "some"  # overlaps the transcript but not all isoforms
+    EXON_SPECIFIC = "exon_specific"  # overlaps an exon unique to a subset of isoforms
     CODING_SPECIFIC = "coding_specific"  # overlaps CDS unique to a subset of isoforms
     JUNCTION_SPECIFIC = "junction_specific"  # within splice-junction window of a subset-specific junction
-    INTRONIC = "intronic"                # inside transcript bounds but not in any exon
+    INTRONIC = "intronic"  # inside transcript bounds but not in any exon
 
 
 @dataclass(frozen=True)
 class Exon:
     start: int  # 1-based inclusive
-    end: int    # 1-based inclusive
+    end: int  # 1-based inclusive
     frame: int = -1  # CDS frame offset, -1 if non-coding / unknown
 
     def __post_init__(self) -> None:
@@ -46,17 +46,17 @@ class Exon:
 class Transcript:
     """One annotated transcript (e.g. a GENCODE transcript of a gene)."""
 
-    transcript_id: str          # versioned, e.g. "ENST00000335137.4"
+    transcript_id: str  # versioned, e.g. "ENST00000335137.4"
     gene_id: str
     gene_symbol: str
     chrom: str
-    strand: str                 # "+" or "-"
+    strand: str  # "+" or "-"
     exons: list[Exon] = field(default_factory=list)
     cds_start: int | None = None  # 1-based inclusive; None if non-coding
     cds_end: int | None = None
     biotype: str = "protein_coding"
     is_mane_select: bool = False
-    tag: str = ""               # e.g. "dominant" / "supported" / "low_usage" / "uncertain"
+    tag: str = ""  # e.g. "dominant" / "supported" / "low_usage" / "uncertain"
 
     def __post_init__(self) -> None:
         if self.strand not in ("+", "-"):
@@ -105,7 +105,9 @@ def _exon_signature(exon: Exon) -> tuple[int, int]:
     return (exon.start, exon.end)
 
 
-def classify_transcript_effects(var: Variant, transcripts: list[Transcript]) -> list[TranscriptEffect]:
+def classify_transcript_effects(
+    var: Variant, transcripts: list[Transcript]
+) -> list[TranscriptEffect]:
     """Classify the structural effect of ``var`` on each transcript.
 
     Algorithm
@@ -133,13 +135,18 @@ def classify_transcript_effects(var: Variant, transcripts: list[Transcript]) -> 
 
     results: list[TranscriptEffect] = []
     for tx in transcripts:
-        if var.chrom != tx.chrom or not (tx.tx_start <= var.end and var.pos <= tx.tx_end):
+        if var.chrom != tx.chrom or not (
+            tx.tx_start <= var.end and var.pos <= tx.tx_end
+        ):
             results.append(TranscriptEffect(tx.transcript_id, IsoformEffect.NONE))
             continue
         exon_idx = tx.exon_index_at(var)
         if exon_idx is None:
-            results.append(TranscriptEffect(tx.transcript_id, IsoformEffect.INTRONIC,
-                                           in_cds=tx.in_cds(var)))
+            results.append(
+                TranscriptEffect(
+                    tx.transcript_id, IsoformEffect.INTRONIC, in_cds=tx.in_cds(var)
+                )
+            )
             continue
         exon = tx.exons[exon_idx]
         shared = sig_counts[_exon_signature(exon)] == n_tx
@@ -156,14 +163,22 @@ def classify_transcript_effects(var: Variant, transcripts: list[Transcript]) -> 
         else:
             # Is the *coding* overlap also isoform-specific? Conservative check:
             # coding-specific if the variant is in CDS here and this exon is not shared.
-            effect = IsoformEffect.CODING_SPECIFIC if in_cds else IsoformEffect.EXON_SPECIFIC
+            effect = (
+                IsoformEffect.CODING_SPECIFIC if in_cds else IsoformEffect.EXON_SPECIFIC
+            )
             if junction_proximal:
                 # Junction specificity takes precedence for splicing interpretation,
                 # but we keep the exon label recoverable via the flags.
                 effect = IsoformEffect.JUNCTION_SPECIFIC
-        results.append(TranscriptEffect(
-            transcript_id=tx.transcript_id, effect=effect, exon_index=exon_idx,
-            junction_proximal=junction_proximal, in_cds=in_cds))
+        results.append(
+            TranscriptEffect(
+                transcript_id=tx.transcript_id,
+                effect=effect,
+                exon_index=exon_idx,
+                junction_proximal=junction_proximal,
+                in_cds=in_cds,
+            )
+        )
     return results
 
 
@@ -179,10 +194,15 @@ def summarize_gene_effect(effects: list[TranscriptEffect]) -> str:
     touched = [e for e in effects if e.effect != IsoformEffect.NONE]
     if not touched:
         return "none"
-    specific = {IsoformEffect.EXON_SPECIFIC, IsoformEffect.CODING_SPECIFIC,
-                IsoformEffect.JUNCTION_SPECIFIC}
+    specific = {
+        IsoformEffect.EXON_SPECIFIC,
+        IsoformEffect.CODING_SPECIFIC,
+        IsoformEffect.JUNCTION_SPECIFIC,
+    }
     if any(e.effect in specific for e in touched):
         return "isoform_specific"
-    if all(e.effect == IsoformEffect.SHARED for e in touched) and len(touched) == len(effects):
+    if all(e.effect == IsoformEffect.SHARED for e in touched) and len(touched) == len(
+        effects
+    ):
         return "all"
     return "some"

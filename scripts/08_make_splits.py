@@ -18,8 +18,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
-from isoformvus.data.splits import (assign_splits, splits_to_json,  # noqa: E402
-                                    verify_no_gene_overlap)
+from isoformvus.data.splits import assign_splits, splits_to_json, verify_no_gene_overlap
 
 
 def main() -> int:
@@ -45,11 +44,13 @@ def main() -> int:
             genes.append(parts[0])
             cats[parts[0]] = parts[1]
 
-    assignments = assign_splits(genes, cats, train_frac=args.train_frac,
-                                val_frac=args.val_frac, seed=args.seed)
+    assignments = assign_splits(
+        genes, cats, train_frac=args.train_frac, val_frac=args.val_frac, seed=args.seed
+    )
     verify_no_gene_overlap(assignments)
 
     from collections import Counter
+
     dist = Counter(a.split for a in assignments)
     print(f"[08] split distribution: {dict(dist)} (seed {args.seed})")
     for split in ("train", "validation", "test"):

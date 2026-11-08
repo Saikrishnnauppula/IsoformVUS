@@ -34,7 +34,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
-from isoformvus.utils.variants import vcf_to_variant  # noqa: E402
+from isoformvus.utils.variants import vcf_to_variant
 
 STARS = {
     "criteria_provided,_single_submitter": 1,
@@ -83,18 +83,30 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default=str(REPO / "config" / "base.yaml"))
     ap.add_argument("--panel", default=str(REPO / "metadata" / "gene_panel.tsv"))
-    ap.add_argument("--vcf", default=str(REPO / "data" / "raw" / "clinvar_20261004.vcf.gz"))
-    ap.add_argument("--out", default=str(REPO / "data" / "processed" / "variant_labels.tsv.gz"))
-    ap.add_argument("--max-per-gene-per-class", type=int, default=300,
-                    help="cap variants per (gene, class); 0 = no cap. "
-                         "Prevents TTN-scale genes dominating the benchmark.")
+    ap.add_argument(
+        "--vcf", default=str(REPO / "data" / "raw" / "clinvar_20261004.vcf.gz")
+    )
+    ap.add_argument(
+        "--out", default=str(REPO / "data" / "processed" / "variant_labels.tsv.gz")
+    )
+    ap.add_argument(
+        "--max-per-gene-per-class",
+        type=int,
+        default=300,
+        help="cap variants per (gene, class); 0 = no cap. "
+        "Prevents TTN-scale genes dominating the benchmark.",
+    )
     ap.add_argument("--seed", type=int, default=20261006)
     args = ap.parse_args()
 
-    panel_genes = load_panel_genes(Path(args.panel)) if Path(args.panel).exists() else None
+    panel_genes = (
+        load_panel_genes(Path(args.panel)) if Path(args.panel).exists() else None
+    )
     if panel_genes is None:
-        print("[03] no gene panel; labeling all genes (panel filter skipped)",
-              file=sys.stderr)
+        print(
+            "[03] no gene panel; labeling all genes (panel filter skipped)",
+            file=sys.stderr,
+        )
     else:
         print(f"[03] panel genes: {len(panel_genes)}")
 
@@ -102,6 +114,7 @@ def main() -> int:
     out.parent.mkdir(parents=True, exist_ok=True)
 
     import random
+
     rng = random.Random(args.seed)
 
     # Buffer rows per (gene, label) so the per-gene cap can be applied with
@@ -114,7 +127,13 @@ def main() -> int:
                 continue
             n_in += 1
             cols = line.rstrip("\n").split("\t")
-            chrom, pos, _id, ref, alts = cols[0], int(cols[1]), cols[2], cols[3], cols[4]
+            chrom, pos, _id, ref, alts = (
+                cols[0],
+                int(cols[1]),
+                cols[2],
+                cols[3],
+                cols[4],
+            )
             info = parse_info(cols[7])
             bucket = classify(info.get("CLNSIG", ""))
             if bucket is None:
@@ -136,19 +155,47 @@ def main() -> int:
                     v = vcf_to_variant(chrom, pos, ref, alt)
                 except ValueError:
                     continue
-                row = "\t".join([
-                    v.key, v.chrom, str(v.pos), v.ref, v.alt, v.variant_type,
-                    gene, str(label), "clinvar_blb", str(stars),
-                    info.get("CLNSIG", ""), info.get("CLNDN", ""),
-                    info.get("RS", "")])
+                row = "\t".join(
+                    [
+                        v.key,
+                        v.chrom,
+                        str(v.pos),
+                        v.ref,
+                        v.alt,
+                        v.variant_type,
+                        gene,
+                        str(label),
+                        "clinvar_blb",
+                        str(stars),
+                        info.get("CLNSIG", ""),
+                        info.get("CLNDN", ""),
+                        info.get("RS", ""),
+                    ]
+                )
                 buffered.setdefault((gene, label), []).append(row)
 
     n_out, n_capped = 0, 0
     with gzip.open(out, "wt") as outfh:
-        outfh.write("\t".join(["variant_key", "chrom", "pos", "ref", "alt",
-                                "vartype", "gene_symbol", "label",
-                                "control_type", "review_stars", "clnsig",
-                                "condition", "rsid"]) + "\n")
+        outfh.write(
+            "\t".join(
+                [
+                    "variant_key",
+                    "chrom",
+                    "pos",
+                    "ref",
+                    "alt",
+                    "vartype",
+                    "gene_symbol",
+                    "label",
+                    "control_type",
+                    "review_stars",
+                    "clnsig",
+                    "condition",
+                    "rsid",
+                ]
+            )
+            + "\n"
+        )
         for (gene, label), rows in sorted(buffered.items()):
             if args.max_per_gene_per_class and len(rows) > args.max_per_gene_per_class:
                 rows = rng.sample(rows, args.max_per_gene_per_class)
@@ -156,9 +203,11 @@ def main() -> int:
             for row in rows:
                 outfh.write(row + "\n")
                 n_out += 1
-    print(f"[03] scanned {n_in} VCF records; wrote {n_out} labeled variants "
-          f"({n_capped} gene-class groups capped at {args.max_per_gene_per_class}); "
-          f"skipped conflicting/uncertain={n_skip_conflict}, no-stars={n_skip_nostar}")
+    print(
+        f"[03] scanned {n_in} VCF records; wrote {n_out} labeled variants "
+        f"({n_capped} gene-class groups capped at {args.max_per_gene_per_class}); "
+        f"skipped conflicting/uncertain={n_skip_conflict}, no-stars={n_skip_nostar}"
+    )
     print(f"[03] wrote {out}")
     return 0
 

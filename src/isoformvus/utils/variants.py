@@ -15,9 +15,8 @@ Design notes
 
 from __future__ import annotations
 
+from collections.abc import Iterable
 from dataclasses import dataclass
-from typing import Iterable, Optional
-
 
 # Canonical contig names: "1" -> "chr1". GRCh38 primary assembly.
 _AUTOSOMES = [str(i) for i in range(1, 23)]
@@ -33,8 +32,7 @@ def canonical_contig(contig: str) -> str:
     """
     c = contig.strip()
     c = _ALIAS.get(c, c)
-    if c.startswith("chr"):
-        c = c[3:]
+    c = c.removeprefix("chr")
     c = _ALIAS.get(c, c)
     if c not in _CONTIGS:
         raise ValueError(f"Non-canonical contig for GRCh38: {contig!r}")
@@ -45,10 +43,10 @@ def canonical_contig(contig: str) -> str:
 class Variant:
     """A normalized genomic variant (1-based, fully closed, GRCh38)."""
 
-    chrom: str   # canonical, e.g. "chr1"
-    pos: int     # 1-based position of first reference base
-    ref: str     # reference allele (upper-case)
-    alt: str     # alternate allele (upper-case)
+    chrom: str  # canonical, e.g. "chr1"
+    pos: int  # 1-based position of first reference base
+    ref: str  # reference allele (upper-case)
+    alt: str  # alternate allele (upper-case)
 
     def __post_init__(self) -> None:
         if self.pos < 1:
@@ -104,15 +102,21 @@ def parse_variant_string(s: str) -> Variant:
         chrom, pos, alleles = s.split(":")
         ref, alt = alleles.split(">")
     except ValueError as exc:
-        raise ValueError(f"Cannot parse variant string {s!r}; expected chr:pos:ref>alt") from exc
+        raise ValueError(
+            f"Cannot parse variant string {s!r}; expected chr:pos:ref>alt"
+        ) from exc
     ref_t, alt_t, shift = trim_alleles(ref, alt)
-    return Variant(chrom=canonical_contig(chrom), pos=int(pos) + shift, ref=ref_t, alt=alt_t)
+    return Variant(
+        chrom=canonical_contig(chrom), pos=int(pos) + shift, ref=ref_t, alt=alt_t
+    )
 
 
 def vcf_to_variant(chrom: str, pos: int, ref: str, alt: str) -> Variant:
     """Build a normalized :class:`Variant` from VCF-style fields (1-based POS)."""
     ref_t, alt_t, shift = trim_alleles(ref, alt)
-    return Variant(chrom=canonical_contig(chrom), pos=int(pos) + shift, ref=ref_t, alt=alt_t)
+    return Variant(
+        chrom=canonical_contig(chrom), pos=int(pos) + shift, ref=ref_t, alt=alt_t
+    )
 
 
 def to_zero_based_half_open(var: Variant) -> tuple[str, int, int]:
@@ -120,8 +124,9 @@ def to_zero_based_half_open(var: Variant) -> tuple[str, int, int]:
     return var.chrom, var.pos - 1, var.end
 
 
-def from_zero_based_half_open(chrom: str, start: int, end: int,
-                              ref: str, alt: str) -> Variant:
+def from_zero_based_half_open(
+    chrom: str, start: int, end: int, ref: str, alt: str
+) -> Variant:
     """Build a Variant from 0-based half-open coordinates.
 
     Note: ``ref`` must be the actual reference sequence over ``[start, end)``;
@@ -130,12 +135,18 @@ def from_zero_based_half_open(chrom: str, start: int, end: int,
     """
     if not (0 <= start < end):
         raise ValueError(f"Invalid half-open interval [{start}, {end})")
-    return Variant(chrom=canonical_contig(chrom), pos=start + 1, ref=ref.upper(), alt=alt.upper())
+    return Variant(
+        chrom=canonical_contig(chrom), pos=start + 1, ref=ref.upper(), alt=alt.upper()
+    )
 
 
 def overlaps(var: Variant, chrom: str, start_1b: int, end_1b: int) -> bool:
     """Whether the variant's reference span overlaps a 1-based closed interval."""
-    return canonical_contig(chrom) == var.chrom and var.pos <= end_1b and var.end >= start_1b
+    return (
+        canonical_contig(chrom) == var.chrom
+        and var.pos <= end_1b
+        and var.end >= start_1b
+    )
 
 
 def batch_deduplicate(variants: Iterable[Variant]) -> list[Variant]:

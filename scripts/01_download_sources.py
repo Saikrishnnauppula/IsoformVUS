@@ -28,31 +28,38 @@ REPO = Path(__file__).resolve().parents[1]
 SOURCES: dict[str, tuple[str | None, str]] = {
     "clinvar_vcf": (
         "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/clinvar_20261004.vcf.gz",
-        "clinvar_20261004.vcf.gz"),
+        "clinvar_20261004.vcf.gz",
+    ),
     "clinvar_summary": (
         "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/variant_summary.txt.gz",
-        "variant_summary.txt.gz"),
+        "variant_summary.txt.gz",
+    ),
     "gencode_gtf": (
         "https://ftp.ebi.ac.uk/pub/databases/gencode/Gencode_human/release_46/"
         "gencode.v46.primary_assembly.annotation.gtf.gz",
-        "gencode.v46.primary_assembly.annotation.gtf.gz"),
+        "gencode.v46.primary_assembly.annotation.gtf.gz",
+    ),
     "mane_summary": (
         "https://ftp.ncbi.nlm.nih.gov/refseq/MANE/MANE_human/current/"
         "MANE.GRCh38.v1.5.summary.txt.gz",
-        "MANE.GRCh38.v1.5.summary.txt.gz"),
+        "MANE.GRCh38.v1.5.summary.txt.gz",
+    ),
     # HPO: pin a dated release, never `latest`. v2026-02-16 verified 2026-10-06.
     "hpo_obo": (
         "https://github.com/obophenotype/human-phenotype-ontology/releases/"
         "download/v2026-02-16/hp.obo",
-        "hp.obo"),
+        "hp.obo",
+    ),
     "hpo_phenotype_annotations": (
         "https://github.com/obophenotype/human-phenotype-ontology/releases/"
         "download/v2026-02-16/phenotype.hpoa",
-        "phenotype.hpoa"),
+        "phenotype.hpoa",
+    ),
     "hpo_phenotype_to_genes": (
         "https://github.com/obophenotype/human-phenotype-ontology/releases/"
         "download/v2026-02-16/phenotype_to_genes.txt",
-        "phenotype_to_genes.txt"),
+        "phenotype_to_genes.txt",
+    ),
 }
 
 
@@ -67,7 +74,9 @@ def sha256_of(path: Path) -> str:
 def download(url: str, dest: Path) -> None:
     dest.parent.mkdir(parents=True, exist_ok=True)
     tmp = dest.with_suffix(dest.suffix + ".part")
-    req = urllib.request.Request(url, headers={"User-Agent": "IsoformVUS/0.1.0 (research)"})
+    req = urllib.request.Request(
+        url, headers={"User-Agent": "IsoformVUS/0.1.0 (research)"}
+    )
     try:
         with urllib.request.urlopen(req) as resp, open(tmp, "wb") as fh:
             while True:
@@ -78,26 +87,34 @@ def download(url: str, dest: Path) -> None:
     except Exception as e:
         if tmp.exists():
             tmp.unlink()
-        print(f"\n[ERROR] Could not download {url}\n"
-              f"        Reason: {type(e).__name__}: {e}\n"
-              f"        The raw-data sources listed in data/DATA_PROVENANCE.md may have\n"
-              f"        rotated or moved (e.g. NCBI keeps only recent ClinVar weeklies).\n"
-              f"        You can still verify all reported results from the shipped\n"
-              f"        artifacts without raw data — see README 'Verify without\n"
-              f"        re-downloading raw data'.",
-              file=sys.stderr)
+        print(
+            f"\n[ERROR] Could not download {url}\n"
+            f"        Reason: {type(e).__name__}: {e}\n"
+            f"        The raw-data sources listed in data/DATA_PROVENANCE.md may have\n"
+            f"        rotated or moved (e.g. NCBI keeps only recent ClinVar weeklies).\n"
+            f"        You can still verify all reported results from the shipped\n"
+            f"        artifacts without raw data — see README 'Verify without\n"
+            f"        re-downloading raw data'.",
+            file=sys.stderr,
+        )
         raise SystemExit(1)
     tmp.rename(dest)
 
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--source", default="all",
-                    choices=["all"] + list(SOURCES),
-                    help="which source to fetch")
+    ap.add_argument(
+        "--source",
+        default="all",
+        choices=["all"] + list(SOURCES),
+        help="which source to fetch",
+    )
     ap.add_argument("--out", default=str(REPO / "data" / "raw"))
-    ap.add_argument("--dry-run", action="store_true",
-                    help="print planned downloads without fetching")
+    ap.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="print planned downloads without fetching",
+    )
     args = ap.parse_args()
 
     names = list(SOURCES) if args.source == "all" else [args.source]
@@ -118,16 +135,26 @@ def main() -> int:
             print(f"[fetch] {url}")
             download(url, dest)
         sidecar = dest.with_suffix(dest.suffix + ".provenance.json")
-        sidecar.write_text(json.dumps({
-            "source": name, "url": url,
-            "download_date": date.today().isoformat(),
-            "sha256": sha256_of(dest), "bytes": dest.stat().st_size,
-            "genome_build": "GRCh38",
-        }, indent=2))
+        sidecar.write_text(
+            json.dumps(
+                {
+                    "source": name,
+                    "url": url,
+                    "download_date": date.today().isoformat(),
+                    "sha256": sha256_of(dest),
+                    "bytes": dest.stat().st_size,
+                    "genome_build": "GRCh38",
+                },
+                indent=2,
+            )
+        )
         print(f"[provenance] {sidecar}")
     if pending:
-        print(f"[blocked] URLs not yet verified for: {', '.join(pending)} "
-              f"(see research/data_urls_verified.md)", file=sys.stderr)
+        print(
+            f"[blocked] URLs not yet verified for: {', '.join(pending)} "
+            f"(see research/data_urls_verified.md)",
+            file=sys.stderr,
+        )
         return 2
     return 0
 

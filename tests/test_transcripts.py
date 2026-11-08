@@ -14,16 +14,24 @@ def _gene_two_isoforms():
     # Isoform 1: exons [100-200], [300-400], [500-600]
     # Isoform 2: exons [100-200], [500-600]  (skips the middle exon)
     tx1 = Transcript(
-        transcript_id="ENST000001.1", gene_id="ENSG000001", gene_symbol="GENEX",
-        chrom="chr1", strand="+",
+        transcript_id="ENST000001.1",
+        gene_id="ENSG000001",
+        gene_symbol="GENEX",
+        chrom="chr1",
+        strand="+",
         exons=[Exon(100, 200), Exon(300, 400), Exon(500, 600)],
-        cds_start=100, cds_end=600,
+        cds_start=100,
+        cds_end=600,
     )
     tx2 = Transcript(
-        transcript_id="ENST000002.1", gene_id="ENSG000001", gene_symbol="GENEX",
-        chrom="chr1", strand="+",
+        transcript_id="ENST000002.1",
+        gene_id="ENSG000001",
+        gene_symbol="GENEX",
+        chrom="chr1",
+        strand="+",
         exons=[Exon(100, 200), Exon(500, 600)],
-        cds_start=100, cds_end=600,
+        cds_start=100,
+        cds_end=600,
     )
     return [tx1, tx2]
 
@@ -58,7 +66,9 @@ def test_intronic_variant():
 
 def test_junction_proximal_flagged():
     txs = _gene_two_isoforms()
-    v = parse_variant_string("chr1:305:A>G")  # 5bp inside skipped exon -> junction proximal
+    v = parse_variant_string(
+        "chr1:305:A>G"
+    )  # 5bp inside skipped exon -> junction proximal
     effs = classify_transcript_effects(v, txs)
     by_tx = {e.transcript_id: e for e in effs}
     assert by_tx["ENST000001.1"].junction_proximal is True

@@ -22,7 +22,6 @@ from __future__ import annotations
 import argparse
 import gzip
 import json
-import sys
 import time
 import urllib.parse
 import urllib.request
@@ -37,8 +36,13 @@ DATASET = "gtex_v8"
 
 def api_get(path: str, params: dict) -> dict:
     url = f"{API}{path}?" + urllib.parse.urlencode(params)
-    req = urllib.request.Request(url, headers={"Accept": "application/json",
-                                               "User-Agent": "IsoformVUS/0.1.0 (research)"})
+    req = urllib.request.Request(
+        url,
+        headers={
+            "Accept": "application/json",
+            "User-Agent": "IsoformVUS/0.1.0 (research)",
+        },
+    )
     with urllib.request.urlopen(req, timeout=30) as resp:
         return json.load(resp)
 
@@ -46,6 +50,7 @@ def api_get(path: str, params: dict) -> dict:
 def ensg_for_symbols(gtf_path: Path, symbols: set[str]) -> dict[str, str]:
     """gene symbol -> unversioned ENSG id from the GENCODE GTF."""
     import re
+
     attr_re = re.compile(r'(\S+)\s+"([^"]+)"')
     mapping: dict[str, str] = {}
     with gzip.open(gtf_path, "rt") as fh:
@@ -68,12 +73,13 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--panel", default=str(REPO / "metadata/gene_panel.tsv"))
     ap.add_argument("--cache", default=str(REPO / "data/interim/gtex_cache.json"))
-    ap.add_argument("--out", default=str(REPO / "data/processed/gtex_median_tpm.tsv.gz"))
+    ap.add_argument(
+        "--out", default=str(REPO / "data/processed/gtex_median_tpm.tsv.gz")
+    )
     ap.add_argument("--sleep", type=float, default=0.3)
     args = ap.parse_args()
 
-    symbols = [l.split("\t")[0] for l in
-               open(args.panel).read().splitlines()[1:]]
+    symbols = [l.split("\t")[0] for l in open(args.panel).read().splitlines()[1:]]
     print(f"[04a] {len(symbols)} panel genes")
 
     cache_path = Path(args.cache)
@@ -96,17 +102,25 @@ def main() -> int:
             ref = api_get("/reference/gene", {"geneId": base})
             data = ref.get("data", [])
             if not data:
-                cache[sym] = {"error": "no v26 record", "date": date.today().isoformat()}
+                cache[sym] = {
+                    "error": "no v26 record",
+                    "date": date.today().isoformat(),
+                }
                 continue
             v26 = data[0]["gencodeId"]
-            expr = api_get("/expression/medianGeneExpression",
-                           {"gencodeId": v26, "datasetId": DATASET,
-                            "itemsPerPage": 100})
-            tissues = {r["tissueSiteDetailId"]: r["median"]
-                       for r in expr.get("data", [])}
-            cache[sym] = {"ensg_v26": v26, "tissues": tissues,
-                          "date": date.today().isoformat(),
-                          "dataset": DATASET}
+            expr = api_get(
+                "/expression/medianGeneExpression",
+                {"gencodeId": v26, "datasetId": DATASET, "itemsPerPage": 100},
+            )
+            tissues = {
+                r["tissueSiteDetailId"]: r["median"] for r in expr.get("data", [])
+            }
+            cache[sym] = {
+                "ensg_v26": v26,
+                "tissues": tissues,
+                "date": date.today().isoformat(),
+                "dataset": DATASET,
+            }
             n_new += 1
             if n_new % 10 == 0:
                 print(f"[04a] {n_new} genes fetched")
@@ -123,7 +137,7 @@ def main() -> int:
         for sym in symbols:
             rec = cache.get(sym, {})
             for tissue, tpm in sorted(rec.get("tissues", {}).items()):
-                fh.write(f"{sym}\t{rec.get('ensg_v26','')}\t{tissue}\t{tpm}\n")
+                fh.write(f"{sym}\t{rec.get('ensg_v26', '')}\t{tissue}\t{tpm}\n")
                 n_rows += 1
     print(f"[04a] wrote {args.out} ({n_rows} rows)")
     return 0

@@ -12,7 +12,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 
 @dataclass(frozen=True)
@@ -29,11 +29,13 @@ def _stable_shuffle(items: list[str], seed: int) -> list[str]:
     return [x for _, x in keyed]
 
 
-def assign_splits(genes: list[str],
-                  disease_category: dict[str, str] | None = None,
-                  train_frac: float = 0.6,
-                  val_frac: float = 0.2,
-                  seed: int = 20261006) -> list[SplitAssignment]:
+def assign_splits(
+    genes: list[str],
+    disease_category: dict[str, str] | None = None,
+    train_frac: float = 0.6,
+    val_frac: float = 0.2,
+    seed: int = 20261006,
+) -> list[SplitAssignment]:
     """Assign each gene to a split, stratified by disease category.
 
     Stratification keeps disease biology balanced across splits so the test
@@ -63,7 +65,7 @@ def assign_splits(genes: list[str],
         if n >= 3:
             n_train = max(1, n_train)
             n_val = max(1, n_val)
-        if n_train + n_val >= n and n >= 3:
+        if n_train + n_val >= n >= 3:
             n_val = max(1, n - n_train - 1)
         for i, g in enumerate(members):
             if i < n_train:
@@ -81,13 +83,15 @@ def verify_no_gene_overlap(assignments: list[SplitAssignment]) -> None:
     seen: dict[str, str] = {}
     for a in assignments:
         if a.gene_symbol in seen and seen[a.gene_symbol] != a.split:
-            raise ValueError(f"Gene {a.gene_symbol} in both "
-                             f"{seen[a.gene_symbol]} and {a.split}")
+            raise ValueError(
+                f"Gene {a.gene_symbol} in both {seen[a.gene_symbol]} and {a.split}"
+            )
         seen[a.gene_symbol] = a.split
 
 
-def verify_variant_split_integrity(variant_gene: dict[str, str],
-                                   gene_split: dict[str, str]) -> list[str]:
+def verify_variant_split_integrity(
+    variant_gene: dict[str, str], gene_split: dict[str, str]
+) -> list[str]:
     """Check that no variant key maps to genes in different splits.
 
     Returns a list of violation descriptions (empty = clean).
@@ -103,8 +107,11 @@ def splits_to_json(assignments: list[SplitAssignment]) -> str:
     payload = {
         "seed_note": "deterministic SHA-256 shuffle; see data/splits.py",
         "assignments": [
-            {"gene": a.gene_symbol, "split": a.split,
-             "disease_category": a.disease_category}
+            {
+                "gene": a.gene_symbol,
+                "split": a.split,
+                "disease_category": a.disease_category,
+            }
             for a in sorted(assignments, key=lambda a: a.gene_symbol)
         ],
     }

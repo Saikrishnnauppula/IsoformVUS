@@ -45,11 +45,15 @@ def test_rank_cell_types():
 
 def test_categorize_usage():
     assert categorize_usage(0.8, 0.1, 2, False) == UsageCategory.DOMINANT
-    assert categorize_usage(0.8, 0.1, 1, True) == UsageCategory.DOMINANT  # long-read backs it
+    assert (
+        categorize_usage(0.8, 0.1, 1, True) == UsageCategory.DOMINANT
+    )  # long-read backs it
     assert categorize_usage(0.3, 0.1, 1, False) == UsageCategory.SUPPORTED
     assert categorize_usage(0.02, 0.01, 3, False) == UsageCategory.LOW_USAGE
     assert categorize_usage(0.02, 0.01, 1, False) == UsageCategory.UNCERTAIN
-    assert categorize_usage(0.5, 0.2, 0, False) == UsageCategory.UNCERTAIN  # no datasets
+    assert (
+        categorize_usage(0.5, 0.2, 0, False) == UsageCategory.UNCERTAIN
+    )  # no datasets
 
 
 def test_isoform_usage_validation():

@@ -1,6 +1,6 @@
 """GENCODE GTF parsing into Transcript objects.
 
-Parses a GENCODE comprehensive/primary-assembly GTF (GRCh38) and builds
+Parses a GENCODE primary-assembly GTF (GRCh38) and builds
 ``data.transcripts.Transcript`` records per gene. Only the fields the
 pipeline needs are extracted; everything else is ignored.
 
@@ -43,9 +43,10 @@ def _open(path: Path):
     return open(path, "rt")
 
 
-def load_gene_transcripts(gtf_path: str | Path,
-                          gene_symbols: set[str] | None = None,
-                          ) -> dict[str, list[Transcript]]:
+def load_gene_transcripts(
+    gtf_path: str | Path,
+    gene_symbols: set[str] | None = None,
+) -> dict[str, list[Transcript]]:
     """Load transcripts for selected genes (or all genes if None).
 
     Returns {gene_symbol: [Transcript, ...]}. Transcript IDs are versioned
@@ -78,7 +79,9 @@ def load_gene_transcripts(gtf_path: str | Path,
             gene_of_tx[tid] = symbol
             if feature == "transcript":
                 tx_meta[tid] = {
-                    "gene_id": gid, "chrom": chrom, "strand": strand,
+                    "gene_id": gid,
+                    "chrom": chrom,
+                    "strand": strand,
                     "biotype": attrs.get("transcript_type", ""),
                     "tag": attrs.get("tag", ""),
                 }
@@ -100,10 +103,14 @@ def load_gene_transcripts(gtf_path: str | Path,
         if not exon_list:
             continue  # transcript with no exons: annotation artifact; skip loudly? no — skip
         tx = Transcript(
-            transcript_id=tid, gene_id=meta["gene_id"],
-            gene_symbol=gene_of_tx[tid], chrom=meta["chrom"],
-            strand=meta["strand"], exons=exon_list,
-            biotype=meta["biotype"], tag=meta["tag"],
+            transcript_id=tid,
+            gene_id=meta["gene_id"],
+            gene_symbol=gene_of_tx[tid],
+            chrom=meta["chrom"],
+            strand=meta["strand"],
+            exons=exon_list,
+            biotype=meta["biotype"],
+            tag=meta["tag"],
         )
         out[gene_of_tx[tid]].append(tx)
     # Attach CDS bounds via a second targeted pass.
@@ -111,9 +118,11 @@ def load_gene_transcripts(gtf_path: str | Path,
     return dict(out)
 
 
-def _attach_cds_bounds(gtf_path: Path,
-                       transcripts: dict[str, list[Transcript]],
-                       gene_symbols: set[str] | None) -> None:
+def _attach_cds_bounds(
+    gtf_path: Path,
+    transcripts: dict[str, list[Transcript]],
+    gene_symbols: set[str] | None,
+) -> None:
     """Fill cds_start/cds_end from CDS features for loaded transcripts."""
     wanted = {t.transcript_id for txs in transcripts.values() for t in txs}
     cds_min: dict[str, int] = {}

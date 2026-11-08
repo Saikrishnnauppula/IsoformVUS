@@ -76,6 +76,9 @@ def test_overlaps():
 
 
 def test_batch_deduplicate():
-    vs = [parse_variant_string("chr1:10:A>G"), parse_variant_string("chr1:10:A>G"),
-          parse_variant_string("chr1:11:A>G")]
+    vs = [
+        parse_variant_string("chr1:10:A>G"),
+        parse_variant_string("chr1:10:A>G"),
+        parse_variant_string("chr1:11:A>G"),
+    ]
     assert len(batch_deduplicate(vs)) == 2

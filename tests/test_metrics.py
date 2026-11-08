@@ -37,8 +37,18 @@ def test_recovered_not_in_baseline():
 def test_full_report_keys():
     y, s = _toy()
     rep = full_report(y, s)
-    for key in ("auroc", "auprc", "precision", "recall", "f1", "brier",
-                "top1_recall", "top5_recall", "top10_recall", "top20_recall"):
+    for key in (
+        "auroc",
+        "auprc",
+        "precision",
+        "recall",
+        "f1",
+        "brier",
+        "top1_recall",
+        "top5_recall",
+        "top10_recall",
+        "top20_recall",
+    ):
         assert key in rep
 
 

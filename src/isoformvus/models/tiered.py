@@ -56,25 +56,37 @@ class TieredResult:
 def make_learner(name: str, seed: int = 20261006):
     """Instantiate an interpretable learner by name."""
     if name == "logreg":
-        return LogisticRegression(C=1.0, max_iter=5000,
-                                  class_weight="balanced",
-                                  random_state=seed)
+        return LogisticRegression(
+            C=1.0, max_iter=5000, class_weight="balanced", random_state=seed
+        )
     if name == "lightgbm":
         from lightgbm import LGBMClassifier
-        return LGBMClassifier(n_estimators=1000, learning_rate=0.03,
-                              num_leaves=31, min_child_samples=50,
-                              subsample=0.8, subsample_freq=1,
-                              colsample_bytree=0.8, reg_lambda=1.0,
-                              class_weight="balanced", random_state=seed,
-                              verbose=-1)
+
+        return LGBMClassifier(
+            n_estimators=1000,
+            learning_rate=0.03,
+            num_leaves=31,
+            min_child_samples=50,
+            subsample=0.8,
+            subsample_freq=1,
+            colsample_bytree=0.8,
+            reg_lambda=1.0,
+            class_weight="balanced",
+            random_state=seed,
+            verbose=-1,
+        )
     raise ValueError(f"Unknown learner: {name!r}")
 
 
-def fit_tiered_resolved(X_train: pd.DataFrame, y_train: pd.Series,
-                        X_val: pd.DataFrame, y_val: pd.Series,
-                        resolved: dict[str, list[str]],
-                        learner_name: str = "logreg",
-                        seed: int = 20261006) -> dict[str, TieredResult]:
+def fit_tiered_resolved(
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    X_val: pd.DataFrame,
+    y_val: pd.Series,
+    resolved: dict[str, list[str]],
+    learner_name: str = "logreg",
+    seed: int = 20261006,
+) -> dict[str, TieredResult]:
     """Fit tiers given an explicit model_id -> column list mapping."""
     results: dict[str, TieredResult] = {}
     for model_id in MODEL_IDS:
@@ -87,13 +99,17 @@ def fit_tiered_resolved(X_train: pd.DataFrame, y_train: pd.Series,
         if idx > 0:
             prev = set(resolved[MODEL_IDS[idx - 1]])
             if not prev.issubset(set(cols)):
-                raise ValueError(f"{model_id} is not a strict superset of "
-                                 f"{MODEL_IDS[idx - 1]}; ablation invalid")
+                raise ValueError(
+                    f"{model_id} is not a strict superset of "
+                    f"{MODEL_IDS[idx - 1]}; ablation invalid"
+                )
         clf = make_learner(learner_name, seed)
         clf.fit(X_train[cols], y_train)
         proba = clf.predict_proba(X_val[cols])[:, 1]
         results[model_id] = TieredResult(
-            model_id=model_id, learner=learner_name,
+            model_id=model_id,
+            learner=learner_name,
             feature_columns=list(cols),
-            val_auroc=float(roc_auc_score(y_val, proba)))
+            val_auroc=float(roc_auc_score(y_val, proba)),
+        )
     return results

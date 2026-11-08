@@ -39,31 +39,37 @@ def batched_query(variants: list[dict], batch_size: int = 20) -> list[dict]:
     """Query gnomAD GraphQL with aliased batched queries."""
     results = []
     for i in range(0, len(variants), batch_size):
-        batch = variants[i:i + batch_size]
+        batch = variants[i : i + batch_size]
         parts = []
         for j, v in enumerate(batch):
             chrom = v["chrom"].replace("chr", "")
             parts.append(
                 f'v{j}: variant(variantId: "{chrom}-{v["pos"]}-{v["ref"]}-{v["alt"]}", '
-                f'reference_genome: GRCh38, dataset: {DATASET}) '
-                '{ variant_id genome { af ac an homozygote_count } }')
-        body = json.dumps({"query": "query { " + " ".join(parts) + " }",
-                           "variables": {}}).encode()
+                f"reference_genome: GRCh38, dataset: {DATASET}) "
+                "{ variant_id genome { af ac an homozygote_count } }"
+            )
+        body = json.dumps(
+            {"query": "query { " + " ".join(parts) + " }", "variables": {}}
+        ).encode()
         req = urllib.request.Request(
-            GNOMAD_API, data=body,
-            headers={"Content-Type": "application/json",
-                     "User-Agent": "IsoformVUS/0.1.0 (research)"})
+            GNOMAD_API,
+            data=body,
+            headers={
+                "Content-Type": "application/json",
+                "User-Agent": "IsoformVUS/0.1.0 (research)",
+            },
+        )
         try:
             with urllib.request.urlopen(req, timeout=60) as resp:
                 payload = json.load(resp)
         except Exception as exc:  # noqa: BLE001 - network; record and continue
-            print(f"[03b] batch {i//batch_size} failed: {exc}", file=sys.stderr)
+            print(f"[03b] batch {i // batch_size} failed: {exc}", file=sys.stderr)
             results.extend([None] * len(batch))
             continue
-        data = (payload.get("data") or {})
+        data = payload.get("data") or {}
         for j in range(len(batch)):
-            node = (data.get(f"v{j}") or {})
-            results.append((node.get("genome") or None))
+            node = data.get(f"v{j}") or {}
+            results.append(node.get("genome") or None)
         time.sleep(0.5)  # be a polite API citizen
     return results
 
@@ -71,15 +77,21 @@ def batched_query(variants: list[dict], batch_size: int = 20) -> list[dict]:
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default=str(REPO / "config" / "base.yaml"))
-    ap.add_argument("--labels", default=str(REPO / "data" / "processed" / "variant_labels.tsv.gz"))
-    ap.add_argument("--out", default=str(REPO / "data" / "processed" / "variant_af.tsv.gz"))
+    ap.add_argument(
+        "--labels", default=str(REPO / "data" / "processed" / "variant_labels.tsv.gz")
+    )
+    ap.add_argument(
+        "--out", default=str(REPO / "data" / "processed" / "variant_af.tsv.gz")
+    )
     ap.add_argument("--limit", type=int, default=0, help="0 = all variants")
     ap.add_argument("--batch-size", type=int, default=20)
     args = ap.parse_args()
 
     if not Path(args.labels).exists():
-        print(f"[03b] missing {args.labels}; run scripts/03_build_variant_labels.py first",
-              file=sys.stderr)
+        print(
+            f"[03b] missing {args.labels}; run scripts/03_build_variant_labels.py first",
+            file=sys.stderr,
+        )
         return 1
 
     variants = []
@@ -96,17 +108,23 @@ def main() -> int:
     out = Path(args.out)
     n_found = 0
     with gzip.open(out, "wt") as fh:
-        fh.write("variant_key\taf_gnomad\taf_ac\taf_an\thomozygote_count\tgnomad_found\n")
+        fh.write(
+            "variant_key\taf_gnomad\taf_ac\taf_an\thomozygote_count\tgnomad_found\n"
+        )
         for row, g in zip(variants, hits):
             if g and g.get("af") is not None:
                 n_found += 1
-                fh.write(f"{row['variant_key']}\t{g['af']}\t{g.get('ac','')}\t"
-                         f"{g.get('an','')}\t{g.get('homozygote_count','')}\t1\n")
+                fh.write(
+                    f"{row['variant_key']}\t{g['af']}\t{g.get('ac', '')}\t"
+                    f"{g.get('an', '')}\t{g.get('homozygote_count', '')}\t1\n"
+                )
             else:
                 fh.write(f"{row['variant_key']}\t\t\t\t\t0\n")
     print(f"[03b] AF found for {n_found}/{len(variants)}; wrote {out}")
-    print("[03b] NOTE: gnomad_common control mining is a separate documented "
-          "step; not run here.")
+    print(
+        "[03b] NOTE: gnomad_common control mining is a separate documented "
+        "step; not run here."
+    )
     return 0
 
 

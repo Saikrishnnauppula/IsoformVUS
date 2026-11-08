@@ -19,7 +19,6 @@ from __future__ import annotations
 import argparse
 import gzip
 import json
-import sys
 import time
 import urllib.request
 from datetime import date
@@ -45,7 +44,9 @@ def load_cache(path: Path) -> dict:
 
 def fetch_one(chrom: str, pos: int, ref: str, alt: str) -> dict | None:
     url = API.format(chrom=chrom.replace("chr", ""), pos=pos, ref=ref, alt=alt)
-    req = urllib.request.Request(url, headers={"User-Agent": "IsoformVUS/0.1.0 (research)"})
+    req = urllib.request.Request(
+        url, headers={"User-Agent": "IsoformVUS/0.1.0 (research)"}
+    )
     try:
         with urllib.request.urlopen(req, timeout=30) as resp:
             payload = json.load(resp)
@@ -62,18 +63,26 @@ def fetch_one(chrom: str, pos: int, ref: str, alt: str) -> dict | None:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--labels", default=str(REPO / "data/processed/variant_labels.tsv.gz"))
+    ap.add_argument(
+        "--labels", default=str(REPO / "data/processed/variant_labels.tsv.gz")
+    )
     ap.add_argument("--splits", default=str(REPO / "results/splits.json"))
-    ap.add_argument("--scope", default="val_test", choices=["val_test", "all"],
-                    help="val_test = validation+test variants only (default)")
+    ap.add_argument(
+        "--scope",
+        default="val_test",
+        choices=["val_test", "all"],
+        help="val_test = validation+test variants only (default)",
+    )
     ap.add_argument("--cache", default=str(REPO / "data/interim/cadd_cache.jsonl"))
     ap.add_argument("--out", default=str(REPO / "data/processed/variant_cadd.tsv.gz"))
     ap.add_argument("--sleep", type=float, default=0.4, help="seconds between calls")
     ap.add_argument("--limit", type=int, default=0)
     args = ap.parse_args()
 
-    splits = {a["gene"]: a["split"]
-              for a in json.loads(Path(args.splits).read_text())["assignments"]}
+    splits = {
+        a["gene"]: a["split"]
+        for a in json.loads(Path(args.splits).read_text())["assignments"]
+    }
 
     targets = []
     with gzip.open(args.labels, "rt") as fh:
@@ -99,16 +108,22 @@ def main() -> int:
     with open(cache_path, "a") as cf:
         for i, (vkey, chrom, pos, ref, alt) in enumerate(todo):
             rec = fetch_one(chrom, pos, ref, alt)
-            entry = {"variant_key": vkey, "query_date": date.today().isoformat(),
-                     "cadd_version": "v1.7", "build": "GRCh38"}
+            entry = {
+                "variant_key": vkey,
+                "query_date": date.today().isoformat(),
+                "cadd_version": "v1.7",
+                "build": "GRCh38",
+            }
             if rec:
-                entry.update(rec); n_ok += 1
+                entry.update(rec)
+                n_ok += 1
             else:
-                entry.update({"phred": None, "raw": None}); n_fail += 1
+                entry.update({"phred": None, "raw": None})
+                n_fail += 1
             cf.write(json.dumps(entry) + "\n")
             if (i + 1) % 200 == 0:
                 cf.flush()
-                print(f"[09b] {i+1}/{len(todo)} fetched ({n_ok} ok, {n_fail} failed)")
+                print(f"[09b] {i + 1}/{len(todo)} fetched ({n_ok} ok, {n_fail} failed)")
             time.sleep(args.sleep)
 
     # Write the merged output table.
@@ -118,7 +133,9 @@ def main() -> int:
         for vkey, *_ in targets:
             e = cache.get(vkey, {})
             ph, ra = e.get("phred"), e.get("raw")
-            fh.write(f"{vkey}\t{'' if ph is None else ph}\t{'' if ra is None else ra}\n")
+            fh.write(
+                f"{vkey}\t{'' if ph is None else ph}\t{'' if ra is None else ra}\n"
+            )
     print(f"[09b] fetched {n_ok} ok / {n_fail} failed; wrote {args.out}")
     return 0
 
