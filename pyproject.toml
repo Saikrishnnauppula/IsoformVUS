@@ -10,9 +10,25 @@ readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "MIT" }
 dependencies = [
-    "numpy", "pandas", "scipy", "scikit-learn", "lightgbm",
-    "pysam", "biopython", "matplotlib", "seaborn",
-    "pyyaml", "click", "tqdm", "joblib", "shap", "pytest",
+    # Pinned to match requirements.txt exactly; keep the two files in sync.
+    "numpy==1.26.4",
+    "pandas==2.2.2",
+    "scipy==1.13.1",
+    "scikit-learn==1.5.1",
+    "lightgbm==4.5.0",
+    "pysam==0.23.0",
+    "pyBigWig==0.3.22",
+    "biopython==1.83",
+    "matplotlib==3.9.2",
+    "seaborn==0.13.2",
+    "pyyaml==6.0.2",
+    "click==8.1.7",
+    "tqdm==4.66.5",
+    "joblib==1.4.2",
+    "shap==0.46.0",
+    "pytest==8.3.3",
+    "jupyter==1.1.0",
+    "nbformat==5.10.4",
 ]
 
 [tool.setuptools.packages.find]
@@ -20,3 +36,32 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff]
+# The archived v1 script is a historical record; never format or lint it.
+exclude = ["scripts/_archived_v1_root_18_exon_architecture_nmd.py"]
+
+[tool.ruff.lint]
+# Core set only: pyflakes, pycodestyle errors, isort, warnings. The wider
+# style rules (BLE, SIM, RET, etc.) are not enforced repo-wide.
+select = ["E", "F", "I", "W"]
+ignore = [
+    # Long lines are mostly URLs and long descriptive strings black will not
+    # split; line length is not enforced.
+    "E501",
+    # Scripts insert the repo src dir on sys.path before importing it; the
+    # import-after-path-setup pattern is deliberate.
+    "E402",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Pre-existing findings in files owned by other streams; remove the ignore
+# when the file is next touched instead of editing code here.
+"scripts/03_build_variant_labels.py" = ["F841"]
+"scripts/05_isoform_usage.py" = ["F841", "E741"]
+"scripts/09d_spliceai_vcf.py" = ["F841"]
+"scripts/09e_spliceai_run.py" = ["F841"]
+"scripts/15_make_figures.py" = ["E741"]
+"scripts/17_statistical_strengthening.py" = ["F841"]
+"scripts/04a_gtex_expression.py" = ["E741"]
+"scripts/04b_cell_relevance.py" = ["E741"]
