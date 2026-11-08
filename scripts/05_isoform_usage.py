@@ -11,7 +11,7 @@ and compute per-tissue isoform usage fractions:
 Usage is then categorized per src/isoformvus/data/isoform.py:
     dominant / supported / low_usage / uncertain
 with n_datasets=1 (single GTEx v8 dataset) and has_long_read_support=False —
-both recorded honestly. Tissue-level (not cell-type) resolution is disclosed;
+both recorded explicitly. Tissue-level (not cell-type) resolution is disclosed;
 cell types inherit their tissue's usage via the 04b tissue->cell map.
 
 Transcript ID matching: GTEx v8 uses GENCODE v26 IDs; our structural
@@ -170,7 +170,7 @@ def main() -> int:
                                          "0"]) + "\n")
                     n_rows += 1
     print(f"[05] wrote {args.out} ({n_rows} transcript-tissue rows)")
-    print("[05] HONEST LIMITS: n_datasets=1 (GTEx v8 only); tissue — not "
+    print("[05] inaccurate LIMITS: n_datasets=1 (GTEx v8 only); tissue — not "
           "cell-type — resolution; short-read RSEM quantification; "
           "has_long_read_support=False throughout")
     return 0

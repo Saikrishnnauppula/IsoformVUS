@@ -37,3 +37,10 @@ First public release.
 - `data/processed/variant_spliceai.tsv.gz`: f9dbaacf1af62c870d8a2f2f2e4395b9c5cbf912bed26869db3b997eda78e0b4
 - `results/benchmark.json`: 14eabd7b7bae16bc54a8ca5a52e5a6194b029bfbfae67bff3ca8866fe49f956e
 - `results/statistics.json`: 8d3c6a085b106631ac602cd9fce8955215f70bc21ff1700a8890713b96cc591b
+
+## [0.2.0] - 2026-11-08
+### Added
+- `scripts/18_exon_architecture_nmd.py`: Reconstructs 4,132 MANE Select exons (3,955 internal coding exons) across the 102 panel genes; evaluates the 4x2x2 internal exon length x GTEx backup skipping x reading-frame phase matrix across 301,264 internal coding variants, 5'-donor vs. 3'-acceptor boundary asymmetry for low-AlphaMissense missense variants, counterfactual mediation, and Tavtigian et al. (2018) Bayesian likelihood ratios.
+- `results/exon_architecture_nmd.json`, `results/exon_skipping_nmd_candidates.tsv`, and `results/vus_bayesian_stratification.tsv`.
+- `figures/09_exon_architecture_nmd.png` through `figures/12_exon_skipping_candidates.png`.
+- Updated `paper/manuscript.md`, `paper/FINAL_REPORT.md`, and `paper/IsoformVUS_Complete_Project_Report.pdf`.

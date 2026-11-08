@@ -53,7 +53,10 @@ python3 scripts/15_make_figures.py --config config/base.yaml
 echo "=== [16] statistical strengthening (AUPRC CIs, permutation p-values, CADD held-out subgroup) ==="
 python3 scripts/17_statistical_strengthening.py
 
-echo "=== [17] tests ==="
+echo "=== [17] exon architecture, backup skipping & NMD boundary analysis ==="
+python3 scripts/18_exon_architecture_nmd.py
+
+echo "=== [18] tests ==="
 PYTHONPATH=src python3 -m pytest tests/ -q
 
 echo "ALL STAGES COMPLETE"

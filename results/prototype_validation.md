@@ -39,7 +39,7 @@ features (junction-specific hits, coding-specific hits), not MANE.
 | has_coding_specific_hit | +1.05 | coding hits unique to isoform subsets → pathogenic |
 | vartype_deletion | +0.88 | |
 
-## Honest caveats
+## Rigorous caveats
 
 1. **Weak M1 baseline.** vartype + review stars is deliberately minimal; the
    isoform delta may shrink once CADD/SpliceAI/AlphaMissense join M1.

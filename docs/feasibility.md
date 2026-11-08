@@ -1,6 +1,6 @@
 # Feasibility assessment
 
-Honest accounting of what IsoformVUS can and cannot do with public data,
+Rigorous accounting of what IsoformVUS can and cannot do with public data,
 decided *before* large-scale compute. Updated as evidence arrives.
 
 ## Data availability verdicts
@@ -61,7 +61,7 @@ is recorded rather than worked around with fabricated frequencies.
 ## Scope decision (recorded 2026-10-06)
 
 Proceed with the ~100-gene pilot. If the ablation shows isoform features add no
-signal on the pilot, the honest outcome is a *negative result with a diagnosed
+signal on the pilot, the rigorous outcome is a *negative result with a diagnosed
 cause* (data resolution? biology? modeling?) — not scope creep into more genes.
 
 ## CADD v1.7 REST API coverage (verified 2026-10-07)

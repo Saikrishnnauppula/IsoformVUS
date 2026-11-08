@@ -126,7 +126,7 @@ VUS, and the diagnostic odyssey continues.
 assuming isoform A is the relevant one" vs "assuming isoform B". Same DNA, two
 different biological interpretations. When the answer flips with the isoform, the
 isoform information was load-bearing — that's the experiment in §15 of the brief,
-and the honest test of the hypothesis.
+and the rigorous test of the hypothesis.
 
 **What IsoformVUS does NOT do.** It does not prove the variant causes the disease,
 does not replace functional validation, and does not output a clinical diagnosis.

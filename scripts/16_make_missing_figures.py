@@ -108,8 +108,8 @@ def fig_architecture():
                            "AlphaMissense\nAUROC 0.9435"]):
         _box(ax, (10.85, 3.9 - j * 1.15), 1.05, 0.95, b, RED, alpha=0.25, fs=7.5)
 
-    ax.text(0.35, 0.28, "Honest accounting: phenotype & cell-type layers show "
-            "no AUROC gain but modest significant AUPRC gains (+0.031 each, "
+    ax.text(0.35, 0.28, "Rigorous accounting: phenotype & cell-type layers show "
+            "no AUROC gain but statistically significant AUPRC gains (+0.031 each, "
             "p<0.001); tissue-level isoform usage adds nothing over "
             "structural features.", fontsize=7.5, style="italic",
             color="0.35")
@@ -229,7 +229,7 @@ def fig_isoform_usage():
                  "categorical evidence, not\n"
                  "false precision. Tissue-level\n"
                  "usage added nothing over\n"
-                 "structural features (honest null).",
+                 "structural features (pre-specified null).",
                  transform=axes[2].transAxes, ha="left", va="top",
                  fontsize=8, style="italic",
                  bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="0.6"))

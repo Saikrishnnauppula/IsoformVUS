@@ -20,7 +20,7 @@ No published method occupies the intersection of all four layers in a single tra
 
 ## Why the experiment still matters if the hypothesis is weak
 
-The literature bounds the expected effect size: an estimated ~2.5% of pathogenic/likely-pathogenic variants map exclusively to MANE Plus Clinical-specific sequence (preprint, Exeter group) — so the isoform-selective subgroup is small but real. Our design therefore evaluates this subgroup separately rather than relying on genome-wide AUROC, and the ablation is pre-registered to report a null result honestly if the isoform layer adds nothing. Either outcome is publishable: a positive result extends IMPPROVE-class models one biological layer deeper; a null result is the first direct experimental test of whether isoform conditioning improves clinical variant prioritization.
+The literature bounds the expected effect size: an estimated ~2.5% of pathogenic/likely-pathogenic variants map exclusively to MANE Plus Clinical-specific sequence (preprint, Exeter group) — so the isoform-selective subgroup is small but real. Our design therefore evaluates this subgroup separately rather than relying on genome-wide AUROC, and the ablation is pre-registered to report a null result explicitly if the isoform layer adds nothing. Either outcome is publishable: a positive result extends IMPPROVE-class models one biological layer deeper; a null result is the first direct experimental test of whether isoform conditioning improves clinical variant prioritization.
 
 ## Verification status
 

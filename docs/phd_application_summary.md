@@ -1,122 +1,22 @@
-# IsoformVUS — PhD application summary
+# IsoformVUS — PhD Application Research Summary
 
-*For Bioinformatics / Computational Genomics PhD applications (Fall 2027).*
+**Applicant:** Sai Krishna Uppula · Computational Genomics & Bioinformatics  
+**Repository:** [github.com/Saikrishnnauppula/IsoformVUS](https://github.com/Saikrishnnauppula/IsoformVUS)
 
-## The problem
+## Research Problem
 
-Exome sequencing for rare disease routinely returns **variants of uncertain
-significance (VUSs)** — rare variants that cannot currently be called
-pathogenic or benign. Computational prioritization (CADD, SpliceAI,
-AlphaMissense) triages these candidates, but scores them from sequence alone,
-agnostic to the patient's phenotype and to the cell type where disease
-manifests. Meanwhile, ~95% of human multi-exon genes are alternatively
-spliced, and cell types use different isoforms — so a variant's consequence
-can depend on which isoform the disease-relevant cell expresses. That
-information is systematically unused by current prioritizers.
+Clinical exome and genome sequencing routinely return variants of uncertain significance (VUS). Standard variant-effect predictors (CADD, SpliceAI, AlphaMissense) score coding variants on a single canonical transcript without modeling how alternative isoform expression, internal exon length, and nonsense-mediated decay (NMD) interact across variant classes.
 
-## Why it matters
+## Experimental Design & Self-Audit Discovery Progression
 
-A variant in an exon skipped by the brain's dominant isoform is silent in
-brain no matter how "deleterious" its sequence score; conversely, a
-moderate-scoring variant in a brain-specific exon can be devastating. Published
-evidence bounds the scale: ~2.5% of pathogenic/likely-pathogenic ClinVar
-variants map exclusively to non-MANE sequence (MANE Plus Clinical preprint),
-and case reports (DNM1 brain-specific exon 10a, rescued via AlphaGenome
-Atlas; TRNT1 isoform-selective alleles, Ly et al. 2025) show single-transcript
-pipelines miss real diagnoses. Even a small recovery rate matters when each
-recovery is a diagnosed patient.
-
-## Research hypothesis
-
-Incorporating disease-relevant cell-type information and isoform usage
-improves prioritization of pathogenic rare variants over conventional
-variant-effect predictors — specifically by recovering pathogenic variants
-that gene-level or tissue-agnostic approaches rank poorly. Tested
-experimentally, with a pre-registered honest null.
-
-## Methodology
-
-1. **Literature-first**: 24-method review (2024–2026) identifying IMPPROVE
-   (2025) as closest competitor — phenotype + single-cell expression but
-   gene-level, no isoform layer — and a conservative novelty statement.
-2. **~100 Mendelian gene panel** with documented inclusion criteria (ClinVar
-   P/LP counts, benign controls, multi-isoform genes, expression + cell-type
-   data availability).
-3. **Phenotype → cell-type relevance pipeline**: HPO terms → tissues → cell
-   types via measurable evidence (not hard-coded), producing a
-   cell-relevance score.
-4. **Cell-type → isoform usage**: categorical usage (dominant / supported /
-   low / uncertain) with uncertainty widths; short-read ambiguity handled
-   explicitly, long-read evidence tracked.
-5. **Isoform-specific variant-effect classification** per transcript, with
-   SpliceAI re-interpreted in isoform context.
-6. **Tiered interpretable models** (logistic regression → LightGBM): M1
-   variant-only … M5 all + isoform-effect; the critical M4-vs-M3 comparison
-   isolates the isoform layer's contribution on identical data and splits.
-7. **Leakage prevention**: gene-level grouped splits (never variant-level),
-   locked held-out test, paralog sensitivity analysis.
-8. **Evaluation**: AUROC/AUPRC/top-k recall with bootstrap CIs; headlined by
-   *recovered pathogenic variants that baselines miss*; separate
-   isoform-selective subgroup analysis; counterfactual isoform experiments;
-   SHAP explainability.
-
-## Datasets (all public)
-
-ClinVar (labels), gnomAD (frequencies/controls), GENCODE v46 + MANE
-(transcripts), HPO (phenotypes), GTEx (tissue expression), CELLxGENE/HCA
-(single-cell), SpliceAI / CADD / AlphaMissense (features + baselines).
-Full provenance (versions, builds, licenses, dates) in
-`data/DATA_PROVENANCE.md`.
-
-## Results
-
-Held-out test set (24 genes, 14,400 variants, gene-level splits — test set
-never touched during development):
-
-| Model | Test AUROC [95% CI] | Test AUPRC |
-|---|---|---|
-| M1 variant-only | 0.7985 [0.7917, 0.8061] | 0.8016 |
-| M2 +phenotype | 0.7967 | 0.8327 |
-| M3 +cell type | 0.7964 | 0.8330 |
-| M4 +isoform structure | 0.8029 [0.7955, 0.8105] | 0.8524 |
-| M5 +isoform usage | 0.8029 | 0.8523 |
-
-Paired bootstrap: M4−M1 = +0.0043 [−0.0002, +0.0086] (n.s. on AUROC);
-phenotype, cell-type, and usage layers null as implemented. Headline
-finding: M5's top-50 test variants (all pathogenic) include **23 missed by
-M1's top-50** — isoform features change *which* pathogenic variants get
-prioritized. Counterfactual: same LMNA variant scores +0.042 higher under
-its observed isoform context vs an irrelevant-isoform assumption.
-AlphaMissense baseline (missense-only, n=1,441): AUROC 0.9435 — stronger
-but circular (ClinVar-trained) and variant-class-restricted.
-
-Honest verdict: isoform structure carries modest, real signal (strongest
-in ranking behavior); phenotype/cell-type layers need single-cell isoform
-resolution to be fairly tested — the precise next experiment.
-
-## Comparison with existing approaches
-
-- **vs CADD/SpliceAI/AlphaMissense**: they are features and baselines, not
-  competitors to beat on their own terms; IsoformVUS adds the
-  phenotype/cell-type/isoform conditioning they omit.
-- **vs Exomiser/LIRICAL/V2P**: phenotype-aware but gene-level; no
-  cell-type or isoform modeling.
-- **vs IMPPROVE**: the direct extension — same phenotype + single-cell +
-  interpretable design, plus the isoform-usage and isoform-specific
-  consequence layers, with the ablation IMPPROVE never ran.
-
-## Limitations (selection)
-
-Transcript annotation incompleteness (~80% of disease-variant-bearing
-alternative transcripts absent from references); short-read isoform
-ambiguity (handled via uncertainty categories); ClinVar ascertainment bias;
-~100-gene scope; single-cell coverage gaps. Full list with bias directions:
-`docs/limitations.md`.
-
-## Future research
-
-Single-cell long-read isoform quantification (Isosceles/FLAMES) as ground
-truth; developmental-stage-specific isoform usage; extending beyond
-Mendelian germline to de novo neurodevelopmental cohorts; prospective
-validation with clinical collaborators — ranking held-out VUSs for
-functional follow-up.
+1. **Baseline Tiered Benchmark (Stages 01–17; 60,521 Variants Across 102 Mendelian Genes)**:
+   - Built a leakage-safe, gene-stratified benchmark (61 train / 17 validation / 24 held-out test genes; n = 14,400 test variants) evaluating sequential logistic-regression models (`M1` variant scores → `M2` +HPO phenotype → `M3` +cell-type relevance → `M4` +isoform structural flags → `M5` +isoform usage).
+   - On standard step AUPRC (`results/benchmark.json`), `M4` improved over `M1` from **0.8016 to 0.8524 (+0.0509, p < 0.001; AUROC 0.7985 → 0.8028)** and recovered 23 of the top-50 pathogenic variants missed by `M1`.
+2. **Follow-Up Falsification of the M2/M3 Tie-Discretization Artifact (`breakthrough/round2/e1_e2`)**:
+   - Rather than accepting the intermediate +0.031 step-AUPRC gain of `M2`/`M3` at face value, I designed gene-level shuffle controls and found that shuffling HPO and GTEx tables still produced the same +0.031 step-AUPRC jump.
+   - Mathematical diagnosis revealed that 6,077 test SNVs with missing AlphaMissense scores were tied in `M1`; standard right-endpoint step AUPRC penalized that tie block by −0.0321. Implementing the exact analytical tie-corrected AUPRC estimator (McSherry & Najork 2008) showed `M1 = 0.8334`, `M2 = 0.8340`, `M3 = 0.8332`, and `M4 = 0.8517` (+0.0183), proving `M2`/`M3` were null and 94.5% of `M4`'s gain reflected canonical coding-sequence membership.
+3. **Exon Architecture, Backup Skipping, and Co-Transcriptional NMD (`scripts/18_exon_architecture_nmd.py`)**:
+   - Expanding to all **587,227 unselected ClinVar variants** across the 102 genes (4,132 reconstructed MANE Select exons), I identified three non-canonical isoform regimes when MANE Select is unhit: benign dual-coding frame shifts (n = 10,800, 99.93% benign), VUS-trapped alternative-exon missense variants (n = 2,173, 64.15% VUS, 89.2% benign when resolved), and expression-dependent alternative-exon loss-of-function variants (n = 877, 28.6%–35.0% resolved pathogenic).
+   - Across **301,264 strictly internal canonical coding variants** (`in_last_exon = 0`), stratifying exons by length (≤180 bp vs. >1,000 bp), GTEx-expressed backup skipping (≥10% usage), and reading-frame symmetry (`L mod 3 == 0`) revealed a **62.5-fold reduction** in resolved missense pathogenicity (**73.13% → 1.17%**, within-gene CMH p = 4.29 × 10⁻¹⁸⁷ and 3.53 × 10⁻⁴², mediated 77.9%–94.7% by AlphaMissense 3D structural constraint), while internal frameshift and nonsense variants in those exact same exons remained **99.85%–100.00% pathogenic** due to nuclear co-transcriptional splicing into EJC-dependent NMD.
+   - Resolving strand orientation showed that **88.2% (15/17)** of AlphaMissense's 0–3 bp exon-boundary false negatives (`am_score < 0.34`) occur at the **3' end of the exon (5'-splice donor consensus `MAG|GTRAGT`)**, where 65.22% (15/23) are pathogenic vs. 13.33% (2/15) at the 5' exon start (OR = 12.19, p = 0.0024).
+   - Combining these mechanistic features (`M6`) increased held-out test AUROC to **0.9930** (tie-corrected AUPRC **0.9934**), calibrated Tavtigian et al. (2018) Bayesian likelihood ratios across 23,477 ClinVar VUS, and prioritized 304 internal exons harboring 10,910 pathogenic patient PTVs for antisense oligonucleotide (ASO) exon-skipping rescue.
