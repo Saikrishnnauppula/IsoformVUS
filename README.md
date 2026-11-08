@@ -1,60 +1,119 @@
 # IsoformVUS
 
-**Isoform- and Exon-Architecture-Aware Variant Prioritization for Rare-Disease VUS Interpretation**
+[![CI](https://github.com/Saikrishnnauppula/IsoformVUS/actions/workflows/ci.yml/badge.svg)](https://github.com/Saikrishnnauppula/IsoformVUS/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**Author:** Sai Krishna Uppula ([github.com/Saikrishnnauppula/IsoformVUS](https://github.com/Saikrishnnauppula/IsoformVUS))
+IsoformVUS tests whether transcript and exon structure add signal to
+rare-disease variant prioritization, on top of CADD, SpliceAI, and
+AlphaMissense. The benchmark holds out whole genes: 60,521 ClinVar variants
+across 102 Mendelian disease genes, split into 61 train, 17 validation, and
+24 test genes (35,921 / 10,200 / 14,400 variants).
 
-IsoformVUS investigates how transcript structure, tissue-specific alternative splicing, and nonsense-mediated decay (NMD) govern the clinical pathogenicity of rare genetic variants across 102 Mendelian disease genes (60,521 benchmark variants across locked gene-level splits and 587,227 unselected ClinVar variants on GRCh38 / GENCODE v46 / MANE Select v1.5 / GTEx v8).
+**This is research code, not a clinical tool.** Nothing in this repository
+diagnoses a patient, and no model output may be turned into an ACMG/AMP
+pathogenicity classification. See `docs/limitations.md`.
 
-**Research scope.** This repository is a computational genomics research project, not a clinical diagnostic device. See [docs/clinical_safety.md](docs/clinical_safety.md).
+## Status after peer review
 
-## Key Findings & Project Summary
+A journal review panel rejected the manuscript built from this work in
+November 2026 (REJECT, confidence 4/5). The core M1–M5 benchmark reproduces
+on the shipped matrix, but after rebuilding the matrix with real CADD values
+the M1–M4 gain is gone: M1 test AUPRC 0.9465, M4 0.9395 (-0.0070), and M2 is
+the best tier at 0.9533. Every train row still carries the -1.0 CADD
+sentinel, so the rebuilt tier comparison is provisional until CADD is
+queried for the train variants.
 
-All 18 pipeline stages (`scripts/01_download_sources.py` through `scripts/18_exon_architecture_nmd.py`) have been executed and verified against `results/`:
+The rest of the manuscript's headline claims were withdrawn after that
+review. The M6 model (test AUROC 0.9923) is consequence-class separation, not
+exon biology: a consequence-only model reaches 0.9848, and within missense
+M6 scores 0.9321 against 0.9511 for the M1 baseline. The VUS likelihood
+ratios, the ASO candidate list, the donor-edge finding, and the
+"co-transcriptional NMD" mechanism were all withdrawn. The test set was
+accessed 13 times as recorded in results/test_access.log (17 reads in all,
+counting 4 unlogged script-18 evaluations): 1 benchmark run on 2026-10-06,
+8 baseline-enrichment evaluations on 2026-10-07, and 4 more during this
+revision. Full detail, with numbers, is in `docs/limitations.md`.
 
-1. **Tiered Benchmark (`results/benchmark.json`) and Tie-Discretization Audit (`breakthrough/round2/e1_e2`)**:
-   - On the locked 24-gene held-out test set (n = 14,400 variants; 7,200 pathogenic, 7,200 benign), adding isoform structural features (`M4`) improves standard step AUPRC from **0.8016** (`M1`, AUROC **0.7985**) to **0.8524** (`M4`, AUROC **0.8028**; paired bootstrap ΔAUPRC = **+0.0509**, 95% CI [+0.0473, +0.0546], p < 0.001) and recovers 23 top-50 pathogenic variants missed by `M1`.
-   - Follow-up permutation and tie-breaking controls (`breakthrough/round2/e1_e2`) established that the intermediate +0.031 step-AUPRC jump in `M2` (0.8327) and `M3` (0.8318) resulted from right-endpoint step evaluation across a 6,077-SNV tie block in `M1`: under analytical tie-corrected average precision (McSherry & Najork 2008), `M1` scores **0.8334**, `M2` scores **0.8340**, `M3` scores **0.8332**, and `M4` scores **0.8517** (+0.0183 over `M1`), with 94.5% of `M4`'s gain explained by canonical coding-sequence membership.
-2. **Three Non-Canonical Isoform Regimes Across 587,227 ClinVar Variants**:
-   - Variants that leave the MANE Select coding sequence intact but hit an alternative GENCODE v46 protein-coding isoform separate into: (i) **Dual-coding reading-frame shifts** (MANE = synonymous, alternative ≥ missense; n = 10,800, **99.93% benign**), (ii) **Alternative-exon missense variants** (MANE ≤ UTR/intronic, alternative = missense; n = 2,173, **89.20% benign** when resolved but **64.15% stalled as VUS/conflicting**), and (iii) **Alternative-exon loss-of-function variants** (n = 877, **28.57% resolved pathogenic**, rising to **35.0%** when GTEx isoform usage ≥ 15%).
-3. **Internal Exon Architecture, Backup Skipping, and Co-Transcriptional NMD (`scripts/18_exon_architecture_nmd.py`)**:
-   - Across 301,264 variants strictly inside 3,955 internal MANE Select coding exons (`in_last_exon = 0`), resolved missense pathogenicity drops from **73.13%** (3,737 P/LP : 1,373 B/LB) in compact (≤180 bp), constitutive, phase-symmetric (`L mod 3 == 0`) exons to **1.17%** (3 P/LP : 254 B/LB; OR = 0.0043) in giant (>1,000 bp), GTEx backup-skipped (≥10% usage), phase-symmetric exons (within-gene Cochran–Mantel–Haenszel OR = 0.2005, p = 4.29 × 10⁻¹⁸⁷ for exon length >400 bp; CMH OR = 0.3461, p = 3.53 × 10⁻⁴² for backup skipping; 77.9% and 94.7% mediated by 3D structural constraint in AlphaMissense).
-   - Conversely, internal frameshift (n = 58,030) and nonsense (n = 23,025) variants in those same giant, backup-skipped, symmetric internal exons remain **99.85%–100.00% pathogenic** because nuclear pre-mRNA splicing commits the dominant transcript fraction to include the mutated exon prior to cytoplasmic translation and EJC-dependent NMD.
-4. **3' Exon-End (5'-Splice Donor) Concentration of AlphaMissense False Negatives**:
-   - Among benchmark missense variants predicted benign by AlphaMissense (`am_score < 0.34`), **88.2% (15/17)** of false negatives within 3 bp of an exon junction occur at the 3' end of the exon (the 5'-splice donor consensus `MAG|GTRAGT` recognized by U1 snRNP), where **65.22% (15/23)** are pathogenic versus **13.33% (2/15)** at the 5' start of the exon (OR = 12.19, Fisher p = 0.0024).
-   - Incorporating exon-architecture, 50-nt penultimate-exon EJC NMD boundary, and 5'-donor edge features (`M6`) reaches **0.9930 test AUROC** and **0.9934 tie-corrected AUPRC** across the 24 held-out test genes, provides empirical Bayesian likelihood ratios (Tavtigian et al. 2018) across 23,477 ClinVar VUS (`results/vus_bayesian_stratification.tsv`), and ranks 304 phase-symmetric or backup-skipped internal exons harboring 10,910 pathogenic patient PTVs for antisense exon-skipping therapy (`results/exon_skipping_nmd_candidates.tsv`).
-
-## Repository Layout
-
-```
-IsoformVUS/
-├── README.md                  # project overview and summary of findings
-├── LICENSE                    # MIT license
-├── CITATION.cff               # citation metadata (Sai Krishna Uppula)
-├── CHANGELOG.md               # version history (v0.1.0 -> v0.2.0)
-├── requirements.txt           # pinned Python dependencies
-├── environment.yml            # conda environment specification
-├── pyproject.toml             # package build configuration
-├── config/                    # YAML configuration files
-├── data/                      # DATA_PROVENANCE.md and processed feature tables
-├── metadata/                  # 102-gene panel and selection criteria
-├── src/isoformvus/            # core Python package
-├── tests/                     # automated unit tests
-├── scripts/                   # runnable pipeline stages (01 through 18) & run_all.sh
-├── breakthrough/              # Oct 20 follow-up controls, 587k ClinVar table & NMD features
-├── results/                   # benchmark.json, statistics.json, exon_architecture_nmd.json & TSVs
-├── figures/                   # publication figures (01 through 12)
-├── docs/                      # architecture, audit, limitations & application summaries
-├── research/                  # literature review and novelty assessment
-└── paper/                     # manuscript.md, FINAL_REPORT.md & compiled PDF report
-```
-
-## Quick Start
+## Install
 
 ```bash
-# Run the complete pipeline and Stage 18 exon-architecture/NMD analysis:
-bash scripts/run_all.sh
-
-# Or run Stage 18 directly from the processed tables:
-python3 scripts/18_exon_architecture_nmd.py
+python3.11 -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+pip install -e .
 ```
+
+`requirements.txt` pins the tested versions (numpy 1.26.4, pandas 2.2.2,
+scikit-learn 1.5.1, pytest 8.3.3). `pyproject.toml` lists the same packages
+unpinned, so install from `requirements.txt` for the tested environment.
+
+## Reproduce the results
+
+The intended interface is the Makefile and CI:
+
+```bash
+make test       # pytest suite on Python 3.11
+make benchmark  # retrain M1–M5 on train genes, evaluate on the 24 test genes
+make figures    # regenerate figures from results/*.json
+```
+
+The working commands are `make test PYTHON=.venv/bin/python` (or
+`PYTHONPATH=src pytest tests/`) and
+`python3 scripts/10_11_benchmark.py --allow-rerun` (the benchmark refuses to
+rerun while `results/test_access.log` exists unless `--allow-rerun` is
+passed, and every run appends a line to that log). CI runs `pytest` on
+Python 3.11 plus ruff and black checks on every push.
+
+Bit-exact reproduction from raw inputs is no longer possible: the pinned
+ClinVar weekly (`clinvar_20261004.vcf.gz`) now returns HTTP 404 from NCBI
+FTP, and `data/raw/` (~5.1 GB) is not in the repository. The shipped
+`data/processed/` tables and `results/*.json` files are the verifiable
+record. See `docs/data.md` and `docs/methods.md`.
+
+## Repo layout
+
+```text
+IsoformVUS/
+├── README.md, CHANGELOG.md, CITATION.cff, LICENSE
+├── requirements.txt, environment.yml, pyproject.toml
+├── config/          # YAML configuration (seed 20261006, GENCODE v46)
+├── data/            # processed feature tables (provenance in docs/data.md)
+├── metadata/        # 102-gene panel and selection criteria
+├── src/isoformvus/  # core package (splits, features)
+├── tests/           # pytest suite
+├── scripts/         # pipeline stages and run_all.sh (19 stages)
+├── results/         # benchmark.json, statistics.json, splits.json, test_access.log
+├── figures/         # publication figures
+├── docs/            # methods.md, data.md, limitations.md
+└── paper/           # manuscript.md (under revision after peer review)
+```
+
+## Data and licenses
+
+Code is MIT. The data is not: the AlphaMissense-derived table is
+CC BY-NC 4.0, CADD is academic/non-commercial, and the processed tables mix
+sources with different terms. Do not redistribute the shipped processed
+tables as MIT-licensed. Every input, with version, source, and licence, is
+listed in `docs/data.md`; `data/DATA_PROVENANCE.md` records download dates
+and checksums.
+
+## Citation
+
+```bibtex
+@software{isoformvus,
+  author  = {Sai Krishna Uppula},
+  title   = {IsoformVUS: Exon Architecture, Alternative Isoform Expression,
+             and NMD in Rare-Disease Variant Interpretation},
+  version = {0.1.0},
+  url     = {https://github.com/Saikrishnnauppula/IsoformVUS}
+}
+```
+
+## Status and limitations
+
+Version 0.1.0. The M1–M5 benchmark was rebuilt with real CADD values and
+re-run; the old +0.0509 gain is gone (M1 AUPRC 0.9465, M4 0.9395, M2 best at
+0.9533). The M6, VUS, ASO, donor-edge, and NMD-mechanism claims from the
+earlier manuscript were withdrawn after peer review. Every train row still
+carries the -1.0 CADD sentinel, so the rebuilt tier comparison is
+provisional. All of it, with the numbers behind each withdrawal, is in
+`docs/limitations.md`.
