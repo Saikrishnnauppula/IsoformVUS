@@ -95,5 +95,7 @@
     ]
   },
   "m5_fallback_no_usage_data": false,
+  "cadd_scored_n": 19014,
+  "cadd_total_n": 60521,
   "note": "M1..M5 strictly nested; -1 sentinel only where a *_missing indicator exists."
 }

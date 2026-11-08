@@ -55,8 +55,9 @@ def fit_predict(df, tiers, split_col):
     train = df[split_col] == "train"
     out = {}
     for m, cols in tiers.items():
-        clf = LogisticRegression(C=1.0, max_iter=5000, class_weight="balanced",
-                                 random_state=SEED)
+        clf = LogisticRegression(
+            C=1.0, max_iter=5000, class_weight="balanced", random_state=SEED
+        )
         clf.fit(df.loc[train, cols].values, df.loc[train, "label"].values)
         out[m] = clf.predict_proba(df[cols].values)[:, 1]
     return out
@@ -74,7 +75,11 @@ def paired_diff_ci(y, s1, s2, metric, n_boot=N_BOOT, seed=SEED):
             continue
         diffs[b] = fn(y[idx], s1[idx]) - fn(y[idx], s2[idx])
     diffs = diffs[~np.isnan(diffs)]
-    return float(np.mean(diffs)), float(np.percentile(diffs, 2.5)), float(np.percentile(diffs, 97.5))
+    return (
+        float(np.mean(diffs)),
+        float(np.percentile(diffs, 2.5)),
+        float(np.percentile(diffs, 97.5)),
+    )
 
 
 def paired_perm_pvalue(y, s1, s2, metric, n_perm=N_PERM, seed=SEED + 1):
@@ -109,15 +114,21 @@ def boot_ci_metric(y, s, metric, n_boot=N_BOOT, seed=SEED + 2):
             continue
         vals[b] = fn(y[idx], s[idx])
     vals = vals[~np.isnan(vals)]
-    return float(np.mean(vals)), float(np.percentile(vals, 2.5)), float(np.percentile(vals, 97.5))
+    return (
+        float(np.mean(vals)),
+        float(np.percentile(vals, 2.5)),
+        float(np.percentile(vals, 97.5)),
+    )
 
 
 def main() -> int:
     proc = REPO / "data" / "processed"
     df = pd.read_csv(proc / "feature_matrix.tsv.gz", sep="\t")
     tiers = json.loads((proc / "feature_tiers.json").read_text())["tiers"]
-    splits = {a["gene"]: a["split"]
-              for a in json.loads((REPO / "results/splits.json").read_text())["assignments"]}
+    splits = {
+        a["gene"]: a["split"]
+        for a in json.loads((REPO / "results/splits.json").read_text())["assignments"]
+    }
     df["split"] = df["gene_symbol"].map(splits)
 
     probas = fit_predict(df, tiers, "split")
@@ -128,24 +139,36 @@ def main() -> int:
     val = df["split"] == "validation"
     yt = df.loc[test, "label"].astype(int).values
 
-    stats = {"seed": SEED, "n_boot": N_BOOT, "n_perm": N_PERM,
-             "test_n": int(test.sum())}
+    stats = {
+        "seed": SEED,
+        "n_boot": N_BOOT,
+        "n_perm": N_PERM,
+        "test_n": int(test.sum()),
+    }
 
     # --- 1 & 2: AUPRC difference CIs + permutation p-values ---
     print("=== Paired AUPRC differences (test, bootstrap 95% CI, permutation p) ===")
     stats["auprc_diffs"] = {}
     for a, b in [("M4", "M1"), ("M5", "M1"), ("M2", "M1"), ("M3", "M1"), ("M5", "M4")]:
-        mean, lo, hi = paired_diff_ci(yt, df.loc[test, f"p_{a}"].values,
-                                      df.loc[test, f"p_{b}"].values, "auprc")
-        pval, obs = paired_perm_pvalue(yt, df.loc[test, f"p_{a}"].values,
-                                       df.loc[test, f"p_{b}"].values, "auprc")
+        mean, lo, hi = paired_diff_ci(
+            yt, df.loc[test, f"p_{a}"].values, df.loc[test, f"p_{b}"].values, "auprc"
+        )
+        pval, obs = paired_perm_pvalue(
+            yt, df.loc[test, f"p_{a}"].values, df.loc[test, f"p_{b}"].values, "auprc"
+        )
         sig = pval < BONF_ALPHA and mean > 0
-        print(f"  {a}-{b}: {mean:+.4f} [{lo:+.4f},{hi:+.4f}] perm p={pval:.4f} "
-              f"{'SIGNIFICANT' if sig else 'n.s.'} (Bonferroni α={BONF_ALPHA:.3f})")
+        print(
+            f"  {a}-{b}: {mean:+.4f} [{lo:+.4f},{hi:+.4f}] perm p={pval:.4f} "
+            f"{'SIGNIFICANT' if sig else 'n.s.'} (Bonferroni α={BONF_ALPHA:.3f})"
+        )
         stats["auprc_diffs"][f"{a}_minus_{b}"] = {
-            "mean": mean, "ci_lo": lo, "ci_hi": hi,
-            "perm_p": pval, "significant": bool(sig),
-            "alpha": BONF_ALPHA}
+            "mean": mean,
+            "ci_lo": lo,
+            "ci_hi": hi,
+            "perm_p": pval,
+            "significant": bool(sig),
+            "alpha": BONF_ALPHA,
+        }
 
     # --- 3: M2/M3 clarification table (AUROC + AUPRC) ---
     print("\n=== M2/M3 clarification (paired diffs vs M1) ===")
@@ -153,16 +176,27 @@ def main() -> int:
     for m in ["M2", "M3"]:
         row = {}
         for metric in ["auroc", "auprc"]:
-            mean, lo, hi = paired_diff_ci(yt, df.loc[test, f"p_{m}"].values,
-                                          df.loc[test, "p_M1"].values, metric)
-            pval, _ = paired_perm_pvalue(yt, df.loc[test, f"p_{m}"].values,
-                                         df.loc[test, "p_M1"].values, metric)
-            sig = pval < BONF_ALPHA and (mean > 0 if metric == "auprc" else lo > 0 or hi < 0)
-            row[metric] = {"mean": mean, "ci_lo": lo, "ci_hi": hi,
-                           "perm_p": pval, "significant": bool(sig),
-                           "alpha": BONF_ALPHA}
-            print(f"  {m}-M1 {metric}: {mean:+.4f} [{lo:+.4f},{hi:+.4f}] "
-                  f"p={pval:.4f} {'SIGNIFICANT' if row[metric]['significant'] else 'n.s.'}")
+            mean, lo, hi = paired_diff_ci(
+                yt, df.loc[test, f"p_{m}"].values, df.loc[test, "p_M1"].values, metric
+            )
+            pval, _ = paired_perm_pvalue(
+                yt, df.loc[test, f"p_{m}"].values, df.loc[test, "p_M1"].values, metric
+            )
+            sig = pval < BONF_ALPHA and (
+                mean > 0 if metric == "auprc" else lo > 0 or hi < 0
+            )
+            row[metric] = {
+                "mean": mean,
+                "ci_lo": lo,
+                "ci_hi": hi,
+                "perm_p": pval,
+                "significant": bool(sig),
+                "alpha": BONF_ALPHA,
+            }
+            print(
+                f"  {m}-M1 {metric}: {mean:+.4f} [{lo:+.4f},{hi:+.4f}] "
+                f"p={pval:.4f} {'SIGNIFICANT' if row[metric]['significant'] else 'n.s.'}"
+            )
         stats["m2_m3_clarification"][m] = row
 
     # --- 4: CADD complementarity, held-out protocol ---
@@ -184,8 +218,10 @@ def main() -> int:
 
     auroc_w, alo, ahi = boot_ci_metric(y_w, s_w, "auroc")
     auprc_w, plo, phi = boot_ci_metric(y_w, s_w, "auprc")
-    print(f"  CADD-weak test subgroup: n={weak.sum()} "
-          f"({(testc.loc[weak,'label']==1).sum()} pathogenic)")
+    print(
+        f"  CADD-weak test subgroup: n={weak.sum()} "
+        f"({(testc.loc[weak, 'label'] == 1).sum()} pathogenic)"
+    )
     print(f"    M5 AUROC within subgroup: {auroc_w:.4f} [{alo:.4f},{ahi:.4f}]")
     print(f"    M5 AUPRC within subgroup: {auprc_w:.4f} [{plo:.4f},{phi:.4f}]")
 
@@ -202,17 +238,21 @@ def main() -> int:
     order = np.argsort(-s_w)[:k]
     prec = float(y_w[order].mean())
     base_rate = float(y_w.mean())
-    print(f"    top-decile M5 precision in weak subgroup: {prec:.3f} "
-          f"(base rate {base_rate:.3f}, enrichment {prec/base_rate:.2f}x)")
+    print(
+        f"    top-decile M5 precision in weak subgroup: {prec:.3f} "
+        f"(base rate {base_rate:.3f}, enrichment {prec / base_rate:.2f}x)"
+    )
 
     stats["cadd_complementarity"] = {
         "threshold_source": "validation pathogenic median",
         "threshold_T": T,
-        "test_cadd_scored_n": int(len(testc)),
+        "test_cadd_scored_n": len(testc),
         "weak_n": int(weak.sum()),
         "weak_pathogenic_n": int((testc.loc[weak, "label"] == 1).sum()),
-        "m5_auroc_weak": auroc_w, "m5_auroc_weak_ci": [alo, ahi],
-        "m5_auprc_weak": auprc_w, "m5_auprc_weak_ci": [plo, phi],
+        "m5_auroc_weak": auroc_w,
+        "m5_auroc_weak_ci": [alo, ahi],
+        "m5_auprc_weak": auprc_w,
+        "m5_auprc_weak_ci": [plo, phi],
         "mean_m5_pathogenic_weak": m_path_weak,
         "mean_m5_pathogenic_all_cadd_test": m_path_all,
         "mean_m5_benign_weak": m_ben_weak,
@@ -224,11 +264,13 @@ def main() -> int:
         "method": "Bonferroni correction across the 5 paired tier comparisons",
         "n_comparisons": N_COMPARISONS,
         "per_comparison_alpha": BONF_ALPHA,
-        "note": ("A tier comparison is marked significant only if its permutation "
-                 "p-value clears the Bonferroni-corrected per-comparison alpha "
-                 f"({BONF_ALPHA}) AND the effect points in the tested (positive) "
-                 "direction. E.g. M5-M4 p=0.017 is nominally < 0.05 but does not "
-                 "clear alpha=0.01, hence non-significant."),
+        "note": (
+            "A tier comparison is marked significant only if its permutation "
+            "p-value clears the Bonferroni-corrected per-comparison alpha "
+            f"({BONF_ALPHA}) AND the effect points in the tested (positive) "
+            "direction. E.g. M5-M4 p=0.017 is nominally < 0.05 but does not "
+            "clear alpha=0.01, hence non-significant."
+        ),
     }
 
     out = REPO / "results" / "statistics.json"

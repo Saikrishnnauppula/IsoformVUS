@@ -1,62 +1,63 @@
 {
   "M1": {
-    "auroc": 0.7985,
+    "auroc": 0.9484,
     "auroc_ci": [
-      0.7917,
-      0.8061
+      0.9444,
+      0.9525
     ],
-    "auprc": 0.8016,
+    "auprc": 0.9465,
     "auprc_ci": [
-      0.7935,
-      0.8092
+      0.9418,
+      0.9511
     ]
   },
   "M2": {
-    "auroc": 0.7967,
+    "auroc": 0.9584,
     "auroc_ci": [
-      0.7887,
-      0.8044
+      0.9545,
+      0.9622
     ],
-    "auprc": 0.8325,
+    "auprc": 0.9533,
     "auprc_ci": [
-      0.8241,
-      0.8405
+      0.9483,
+      0.9581
     ]
   },
   "M3": {
-    "auroc": 0.7968,
+    "auroc": 0.9454,
     "auroc_ci": [
-      0.7892,
-      0.8035
+      0.941,
+      0.95
     ],
-    "auprc": 0.8332,
+    "auprc": 0.9312,
     "auprc_ci": [
-      0.8254,
-      0.8407
+      0.925,
+      0.9373
     ]
   },
   "M4": {
-    "auroc": 0.8029,
+    "auroc": 0.9396,
     "auroc_ci": [
-      0.7958,
-      0.8105
+      0.9355,
+      0.9436
     ],
-    "auprc": 0.8524,
+    "auprc": 0.9395,
     "auprc_ci": [
-      0.8458,
-      0.8589
+      0.9349,
+      0.9439
     ]
   },
   "M5": {
-    "auroc": 0.8028,
+    "auroc": 0.9461,
     "auroc_ci": [
-      0.7956,
-      0.8099
+      0.942,
+      0.9498
     ],
-    "auprc": 0.8523,
+    "auprc": 0.9454,
     "auprc_ci": [
-      0.8454,
-      0.8587
+      0.941,
+      0.9498
     ]
-  }
+  },
+  "note": "Rerun 2026-11-08 from the rebuilt feature matrix with real CADD values. AUROC CIs from results/benchmark.json; AUPRC CIs from a 1000-resample bootstrap on refit test scores (seed 20261006). Pre-rebuild values: M1 0.7985/0.8016, M2 0.7967/0.8327, M3 0.7964/0.8330, M4 0.8029/0.8524, M5 0.8029/0.8523 (AUROC/AUPRC)."
 }

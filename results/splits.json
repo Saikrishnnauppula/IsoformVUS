@@ -1,5 +1,5 @@
 {
-  "seed_note": "deterministic SHA-256 shuffle; see data/splits.py",
+  "seed_note": "deterministic SHA-256 shuffle; see src/isoformvus/data/splits.py",
   "assignments": [
     {
       "gene": "ABCA4",

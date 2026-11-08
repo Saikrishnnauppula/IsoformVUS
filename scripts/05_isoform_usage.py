@@ -41,17 +41,18 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
 
-from isoformvus.data.isoform import categorize_usage  # noqa: E402
+from isoformvus.data.isoform import categorize_usage
 
 API = "https://gtexportal.org/api/v2"
 DATASET = "gtex_v8"
 
 # Reuse the curated system->tissue map from stage 04b (import, don't duplicate).
 sys.path.insert(0, str(REPO / "scripts"))
-import importlib.util  # noqa: E402
+import importlib.util
 
 _spec = importlib.util.spec_from_file_location(
-    "cell_rel", str(REPO / "scripts" / "04b_cell_relevance.py"))
+    "cell_rel", str(REPO / "scripts" / "04b_cell_relevance.py")
+)
 _mod = importlib.util.module_from_spec(_spec)
 _spec.loader.exec_module(_mod)
 SYSTEM_TO_TISSUES = _mod.SYSTEM_TO_TISSUES
@@ -59,8 +60,13 @@ SYSTEM_TO_TISSUES = _mod.SYSTEM_TO_TISSUES
 
 def api_get(path: str, params: dict) -> dict:
     url = f"{API}{path}?" + urllib.parse.urlencode(params)
-    req = urllib.request.Request(url, headers={"Accept": "application/json",
-                                               "User-Agent": "IsoformVUS/0.1.0 (research)"})
+    req = urllib.request.Request(
+        url,
+        headers={
+            "Accept": "application/json",
+            "User-Agent": "IsoformVUS/0.1.0 (research)",
+        },
+    )
     with urllib.request.urlopen(req, timeout=30) as resp:
         return json.load(resp)
 
@@ -98,8 +104,9 @@ def main() -> int:
     gene_tissues: dict[str, set[str]] = {}
     TOP_N_TISSUES = 5
     for gene in panel:
-        systems = {categorize_gene({h}, parents, names)
-                   for h in gene_hpo.get(gene, set())}
+        systems = {
+            categorize_gene({h}, parents, names) for h in gene_hpo.get(gene, set())
+        }
         tissues: set[str] = set()
         for s in systems:
             tissues.update(SYSTEM_TO_TISSUES.get(s, []))
@@ -110,8 +117,7 @@ def main() -> int:
         ranked = sorted(tissues, key=lambda t: -gene_tpm.get(t, 0.0))
         gene_tissues[gene] = set(ranked[:TOP_N_TISSUES])
     n_pairs = sum(len(v) for v in gene_tissues.values())
-    print(f"[05] {n_pairs} gene-tissue pairs "
-          f"(top-{TOP_N_TISSUES} by TPM per gene)")
+    print(f"[05] {n_pairs} gene-tissue pairs (top-{TOP_N_TISSUES} by TPM per gene)")
 
     cache_path = Path(args.cache)
     cache = json.loads(cache_path.read_text()) if cache_path.exists() else {}
@@ -131,18 +137,26 @@ def main() -> int:
             if key in cache:
                 continue
             try:
-                d = api_get("/expression/medianTranscriptExpression",
-                            {"gencodeId": v26, "datasetId": DATASET,
-                             "tissueSiteDetailId": tissue,
-                             "itemsPerPage": 500})
-                tx = [(r["transcriptId"], float(r["median"]))
-                      for r in d.get("data", [])]
+                d = api_get(
+                    "/expression/medianTranscriptExpression",
+                    {
+                        "gencodeId": v26,
+                        "datasetId": DATASET,
+                        "tissueSiteDetailId": tissue,
+                        "itemsPerPage": 500,
+                    },
+                )
+                tx = [
+                    (r["transcriptId"], float(r["median"])) for r in d.get("data", [])
+                ]
                 cache[key] = {"transcripts": tx, "date": date.today().isoformat()}
                 n_calls += 1
                 if n_calls % 20 == 0:
                     save_cache()
-                    print(f"[05] {n_calls} queries; gene {gi+1}/{len(panel)} ({gene})",
-                          flush=True)
+                    print(
+                        f"[05] {n_calls} queries; gene {gi + 1}/{len(panel)} ({gene})",
+                        flush=True,
+                    )
             except Exception as exc:  # noqa: BLE001
                 cache[key] = {"error": str(exc)[:120]}
             time.sleep(args.sleep)
@@ -151,10 +165,22 @@ def main() -> int:
 
     n_rows, n_unmatched = 0, 0
     with gzip.open(args.out, "wt") as fh:
-        fh.write("\t".join(["gene_symbol", "transcript_id_v26",
-                             "transcript_base", "tissue", "median_tpm",
-                             "usage", "usage_category", "n_datasets",
-                             "has_long_read_support"]) + "\n")
+        fh.write(
+            "\t".join(
+                [
+                    "gene_symbol",
+                    "transcript_id_v26",
+                    "transcript_base",
+                    "tissue",
+                    "median_tpm",
+                    "usage",
+                    "usage_category",
+                    "n_datasets",
+                    "has_long_read_support",
+                ]
+            )
+            + "\n"
+        )
         for gene in panel:
             for tissue in sorted(gene_tissues[gene]):
                 rec = cache.get(f"{gene}||{tissue}", {})
@@ -163,16 +189,32 @@ def main() -> int:
                 for tid, tpm in txs:
                     base = tid.split(".")[0]
                     usage = (tpm / total) if total > 0 else 0.0
-                    cat = categorize_usage(usage, 0.0, n_datasets=1,
-                                           has_long_read_support=False)
-                    fh.write("\t".join([gene, tid, base, tissue, f"{tpm:.3f}",
-                                         f"{usage:.4f}", cat.value, "1",
-                                         "0"]) + "\n")
+                    cat = categorize_usage(
+                        usage, 0.0, n_datasets=1, has_long_read_support=False
+                    )
+                    fh.write(
+                        "\t".join(
+                            [
+                                gene,
+                                tid,
+                                base,
+                                tissue,
+                                f"{tpm:.3f}",
+                                f"{usage:.4f}",
+                                cat.value,
+                                "1",
+                                "0",
+                            ]
+                        )
+                        + "\n"
+                    )
                     n_rows += 1
     print(f"[05] wrote {args.out} ({n_rows} transcript-tissue rows)")
-    print("[05] inaccurate LIMITS: n_datasets=1 (GTEx v8 only); tissue — not "
-          "cell-type — resolution; short-read RSEM quantification; "
-          "has_long_read_support=False throughout")
+    print(
+        "[05] LIMITS: n_datasets=1 (GTEx v8 only); tissue — not "
+        "cell-type — resolution; short-read RSEM quantification; "
+        "has_long_read_support=False throughout"
+    )
     return 0
 
 
