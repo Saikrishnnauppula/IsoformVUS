@@ -436,13 +436,21 @@ def main() -> int:
     # --- 7: assemble statistics.json, preserving superseded values explicitly ---
     old = json.loads((REPO / "results/statistics.json").read_text())
 
-    def carried(section_key, live_key):
+    def carried(section_key, *live_keys):
         # On a rerun the file already carries labelled superseded sections;
         # carry them forward instead of relabelling the live values as old.
         section = old.get(section_key)
         if isinstance(section, dict) and section.get("values") is not None:
             return section["values"]
-        return old.get(live_key)
+        for live_key in live_keys:
+            value = old.get(live_key)
+            if value is not None:
+                if isinstance(value, dict):
+                    # The renamed live block carries an explanatory note;
+                    # superseded values keep the bare numeric content.
+                    value = {k: v for k, v in value.items() if k != "note"}
+                return value
+        return None
 
     stats = {
         "seed": SEED,
@@ -464,11 +472,16 @@ def main() -> int:
             "Kept only as the labelled record of that run.",
             "values": carried("auprc_diffs_superseded_pre_rebuild", "auprc_diffs"),
         },
-        "m2_m3_clarification": m2_m3,
+        "step_metric_tie_artifact_demo": {
+            "note": "STEP-metric values retained ONLY to demonstrate the tie artifact; significant:true on the step metric is not evidence of a tier gain — the tie-aware auprc_diffs block above is the deciding result.",
+            **m2_m3,
+        },
         "m2_m3_clarification_superseded_pre_rebuild": {
             "note": "SUPERSEDED pre-rebuild values (same CADD-constant defect).",
             "values": carried(
-                "m2_m3_clarification_superseded_pre_rebuild", "m2_m3_clarification"
+                "m2_m3_clarification_superseded_pre_rebuild",
+                "m2_m3_clarification",
+                "step_metric_tie_artifact_demo",
             ),
         },
         "tie_corrected_refit_no_cadd": {
@@ -563,6 +576,10 @@ def main() -> int:
             "gains on the pre-rebuild matrix were M2-M1 +0.0006 and M3-M1 -0.0002."
         ),
     }
+    # Preserve the composite-CLNSIG sensitivity block across reruns: it is
+    # produced by a standalone sensitivity script, not recomputed here.
+    if "clnsig_composite_sensitivity" in old:
+        stats["clnsig_composite_sensitivity"] = old["clnsig_composite_sensitivity"]
     (REPO / "results/statistics.json").write_text(json.dumps(stats, indent=2))
     print("[19] wrote results/statistics.json")
     return 0

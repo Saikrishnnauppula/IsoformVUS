@@ -46,7 +46,32 @@ cd "$REPO"
 PY="${PYTHON:-python3}"
 MODE="${1:-verify}"
 
+# Pinned-stack guard (panel finding M-4): stage outputs are stack-sensitive,
+# so refuse to run on any interpreter whose numpy/pandas/scikit-learn
+# versions differ from requirements.txt. This check runs before any stage,
+# so a refused run writes nothing and appends no test-access log entries.
+check_pinned_stack() {
+    if ! "$PY" -c '
+import sys
+try:
+    import numpy, pandas, sklearn
+except Exception:
+    sys.exit(1)
+expected = {"numpy": "1.26.4", "pandas": "2.2.2", "scikit-learn": "1.5.1"}
+actual = {
+    "numpy": numpy.__version__,
+    "pandas": pandas.__version__,
+    "scikit-learn": sklearn.__version__,
+}
+sys.exit(0 if actual == expected else 1)
+' 2>/dev/null; then
+        echo "run_all.sh requires the pinned stack: python3.11 -m venv .venv && .venv/bin/pip install -r requirements.txt, then PYTHON=.venv/bin/python ./scripts/run_all.sh" >&2
+        exit 3
+    fi
+}
+
 if [ "$MODE" = "verify" ]; then
+    check_pinned_stack
     echo "=== VERIFY MODE: stages runnable from shipped data ==="
     echo "Excluded: stage 13 (needs data/raw GTF + MANE, not shipped);"
     echo "stage 17 (superseded by scripts/19_refit_statistics.py)."
@@ -118,6 +143,8 @@ if [ "$missing" -ne 0 ]; then
     echo "repository alone, use verify mode: ./scripts/run_all.sh"
     exit 2
 fi
+
+check_pinned_stack
 
 echo "=== [01] download sources ==="
 $PY scripts/01_download_sources.py --source all --out data/raw

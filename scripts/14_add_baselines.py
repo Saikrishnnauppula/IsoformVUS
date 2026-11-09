@@ -39,12 +39,9 @@ def main() -> int:
 
     from datetime import datetime
 
-    with open(ACCESS_LOG, "a") as fh:
-        fh.write(
-            f"{datetime.now().isoformat()} baseline enrichment "
-            "evaluation (spliceai+cadd)\n"
-        )
-
+    # Panel finding m-7: the access is logged AFTER successful completion
+    # of the evaluation (see end of main), not at run start, so a killed or
+    # failed run does not count as a completed test-set evaluation.
     df = pd.read_csv(proc / "feature_matrix.tsv.gz", sep="\t")
     tiers = json.loads((proc / "feature_tiers.json").read_text())["tiers"]
     splits = {
@@ -142,6 +139,13 @@ def main() -> int:
         fh.write("\n## Baselines added post-hoc (enrichment completed)\n\n")
         fh.write("\n".join(lines_extra) + "\n")
     print("[baselines] benchmark.json + benchmark.md updated")
+    # Log the test-set access only now: the evaluation completed and its
+    # outputs are written (panel finding m-7). Line format unchanged.
+    with open(ACCESS_LOG, "a") as fh:
+        fh.write(
+            f"{datetime.now().isoformat()} baseline enrichment "
+            "evaluation (spliceai+cadd)\n"
+        )
     return 0
 
 

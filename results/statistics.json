@@ -105,7 +105,8 @@
       }
     }
   },
-  "m2_m3_clarification": {
+  "step_metric_tie_artifact_demo": {
+    "note": "STEP-metric values retained ONLY to demonstrate the tie artifact; significant:true on the step metric is not evidence of a tier gain \u2014 the tie-aware auprc_diffs block above is the deciding result.",
     "M2": {
       "auroc": {
         "mean": -0.001578892140164746,
@@ -516,5 +517,104 @@
     "per_comparison_alpha": 0.01,
     "note": "A tier comparison is marked significant only if its permutation p-value -- computed with the same metric as its reported confidence interval (tie-aware AUPRC for auprc_diffs) -- clears the Bonferroni-corrected per-comparison alpha (0.01) AND its paired bootstrap 95% CI excludes zero. The `significant` flags on auprc_diffs use variant-level inference only; a tier claim ALSO needs its gene-clustered 95% CI to exclude zero (see gene_clustered_cis). M2-M1: WITHDRAW 'M2 best tier' as a claim: gene-clustered 95% CI for the M2-M1 tie-aware AUPRC gain includes zero; report as a non-significant descriptive difference."
   },
-  "correction_note": "2026-11-09 no-CADD refit supersedes the pre-rebuild record. Pre-rebuild: the feature matrix had cadd_phred = -1.0 for all 60,521 rows, so M1 never saw a real CADD value; M4-M1 +0.0509 (significant:true) was the headline of that run and is DEAD -- it survives only under auprc_diffs_superseded_pre_rebuild. Rebuilt-matrix run (2026-11-08) still had the defect in a subtler form: real CADD values in validation/test, but the fitted coefficient was fit on a constant in train (0/35,921 scored), so test-time CADD signal entered through an uncalibrated coefficient; its tie-corrected values (M4-M1 -0.0069) are preserved under tie_corrected_superseded_pre_refit. Live values are the *_refit_no_cadd sections. The M2-M1 (+0.0310) and M3-M1 (+0.0317) step-AUPRC gains in the pre-rebuild run were a tie-breaking artifact: a 6,077-variant tie block (test SNVs with am_missing=1 and review_stars=1) penalised M1 step AUPRC by -0.0318; tie-corrected gains on the pre-rebuild matrix were M2-M1 +0.0006 and M3-M1 -0.0002."
+  "correction_note": "2026-11-09 no-CADD refit supersedes the pre-rebuild record. Pre-rebuild: the feature matrix had cadd_phred = -1.0 for all 60,521 rows, so M1 never saw a real CADD value; M4-M1 +0.0509 (significant:true) was the headline of that run and is DEAD -- it survives only under auprc_diffs_superseded_pre_rebuild. Rebuilt-matrix run (2026-11-08) still had the defect in a subtler form: real CADD values in validation/test, but the fitted coefficient was fit on a constant in train (0/35,921 scored), so test-time CADD signal entered through an uncalibrated coefficient; its tie-corrected values (M4-M1 -0.0069) are preserved under tie_corrected_superseded_pre_refit. Live values are the *_refit_no_cadd sections. The M2-M1 (+0.0310) and M3-M1 (+0.0317) step-AUPRC gains in the pre-rebuild run were a tie-breaking artifact: a 6,077-variant tie block (test SNVs with am_missing=1 and review_stars=1) penalised M1 step AUPRC by -0.0318; tie-corrected gains on the pre-rebuild matrix were M2-M1 +0.0006 and M3-M1 -0.0002.",
+  "clnsig_composite_sensitivity": {
+    "method": "M1-M5 refit on the train split with the locked scripts/10_11 protocol (logistic regression, C=1.0, class_weight=balanced, seed=20261006; tiers from data/processed/feature_tiers.json); test AUROC and step AUPRC recomputed with composite-CLNSIG variants excluded from test SCORING only -- the fit is identical. Composite = clnsig containing drug_response or low_penetrance, or the '|other' composite, in data/processed/variant_labels.tsv.gz.",
+    "n_excluded_total": 19,
+    "n_excluded_test": 17,
+    "split_distribution": {
+      "test": 17,
+      "validation": 1,
+      "train": 1
+    },
+    "clnsig_counts": {
+      "Pathogenic|drug_response": 14,
+      "Likely_pathogenic|drug_response": 3,
+      "Benign/Likely_benign|other": 1,
+      "Pathogenic/Likely_pathogenic/Pathogenic,_low_penetrance": 1
+    },
+    "excluded_variant_keys_all": [
+      "chr17:7670699:C>T",
+      "chr19:38440802:T>C",
+      "chr19:38455471:C>T",
+      "chr19:38457545:C>T",
+      "chr19:38499975:G>A",
+      "chr19:38499993:G>A",
+      "chr19:38499997:G>A",
+      "chr19:38543832:G>T",
+      "chr19:38580094:C>T",
+      "chr19:38580114:C>T",
+      "chr19:38580370:C>G",
+      "chr7:117530953:G>C",
+      "chr7:117534318:G>A",
+      "chr7:117587799:A>C",
+      "chr7:117587800:G>A",
+      "chr7:117587801:T>G",
+      "chr7:117642451:G>A",
+      "chr7:117642483:T>C",
+      "chrX:101398432:C>A"
+    ],
+    "excluded_variant_keys_test": [
+      "chr19:38440802:T>C",
+      "chr19:38455471:C>T",
+      "chr19:38457545:C>T",
+      "chr19:38499975:G>A",
+      "chr19:38499993:G>A",
+      "chr19:38499997:G>A",
+      "chr19:38543832:G>T",
+      "chr19:38580094:C>T",
+      "chr19:38580114:C>T",
+      "chr19:38580370:C>G",
+      "chr7:117530953:G>C",
+      "chr7:117534318:G>A",
+      "chr7:117587799:A>C",
+      "chr7:117587800:G>A",
+      "chr7:117587801:T>G",
+      "chr7:117642451:G>A",
+      "chr7:117642483:T>C"
+    ],
+    "per_tier": {
+      "M1": {
+        "auroc_full": 0.7984933449074075,
+        "auroc_excluded": 0.798031443841168,
+        "auroc_abs_diff": 0.0004619010662395562,
+        "auprc_full": 0.8015190900473401,
+        "auprc_excluded": 0.8006575187632508,
+        "auprc_abs_diff": 0.0008615712840893686
+      },
+      "M2": {
+        "auroc_full": 0.796926388888889,
+        "auroc_excluded": 0.7964601605642952,
+        "auroc_abs_diff": 0.00046622832459375374,
+        "auprc_full": 0.832841392331382,
+        "auprc_excluded": 0.8320341623907876,
+        "auprc_abs_diff": 0.000807229940594345
+      },
+      "M3": {
+        "auroc_full": 0.7962255208333335,
+        "auroc_excluded": 0.7957577691153496,
+        "auroc_abs_diff": 0.0004677517179839663,
+        "auprc_full": 0.8328135195017587,
+        "auprc_excluded": 0.8320104952722638,
+        "auprc_abs_diff": 0.0008030242294949641
+      },
+      "M4": {
+        "auroc_full": 0.8029077546296296,
+        "auroc_excluded": 0.8024529367178678,
+        "auroc_abs_diff": 0.00045481791176182895,
+        "auprc_full": 0.8523573398294968,
+        "auprc_excluded": 0.8517082587496636,
+        "auprc_abs_diff": 0.0006490810798331914
+      },
+      "M5": {
+        "auroc_full": 0.802836188271605,
+        "auroc_excluded": 0.8023811429764722,
+        "auroc_abs_diff": 0.00045504529513273884,
+        "auprc_full": 0.8522455978125649,
+        "auprc_excluded": 0.851594795092469,
+        "auprc_abs_diff": 0.0006508027200958777
+      }
+    },
+    "max_abs_diff": 0.0008615712840893686
+  }
 }

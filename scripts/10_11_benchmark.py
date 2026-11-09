@@ -68,7 +68,9 @@ def main() -> int:
             file=sys.stderr,
         )
         return 1
-    log_test_access("benchmark run (allow_rerun=%s)" % args.allow_rerun)
+    # Panel finding m-7: the access is logged AFTER successful completion
+    # of the evaluation (see end of main), not at run start, so a killed or
+    # failed run does not count as a completed test-set evaluation.
 
     proc = REPO / "data" / "processed"
     df = pd.read_csv(proc / "feature_matrix.tsv.gz", sep="\t")
@@ -119,12 +121,24 @@ def main() -> int:
             y[test], p_test, n_bootstrap=1000, seed=args.seed, k=10
         )
         results[m]["test"]["auroc_ci95"] = [lo_a, hi_a]
-        results[m]["test"]["top10_recall_ci95"] = [lo_t, hi_t]
+        # Panel finding m-11: a bootstrap CI for top-k recall narrower than
+        # one variant (1 / n_positive) is degenerate -- the top-k count is
+        # saturated and the interval carries no information. Omit it (null).
+        n_positive = int(y[test].sum())
+        if (hi_t - lo_t) < 1.0 / n_positive:
+            results[m]["test"]["top10_recall_ci95"] = None
+        else:
+            results[m]["test"]["top10_recall_ci95"] = [lo_t, hi_t]
         t = results[m]["test"]
+        ci_t = (
+            f"[{lo_t:.4f},{hi_t:.4f}]"
+            if t["top10_recall_ci95"] is not None
+            else "[omitted: saturated]"
+        )
         print(
             f"[10/11] {m} ({len(cols)} feats): val AUROC={results[m]['val_auroc']:.4f} | "
             f"test AUROC={t['auroc']:.4f} [{lo_a:.4f},{hi_a:.4f}] "
-            f"AUPRC={t['auprc']:.4f} top10_recall={t['top10_recall']:.4f} [{lo_t:.4f},{hi_t:.4f}]"
+            f"AUPRC={t['auprc']:.4f} top10_recall={t['top10_recall']:.4f} {ci_t}"
         )
 
     # --- Baselines on test ---
@@ -197,6 +211,10 @@ def main() -> int:
             "values drift from these by up to 0.0013 (M3 test AUROC) and its M3 "
             "validation AUROC by 0.0054."
         ),
+        "topk_recall_ci_note": (
+            "top-k recall CIs omitted where the count is saturated "
+            "(CI narrower than one variant)"
+        ),
     }
     (REPO / "results/benchmark.json").write_text(json.dumps(out, indent=2))
 
@@ -226,11 +244,16 @@ def main() -> int:
     ]
     for m in TIER_ORDER:
         r = results[m]["test"]
+        top10_ci = (
+            f"[{r['top10_recall_ci95'][0]:.4f},{r['top10_recall_ci95'][1]:.4f}]"
+            if r["top10_recall_ci95"] is not None
+            else "[CI omitted: saturated]"
+        )
         lines.append(
             f"| {m} | {results[m]['n_cols']} | {results[m]['val_auroc']:.4f} | "
             f"{r['auroc']:.4f} [{r['auroc_ci95'][0]:.4f},{r['auroc_ci95'][1]:.4f}] | "
             f"{r['auprc']:.4f} | {r['top10_recall']:.4f} "
-            f"[{r['top10_recall_ci95'][0]:.4f},{r['top10_recall_ci95'][1]:.4f}] |"
+            f"{top10_ci} |"
         )
     lines += ["", "## Baselines (test)", ""]
     for name, b in baselines.items():
@@ -247,6 +270,9 @@ def main() -> int:
         )
     (REPO / "results/benchmark.md").write_text("\n".join(lines) + "\n")
     print("[10/11] wrote results/benchmark.json + results/benchmark.md")
+    # Log the test-set access only now: the evaluation completed and its
+    # outputs are written (panel finding m-7).
+    log_test_access("benchmark run (allow_rerun=%s)" % args.allow_rerun)
     return 0
 
 

@@ -22,10 +22,7 @@
           0.791575194660447,
           0.8059981738894083
         ],
-        "top10_recall_ci95": [
-          0.0013664889098562705,
-          0.0014108501491881078
-        ]
+        "top10_recall_ci95": null
       }
     },
     "M2": {
@@ -48,10 +45,7 @@
           0.789331326158234,
           0.8053033835213099
         ],
-        "top10_recall_ci95": [
-          0.0013664889098562705,
-          0.0014108501491881078
-        ]
+        "top10_recall_ci95": null
       }
     },
     "M3": {
@@ -74,10 +68,7 @@
           0.7888545218270387,
           0.8043618037800919
         ],
-        "top10_recall_ci95": [
-          0.0013664889098562705,
-          0.0014108501491881078
-        ]
+        "top10_recall_ci95": null
       }
     },
     "M4": {
@@ -100,10 +91,7 @@
           0.7955437758387194,
           0.8106438418811991
         ],
-        "top10_recall_ci95": [
-          0.0013664889098562705,
-          0.0014108501491881078
-        ]
+        "top10_recall_ci95": null
       }
     },
     "M5": {
@@ -126,10 +114,7 @@
           0.7955155267445424,
           0.8106192639723651
         ],
-        "top10_recall_ci95": [
-          0.0013664889098562705,
-          0.0014108501491881078
-        ]
+        "top10_recall_ci95": null
       }
     }
   },
@@ -220,5 +205,6 @@
     }
   },
   "seed": 20261006,
-  "note": "Held-out test set; gene-level splits; see results/test_access.log. Refit 2026-11-09 with cadd_phred and cadd_missing REMOVED from all fitted tiers (train n=35,921 had 0 CADD-scored rows: cadd_phred constant -1.0, cadd_missing constant 1). CADD is a pure external baseline now (baselines.cadd_phred). Environment at refit: pinned requirements stack (scikit-learn 1.5.1 / pandas 2.2.2 / numpy 1.26.4). An earlier 2026-11-09 refit ran on an unpinned system stack: its test values drift from these by up to 0.0013 (M3 test AUROC) and its M3 validation AUROC by 0.0054."
+  "note": "Held-out test set; gene-level splits; see results/test_access.log. Refit 2026-11-09 with cadd_phred and cadd_missing REMOVED from all fitted tiers (train n=35,921 had 0 CADD-scored rows: cadd_phred constant -1.0, cadd_missing constant 1). CADD is a pure external baseline now (baselines.cadd_phred). Environment at refit: pinned requirements stack (scikit-learn 1.5.1 / pandas 2.2.2 / numpy 1.26.4). An earlier 2026-11-09 refit ran on an unpinned system stack: its test values drift from these by up to 0.0013 (M3 test AUROC) and its M3 validation AUROC by 0.0054.",
+  "topk_recall_ci_note": "top-k recall CIs omitted where the count is saturated (CI narrower than one variant)"
 }
