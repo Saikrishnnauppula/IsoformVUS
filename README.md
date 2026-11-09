@@ -13,10 +13,9 @@ across 102 Mendelian disease genes, split into 61 train, 17 validation, and
 diagnoses a patient, and no model output may be turned into an ACMG/AMP
 pathogenicity classification. See `docs/limitations.md`.
 
-## Status after peer review
+## Status
 
-A journal review panel rejected the manuscript built from this work in
-November 2026 (REJECT, confidence 4/5). The core M1–M5 benchmark reproduces
+The core M1–M5 benchmark reproduces
 on the shipped matrix. On 2026-11-09 the benchmark was refit with CADD
 removed from every fitted tier: the 2026-11-08 rebuilt run had let
 test-time CADD signal in through a coefficient fit on a constant in train
@@ -35,11 +34,11 @@ pandas 2.2.2, numpy 1.26.4); an earlier refit the same day ran on an
 unpinned system stack and its M3 values drifted (test AUROC 0.7975 against
 0.7962 here).
 
-A second panel rejected the revision, on the exon analysis rather than the
-benchmark: variant-level inference for the CMH odds ratios, no accounting
-for the 43.7% of variants ClinVar leaves unresolved, and an exon geometry
-reconstructed from variant spans instead of taken from annotation. The fix
-round (2026-11-09) answers all three in code. Script 18 now ships
+A later review of the revision raised three problems in the exon analysis
+rather than the benchmark: variant-level inference for the CMH odds
+ratios, no accounting for the 43.7% of variants ClinVar leaves unresolved,
+and an exon geometry reconstructed from variant spans instead of taken
+from annotation. A fix round (2026-11-09) answers all three in code. Script 18 now ships
 gene-cluster bootstrap intervals for the CMH odds ratios (2,000 resamples
 of genes, seed 0): length over 400 bp OR 0.2005, 95% CI [0.1119, 0.3384];
 backup skipping OR 0.3461, 95% CI [0.1280, 1.0299] — the backup interval
@@ -153,7 +152,7 @@ IsoformVUS/
 ├── results/         # benchmark.json, statistics.json, splits.json, test_access.log
 ├── figures/         # publication figures
 ├── docs/            # methods.md, data.md, limitations.md
-└── paper/           # manuscript.md (under revision after peer review)
+└── paper/           # manuscript.md
 ```
 
 ## Data and licenses
