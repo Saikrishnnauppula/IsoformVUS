@@ -41,13 +41,18 @@ Writes:
   - results/vus_bayesian_stratification.tsv
   - results/cmh_per_gene_tables.tsv
   - results/vus_bayesian_stratification_NOTE.md
+  - results/withdrawn_carried_over_values.json (written once, only if it
+    does not already exist; see below)
 
-Two sections of the shipped JSON cannot be regenerated because no code
-that produces them exists in the repo: causal_mediation, and the
+Two sections of the previously shipped JSON cannot be regenerated because
+no code that produces them exists in the repo: causal_mediation, and the
 distance_profile / donor_vs_acceptor_edge_0_3bp parts of
-splice_junction_boundary_asymmetry. Their values are carried over verbatim
-from the previous results file and flagged as such in the JSON provenance
-block; they are not recomputed by this script.
+splice_junction_boundary_asymmetry. They are NOT emitted into
+exon_architecture_nmd.json. On 2026-11-09 they were quarantined into
+results/withdrawn_carried_over_values.json (status: withdrawn; no
+generating code; do not cite). This script writes that file once, copying
+the blocks verbatim from the previous results file, only if the file does
+not already exist; it never recomputes those values.
 
 Usage: python3 scripts/18_exon_architecture_nmd.py
 """
@@ -70,6 +75,16 @@ REPO = Path(__file__).resolve().parents[1]
 SEED = 20261006
 
 SIZE_BINS = ["1_Compact_<=180", "2_Medium_181_400", "3_Large_401_1000", "4_Giant_>1000"]
+# Primary backup-skipping usage threshold (GTEx transcript-abundance
+# fraction). All shipped primary results use this value; the sensitivity
+# sweep in sensitivity_checks/usage_threshold_sweep recomputes the backup
+# CMH OR and the giant-cell LRs at 0.05 / 0.10 / 0.20 without changing it.
+BACKUP_USAGE_THRESHOLD = 0.10
+# Hand-applied correction note carried in the committed JSON (2026-11-09);
+# kept verbatim so regeneration preserves it.
+TENSOR_CORRECTION_NOTE = "CORRECTED 2026-11-09: per-cell n_exons/n_genes previously summed to 4,528 exons (+19 over the 4,509 internal coding exons in dataset_summary). Cause: the tensor was counted with nunique(exon_id) per cell on the VARIANT-level frame, where expr_backup_skips is assigned per variant; 19 exons whose variants received mixed expr_backup_skips values were counted in both a constitutive (backup_skip=0) cell and a backup-skipped cell. All 19 excess counts were in backup_skip=0 cells (by size bin: Compact +10, Medium +6, Large +1, Giant +2; n_genes inflated by 7 in the same cells). Fix: n_exons/n_genes per cell now taken from the exon-level atlas (results/exon_skipping_nmd_candidates.tsv, one row per exon, expr_backup_skips = max over the exon's variants), which sums to 4,509 and agrees with biophysical_and_density_controls (constitutive 2,918 + backup-skipped 1,591 = 4,509). Variant-level counts per cell (missense_n etc.) were NOT changed: variants of the 19 exons remain split between cells exactly as computed, and reassigning them requires the script-18 input files (data/interim/script18/), which are not shipped. Rule for regeneration: resolve expr_backup_skips per exon (max) BEFORE cell assignment, and count exons from the exon-level frame."
+CMH_P_NOTE_TEST1 = "CMH p-values removed 2026-11-09 for the same reason as cmh_within_gene_missense: variant-level independence assumption; see that section's note. ORs retained as descriptive values."
+Z_WITHHELD_NOTE = "z withheld for the same reason as p: variant-level independence assumption; effective n is genes, not variants"
 # (feature name, column expression) for the missense architecture offset.
 # Coefficients are fit on train internal missense only; the M1 logit is a
 # fixed offset (coefficient 1.0), never refit.
@@ -277,6 +292,99 @@ def run_cmh_stratified(df_sub: pd.DataFrame, x_col: str, y_col: str = "is_plp") 
         "n_informative_genes": n_g,
         "per_gene_tables": per_gene,
     }
+
+
+def gene_cluster_bootstrap(
+    per_gene_tables: list, cmh_or: float, n_boot: int = 2000, seed: int = 0
+) -> dict:
+    """Gene-cluster bootstrap for a CMH odds ratio.
+
+    Resamples GENES (the per-gene 2x2 tables) with replacement and
+    recomputes the CMH OR = sum(a*d/n) / sum(b*c/n) per replicate, so the
+    interval reflects gene-level, not variant-level, sampling. Percentile
+    95% CI. Same construction as the review panel's recompute (seed 0,
+    2,000 reps).
+    """
+    arr = np.array(
+        [[r["a"], r["b"], r["c"], r["d"], r["n"]] for r in per_gene_tables],
+        dtype=np.float64,
+    )
+    rng = np.random.default_rng(seed)
+    ors = []
+    for _ in range(n_boot):
+        idx = rng.integers(0, len(arr), len(arr))
+        s = arr[idx]
+        num = float(np.sum(s[:, 0] * s[:, 3] / s[:, 4]))
+        den = float(np.sum(s[:, 1] * s[:, 2] / s[:, 4]))
+        if den > 0:
+            ors.append(num / den)
+    ors = np.array(ors, dtype=np.float64)
+    return {
+        "or": float(cmh_or),
+        "ci95": [
+            float(np.percentile(ors, 2.5)),
+            float(np.percentile(ors, 97.5)),
+        ],
+        "n_boot": int(len(ors)),
+        "seed": int(seed),
+        "frac_ge_1": float(np.mean(ors >= 1.0)),
+        "method": "percentile bootstrap resampling genes (per-gene 2x2 tables, results/cmh_per_gene_tables.tsv) with replacement; CMH OR recomputed per replicate",
+    }
+
+
+def cmh_shipped(res: dict, bootstrap: dict | None = None) -> dict:
+    """The CMH block as shipped in the JSON.
+
+    P-values are omitted and the z statistic is withheld (set to null):
+    a z of this size is the p-value for any reader who converts it, and
+    both rest on the variant-level independence assumption. The OR and
+    the informative-gene count are descriptive values.
+    """
+    out = {
+        "cmh_or": res["cmh_or"],
+        "z": None,
+        "z_withheld": Z_WITHHELD_NOTE,
+        "n_informative_genes": res["n_informative_genes"],
+    }
+    if bootstrap is not None:
+        out["gene_cluster_bootstrap"] = bootstrap
+    return out
+
+
+def expr_flags_for_threshold(pop: pd.DataFrame, alt_cds: pd.DataFrame, thr: float):
+    """Per-variant expr_backup_skips flags at an arbitrary usage threshold.
+
+    Replicates the primary sparing construction (transcript-level
+    sev == 0, max_usage >= thr, max_tpm >= 1.0, max over the variant's
+    transcripts, mapped onto pop rows by the same within-gene
+    nearest-position match the primary path uses). Returns an int array
+    aligned to pop's index labels (pop carries a RangeIndex).
+    """
+    flag = (
+        (alt_cds["sev"] == 0)
+        & (alt_cds["max_usage"] >= thr)
+        & (alt_cds["max_tpm"] >= 1.0)
+    ).astype(int)
+    tmp = alt_cds[["gene_symbol", "variant_key", "pos"]].assign(_flag=flag)
+    grouped = (
+        tmp.groupby(["gene_symbol", "variant_key", "pos"], as_index=False)["_flag"]
+        .max()
+        .rename(columns={"_flag": "expr_flag"})
+    )
+    by_gene = {g: gdf.sort_values("pos") for g, gdf in grouped.groupby("gene_symbol")}
+    arr = np.zeros(len(pop), dtype=int)
+    for g, gdf in pop.groupby("gene_symbol"):
+        sdf = by_gene.get(g)
+        if sdf is not None and len(sdf) > 0:
+            p_ref = sdf["pos"].to_numpy()
+            p_q = gdf["pos"].to_numpy()
+            j = np.clip(np.searchsorted(p_ref, p_q), 0, len(p_ref) - 1)
+            j_prev = np.clip(j - 1, 0, len(p_ref) - 1)
+            best = np.where(
+                np.abs(p_ref[j] - p_q) < np.abs(p_ref[j_prev] - p_q), j, j_prev
+            )
+            arr[gdf.index] = sdf["expr_flag"].to_numpy()[best]
+    return arr
 
 
 def fit_arch_offsets(tr_mis: pd.DataFrame) -> dict:
@@ -572,7 +680,7 @@ def main() -> int:
     alt_cds["is_spared"] = (alt_cds["sev"] == 0).astype(int)
     alt_cds["is_expr_spared"] = (
         (alt_cds["sev"] == 0)
-        & (alt_cds["max_usage"] >= 0.10)
+        & (alt_cds["max_usage"] >= BACKUP_USAGE_THRESHOLD)
         & (alt_cds["max_tpm"] >= 1.0)
     ).astype(int)
     alt_cds["spared_max_u"] = np.where(alt_cds["sev"] == 0, alt_cds["max_usage"], 0.0)
@@ -744,6 +852,70 @@ def main() -> int:
                     float(bm_mis["am_score"].median()) if len(bm_mis) > 0 else None
                 )
                 tensor_4x2x2.append(row_d)
+
+    # --- Bounding analysis: true pathogenicity rates once unresolved
+    # missense variants are counted (panel finding C-3). For each cell the
+    # unresolved variants are assigned 0% pathogenic (min) and 100%
+    # pathogenic (max); no modelling assumption is made. Cell codes:
+    # digit = size bin (1 Compact, 2 Medium, 3 Large, 4 Giant);
+    # A = constitutive/symmetric-phase-asymmetric (skip 0, sym 0),
+    # B = skip 0, sym 1; C = skip 1, sym 0; D = skip 1, sym 1.
+    _cell_letters = {(0, 0): "A", (0, 1): "B", (1, 0): "C", (1, 1): "D"}
+
+    def _rate_bounds(missense_n: int, plp: int, blb: int) -> dict:
+        unresolved = missense_n - plp - blb
+        return {
+            "missense_n": int(missense_n),
+            "plp": int(plp),
+            "blb": int(blb),
+            "unresolved_n": int(unresolved),
+            "true_rate_min": float(plp / missense_n) if missense_n else None,
+            "true_rate_max": (
+                float((plp + unresolved) / missense_n) if missense_n else None
+            ),
+        }
+
+    _bounding_cells = []
+    for _row in tensor_4x2x2:
+        _bounding_cells.append(
+            {
+                "cell": f"{_row['size_bin'][0]}{_cell_letters[(_row['backup_skip'], _row['symmetric_phase'])]}",
+                "size_bin": _row["size_bin"],
+                "backup_skip": _row["backup_skip"],
+                "symmetric_phase": _row["symmetric_phase"],
+                **_rate_bounds(
+                    _row["missense_n"], _row["missense_plp"], _row["missense_blb"]
+                ),
+            }
+        )
+
+    def _pooled_bounds(rows) -> dict:
+        return _rate_bounds(
+            sum(r["missense_n"] for r in rows),
+            sum(r["missense_plp"] for r in rows),
+            sum(r["missense_blb"] for r in rows),
+        )
+
+    vus_bounding_analysis = {
+        "method": "Per-cell bounds on the true missense pathogenicity rate from the 4x2x2 tensor counts: true_rate_min = plp / missense_n (all unresolved variants benign), true_rate_max = (plp + unresolved) / missense_n (all unresolved variants pathogenic), where unresolved = missense_n - plp - blb. Resolved-only rates describe the resolved subset only; these bounds make no assumption about the unresolved variants.",
+        "cells": _bounding_cells,
+        "pooled": {
+            "compact_constitutive": _pooled_bounds(
+                [
+                    r
+                    for r in tensor_4x2x2
+                    if r["size_bin"].startswith("1_") and r["backup_skip"] == 0
+                ]
+            ),
+            "giant_backup_skipped": _pooled_bounds(
+                [
+                    r
+                    for r in tensor_4x2x2
+                    if r["size_bin"].startswith("4_") and r["backup_skip"] == 1
+                ]
+            ),
+        },
+    }
 
     # --- Curation-independent biophysical and density controls ---
     ex_summary = (
@@ -957,13 +1129,15 @@ def main() -> int:
         "population": "internal resolved missense variants (exon_id >= 0, in_last_exon == 0, is_resolved == 1)",
         "n_variants": len(mis_int_res),
         "n_genes": int(mis_int_res["gene_symbol"].nunique()),
-        "note": "P-values WITHHELD (2026-11-09): the CMH z/p treats variants as independent within genes; effective sample size is genes and exons, not variants. ORs, z and informative-gene counts are descriptive only. Per-gene 2x2 tables: results/cmh_per_gene_tables.tsv",
-        "giant_large_exon_gt400bp": {
-            k: v for k, v in cmh_giant.items() if k != "per_gene_tables"
-        },
-        "expr_backup_skip": {
-            k: v for k, v in cmh_skip.items() if k != "per_gene_tables"
-        },
+        "note": "P-values REMOVED 2026-11-09 (were 4.29e-187 for giant_large_exon_gt400bp and 3.53e-42 for expr_backup_skip). The CMH z/p treats 27,965 variants as independent within genes; the effective sample size is genes and exons (52 and 42 informative genes), not variants, so the p-values overstate the evidence by orders of magnitude. Gene-cluster bootstrap 95% CIs (2,000 replicates resampling genes from the per-gene tables in results/cmh_per_gene_tables.tsv, seed 0) were added 2026-11-09 and ship as gene_cluster_bootstrap in each block below; z statistics are withheld for the same reason as p. Odds ratios and informative-gene counts are retained as descriptive values only. Per-gene 2x2 tables: results/cmh_per_gene_tables.tsv",
+        "giant_large_exon_gt400bp": cmh_shipped(
+            cmh_giant,
+            gene_cluster_bootstrap(cmh_giant["per_gene_tables"], cmh_giant["cmh_or"]),
+        ),
+        "expr_backup_skip": cmh_shipped(
+            cmh_skip,
+            gene_cluster_bootstrap(cmh_skip["per_gene_tables"], cmh_skip["cmh_or"]),
+        ),
     }
     print(
         f"[18] Reconstructed {exon_counter:,d} MANE Select exons ({internal['exon_id'].nunique():,d} internal coding exons)."
@@ -975,7 +1149,7 @@ def main() -> int:
         f"[18] Internal missense within-gene CMH: exon >400bp OR={cmh_giant['cmh_or']:.4f}, backup-skip OR={cmh_skip['cmh_or']:.4f} (p-values withheld: variant-level independence assumption)"
     )
 
-    # --- ASO exon-skipping candidate atlas ---
+    # --- Exon-skipping candidate atlas (computational nominations only) ---
     mis_by_ex = (
         internal[internal["fine_class"] == "missense"]
         .groupby("exon_id")
@@ -1068,31 +1242,31 @@ def main() -> int:
         0.85 + 0.15 * np.clip(atlas["spared_max_usage"], 0, 1),
         np.where((atlas["any_alt_skips"] == 1) | (atlas["exon_len"] > 400), 0.60, 0.25),
     )
-    atlas["ASO_Rescuability_Score"] = np.round(
+    atlas["Exon_Nomination_Score"] = np.round(
         atlas["S_structural_dispensability"]
         * atlas["S_frame_symmetry"]
         * atlas["S_skip_competence"],
         4,
     )
     atlas["aso_tier"] = np.where(
-        (atlas["ASO_Rescuability_Score"] >= 0.55)
+        (atlas["Exon_Nomination_Score"] >= 0.55)
         & (atlas["mis_raw_plp_rate"] < 0.10)
         & (atlas["ptv_plp"] >= 1),
-        "Tier 1: Gold-Standard In-Frame / Backup-Skipped NMD-Sink Target",
+        "Tier 1: in-frame, backup-skipped, missense-tolerant (computational nomination only)",
         np.where(
-            (atlas["ASO_Rescuability_Score"] >= 0.40)
+            (atlas["Exon_Nomination_Score"] >= 0.40)
             & (atlas["mis_raw_plp_rate"] < 0.10)
             & (atlas["ptv_plp"] >= 1),
-            "Tier 2: High-Priority Structurally Dispensable NMD-Sink Target",
+            "Tier 2: missense-tolerant, structurally dispensable (computational nomination only)",
             "Tier 3: Structurally Constrained / Non-Skippable Exon",
         ),
     )
     # Deterministic tie-break (2026-11-09): exon_id as the final sort key, so
-    # rows tied on (ASO_Rescuability_Score, ptv_plp) order identically
+    # rows tied on (Exon_Nomination_Score, ptv_plp) order identically
     # regardless of input row order (pandas sort is stable, so without this
     # key the output order depended on the input frame's row order).
     atlas_sorted = atlas.sort_values(
-        ["ASO_Rescuability_Score", "ptv_plp", "exon_id"], ascending=[False, False, True]
+        ["Exon_Nomination_Score", "ptv_plp", "exon_id"], ascending=[False, False, True]
     ).reset_index(drop=True)
     t1_exons = atlas_sorted[atlas_sorted["aso_tier"].str.startswith("Tier 1")]
     t12_exons = atlas_sorted[
@@ -1125,14 +1299,14 @@ def main() -> int:
         "S_structural_dispensability",
         "S_frame_symmetry",
         "S_skip_competence",
-        "ASO_Rescuability_Score",
+        "Exon_Nomination_Score",
         "aso_tier",
     ]
     atlas_sorted[out_atlas_cols].to_csv(
         REPO / "results/exon_skipping_nmd_candidates.tsv", sep="\t", index=False
     )
     print(
-        f"[18] Tier 1 ASO exons: {len(t1_exons):,d} across {t1_exons['gene_symbol'].nunique()} genes, {int(t1_exons['ptv_plp'].sum()):,d} ClinVar PTV records (not patients)."
+        f"[18] Tier 1 nominated exons: {len(t1_exons):,d} across {t1_exons['gene_symbol'].nunique()} genes, {int(t1_exons['ptv_plp'].sum()):,d} ClinVar PTV records (not patients)."
     )
     print(
         f"[18] Tier 1+2 exons: {len(t12_exons):,d} across {t12_exons['gene_symbol'].nunique()} genes."
@@ -1502,14 +1676,25 @@ def main() -> int:
                 ]
                 plp_n, blb_n = int(sub_m["is_plp"].sum()), int(sub_m["is_blb"].sum())
                 lr_row = lr_with_ci(plp_n, n_mis_plp, blb_n, n_mis_blb)
+                # n_exons/n_genes come from the exon-level frame (one row
+                # per exon, expr_backup_skips = max over the exon's
+                # variants), the same frame the 4x2x2 tensor uses
+                # (2026-11-09 fix). Counting them from the variant-level
+                # resolved-missense frame summed to 3,297 exons against
+                # the tensor's 4,509 and disagreed per cell.
+                sub_e_lr = exon_level[
+                    (exon_level["exon_size_tier"] == sz)
+                    & (exon_level["expr_backup_skips"] == skip)
+                    & (exon_level["is_symmetric_phase"] == sym)
+                ]
                 lr_table.append(
                     {
                         "state": f"{sz}|Skip={skip}|Sym={sym}",
                         "size_bin": sz,
                         "backup_skip": skip,
                         "symmetric_phase": sym,
-                        "n_genes": int(sub_m["gene_symbol"].nunique()),
-                        "n_exons": int(sub_m["exon_id"].nunique()),
+                        "n_genes": int(sub_e_lr["gene_symbol"].nunique()),
+                        "n_exons": int(sub_e_lr["exon_id"].nunique()),
                         "resolved_plp": plp_n,
                         "resolved_blb": blb_n,
                         "vus_n": len(sub_vus),
@@ -1554,6 +1739,59 @@ def main() -> int:
         f"4C LR={lr_by_cell[('4_Giant_>1000', 1, 0)]['likelihood_ratio']:.4f} "
         f"[{lr_by_cell[('4_Giant_>1000', 1, 0)]['lr_ci95_lo']:.4f}, {lr_by_cell[('4_Giant_>1000', 1, 0)]['lr_ci95_hi']:.4f}]"
     )
+
+    # --- Usage-threshold sweep (sensitivity): backup-skip CMH OR and the
+    # giant backup-skipped cell LRs at usage thresholds 0.05 / 0.10 / 0.20.
+    # Only the expr_backup_skips assignment changes with the threshold;
+    # exon reconstruction, size tiers and phase are threshold-invariant,
+    # and the resolved P/LP and B/LB totals (the LR denominators) do not
+    # depend on the threshold. The shipped primary results above remain
+    # the BACKUP_USAGE_THRESHOLD (0.10) computation.
+    usage_threshold_sweep = []
+    _mis_all = internal[internal["fine_class"] == "missense"]
+    for _thr in (0.05, 0.10, 0.20):
+        _flags = expr_flags_for_threshold(pop, alt_cds, _thr)
+        _res_thr = mis_int_res[["gene_symbol", "is_plp"]].copy()
+        _res_thr["expr_thr"] = _flags[mis_int_res.index.to_numpy()]
+        _cmh_thr = run_cmh_stratified(_res_thr, "expr_thr")
+        _flags_all = _flags[_mis_all.index.to_numpy()]
+        _cells_thr = {}
+        for _sym in (0, 1):
+            _m = (
+                (_mis_all["exon_size_tier"] == "4_Giant_>1000")
+                & (_flags_all == 1)
+                & (_mis_all["is_symmetric_phase"] == _sym)
+            )
+            _sub = _mis_all[_m.to_numpy()]
+            _plp_c, _blb_c = int(_sub["is_plp"].sum()), int(_sub["is_blb"].sum())
+            _lr_c = lr_with_ci(_plp_c, n_mis_plp, _blb_c, n_mis_blb)
+            _cells_thr[_sym] = {
+                "missense_n": len(_sub),
+                "plp": _plp_c,
+                "blb": _blb_c,
+                "likelihood_ratio": _lr_c["likelihood_ratio"],
+                "lr_ci95_lo": _lr_c["lr_ci95_lo"],
+                "lr_ci95_hi": _lr_c["lr_ci95_hi"],
+            }
+        usage_threshold_sweep.append(
+            {
+                "usage_threshold": _thr,
+                "backup_skip_cmh_or": _cmh_thr["cmh_or"],
+                "backup_skip_n_informative_genes": _cmh_thr["n_informative_genes"],
+                "cell_4c_giant_skip_asymmetric": _cells_thr[0],
+                "cell_4d_giant_skip_symmetric": _cells_thr[1],
+                "cell_4d_counts": {
+                    "missense_n": _cells_thr[1]["missense_n"],
+                    "plp": _cells_thr[1]["plp"],
+                    "blb": _cells_thr[1]["blb"],
+                },
+            }
+        )
+        print(
+            f"[18] Usage-threshold sweep thr={_thr:.2f}: backup-skip CMH OR={_cmh_thr['cmh_or']:.4f}, "
+            f"4C LR={_cells_thr[0]['likelihood_ratio']:.4f} [{_cells_thr[0]['lr_ci95_lo']:.4f}, {_cells_thr[0]['lr_ci95_hi']:.4f}], "
+            f"4D counts n={_cells_thr[1]['missense_n']} plp={_cells_thr[1]['plp']} blb={_cells_thr[1]['blb']}"
+        )
 
     # --- VUS stratification table: per-cell LRs with CIs, no ACMG labels ---
     vus_frames = []
@@ -1651,6 +1889,12 @@ def main() -> int:
     print(
         f"[18] VUS stratification rows: {len(vus_df):,d} across {vus_df['gene_symbol'].nunique()} genes: {vus_counts}"
     )
+    n_vus_ci_crossing = int(
+        ((vus_df["lr_ci95_lo"] <= 1.0) & (vus_df["lr_ci95_hi"] >= 1.0)).sum()
+    )
+    print(
+        f"[18] VUS rows in strata whose LR 95% CI crosses 1.0: {n_vus_ci_crossing} of {len(vus_df):,d}"
+    )
     note_lines = [
         "# VUS Bayesian stratification — research-only note",
         "",
@@ -1683,6 +1927,8 @@ def main() -> int:
         "The exon LR overlaps the AlphaMissense signal (the exon effect is largely captured by",
         "AlphaMissense), so an exon LR must not be added on top of a PP3/BP4 computational-evidence",
         "item for the same variant: that would count the same signal twice.",
+        "",
+        f"Of the {len(vus_df):,d} rows in the stratification file, {n_vus_ci_crossing} fall in a stratum whose LR 95% CI crosses 1.0.",
     ]
     (REPO / "results/vus_bayesian_stratification_NOTE.md").write_text(
         "\n".join(note_lines) + "\n"
@@ -1710,12 +1956,9 @@ def main() -> int:
         "excluded_genes": sorted(excluded_famous),
         "compact_constit_res_plp": float(c_comp_nf["is_plp"].mean()),
         "giant_skip_res_plp": float(c_giant_nf["is_plp"].mean()),
-        "cmh_giant_large": {
-            k: v for k, v in cmh_giant_nf.items() if k != "per_gene_tables"
-        },
-        "cmh_backup_skip": {
-            k: v for k, v in cmh_skip_nf.items() if k != "per_gene_tables"
-        },
+        "cmh_giant_large": cmh_shipped(cmh_giant_nf),
+        "cmh_backup_skip": cmh_shipped(cmh_skip_nf),
+        "cmh_p_note": CMH_P_NOTE_TEST1,
     }
     bm_int_2star = bm_full[
         (bm_full["exon_id"] >= 0)
@@ -1852,6 +2095,7 @@ def main() -> int:
         "test5_symmetric_vs_asymmetric_ptv_lethality": test5,
         "test6_zero_leakage_audit": test6,
         "test7_prospective_2024_to_2026": test7,
+        "usage_threshold_sweep": usage_threshold_sweep,
     }
 
     # --- Assemble and write the JSON ---
@@ -1911,13 +2155,9 @@ def main() -> int:
         "constitutive_sym_rate": const_sym_rate,
         "constitutive_sym_n": const_sym_n,
         "tensor_4x2x2": tensor_4x2x2,
+        "tensor_correction_note": TENSOR_CORRECTION_NOTE,
     }
-    prior_boundary = prior.get("splice_junction_boundary_asymmetry", {})
     boundary = {
-        "distance_profile": prior_boundary.get("distance_profile"),
-        "donor_vs_acceptor_edge_0_3bp": prior_boundary.get(
-            "donor_vs_acceptor_edge_0_3bp"
-        ),
         "synonymous_587k_donor_vs_acceptor": {
             "donor_plp": syn_blocks["donor"]["plp"],
             "donor_blb": syn_blocks["donor"]["blb"],
@@ -1929,25 +2169,35 @@ def main() -> int:
             "core_blb": syn_blocks["core"]["blb"],
             "core_res_rate": syn_blocks["core"]["res_rate"],
         },
-        "carried_over_not_recomputed": {
-            "distance_profile": True,
-            "donor_vs_acceptor_edge_0_3bp": True,
-            "reason": "no code in the repo computes these sections; values carried over verbatim from the previous results file",
-        },
+        "withdrawn_blocks_moved": "distance_profile and donor_vs_acceptor_edge_0_3bp are no longer shipped in this file: no code in the repo computes them, and on 2026-11-09 they were moved to results/withdrawn_carried_over_values.json (withdrawn; do not cite). Only synonymous_587k_donor_vs_acceptor above is computed by this script.",
     }
+    # Quarantine file for the carried-over blocks: written once, from the
+    # previous results file, only if it does not already exist.
+    withdrawn_path = REPO / "results/withdrawn_carried_over_values.json"
+    if not withdrawn_path.exists():
+        prior_boundary_full = prior.get("splice_junction_boundary_asymmetry", {})
+        withdrawn = {
+            "status": "withdrawn 2026-11-09; no generating code; do not cite",
+            "source": "Copied verbatim from results/exon_architecture_nmd.json as committed at 5152848, the last version that carried these blocks in the main results file. No code in the repo computes causal_mediation or the splice_junction_boundary_asymmetry distance_profile / donor_vs_acceptor_edge_0_3bp blocks; they were carried over from a previous results file. Retained here only as an audit trail.",
+            "causal_mediation": prior.get("causal_mediation"),
+            "splice_junction_boundary_asymmetry": {
+                "distance_profile": prior_boundary_full.get("distance_profile"),
+                "donor_vs_acceptor_edge_0_3bp": prior_boundary_full.get(
+                    "donor_vs_acceptor_edge_0_3bp"
+                ),
+            },
+        }
+        withdrawn_path.write_text(json.dumps(clean_json(withdrawn), indent=2))
+        print(f"[18] wrote {withdrawn_path} (quarantined carried-over blocks)")
     out = {
         "provenance": {
             "script": "scripts/18_exon_architecture_nmd.py",
             "generated_on": date.today().isoformat(),
             "seed": SEED,
-            "note": "All sections recomputed by this script except the flagged carried-over values. "
+            "note": "All sections in this file are recomputed by this script. "
             "Donor-edge offsets are fit on train genes only (see tiered_model_and_bayesian_lr/fitted_arch_offsets). "
             "Feature matrix carries real CADD values for validation and test variants (19,014 of 60,521 scored); every train row still carries the -1.0 sentinel, so the fitted CADD coefficient was never fit against varying CADD values.",
-            "carried_over_not_recomputed": {
-                "causal_mediation": "no generating code in the repo; values carried over verbatim from the previous results file",
-                "splice_junction_boundary_asymmetry.distance_profile": "no generating code in the repo; values carried over verbatim",
-                "splice_junction_boundary_asymmetry.donor_vs_acceptor_edge_0_3bp": "no generating code in the repo; values carried over verbatim",
-            },
+            "withdrawn_carried_over_values": "causal_mediation and splice_junction_boundary_asymmetry.distance_profile / donor_vs_acceptor_edge_0_3bp are NOT in this file: no generating code exists for them, and on 2026-11-09 they were moved to results/withdrawn_carried_over_values.json (status: withdrawn 2026-11-09; no generating code; do not cite).",
         },
         "dataset_summary": {
             "n_clinvar_total": len(pop),
@@ -1959,7 +2209,7 @@ def main() -> int:
         "exon_phase_symmetry": exon_phase_symmetry,
         "biophysical_and_density_controls": curation_free_table,
         "rare_benign_internal_ptvs": rare_benign_ptvs,
-        "causal_mediation": prior.get("causal_mediation"),
+        "vus_bounding_analysis": vus_bounding_analysis,
         "splice_junction_boundary_asymmetry": boundary,
         "inframe_indels_and_nmd_zones": {
             "indel_matrix": indel_table,

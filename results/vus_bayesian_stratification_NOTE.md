@@ -29,3 +29,5 @@ summary of the resolved subset, not as a validated classifier input.
 The exon LR overlaps the AlphaMissense signal (the exon effect is largely captured by
 AlphaMissense), so an exon LR must not be added on top of a PP3/BP4 computational-evidence
 item for the same variant: that would count the same signal twice.
+
+Of the 23,485 rows in the stratification file, 0 fall in a stratum whose LR 95% CI crosses 1.0.

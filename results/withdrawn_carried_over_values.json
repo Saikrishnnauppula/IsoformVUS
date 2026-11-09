@@ -1,0 +1,342 @@
+{
+  "status": "withdrawn 2026-11-09; no generating code; do not cite",
+  "source": "Copied verbatim from results/exon_architecture_nmd.json as committed at 5152848, the last version that carried these blocks in the main results file. No code in the repo computes causal_mediation or the splice_junction_boundary_asymmetry distance_profile / donor_vs_acceptor_edge_0_3bp blocks; they were carried over from a previous results file. Retained here only as an audit trail.",
+  "causal_mediation": {
+    "giant_large_via_alphamissense": {
+      "unadjusted": {
+        "TE": -0.38197062423500194,
+        "TE_ci95": [
+          -0.44695494141886616,
+          -0.31706005940617704
+        ],
+        "NDE": -0.08437655517207243,
+        "NDE_ci95": [
+          -0.1304245246519618,
+          -0.03466352596278385
+        ],
+        "NIE": -0.2975940690629295,
+        "NIE_ci95": [
+          -0.3411106748523088,
+          -0.2581178834405234
+        ],
+        "prop_mediated": 0.7791019784805207,
+        "PM_ci95": [
+          0.6924303965774364,
+          0.8989363157042384
+        ]
+      },
+      "within_gene_FE": {
+        "TE": -0.20130847762018192,
+        "TE_ci95": [
+          -0.26685677709118416,
+          -0.13770599958525898
+        ],
+        "NDE": -0.058618315327296555,
+        "NDE_ci95": [
+          -0.10147593528639208,
+          -0.013068377592483747
+        ],
+        "NIE": -0.14269016229288536,
+        "NIE_ci95": [
+          -0.18413845981677068,
+          -0.10036083676373082
+        ],
+        "prop_mediated": 0.7088134785962941,
+        "PM_ci95": [
+          0.5711682799568274,
+          0.907961205198537
+        ]
+      }
+    },
+    "backup_skip_via_alphamissense": {
+      "unadjusted": {
+        "TE": -0.1677230080609082,
+        "TE_ci95": [
+          -0.21161627161441268,
+          -0.12259203813161226
+        ],
+        "NDE": -0.008909288471229626,
+        "NDE_ci95": [
+          -0.039802714608507594,
+          0.023046979419048267
+        ],
+        "NIE": -0.15881371958967858,
+        "NIE_ci95": [
+          -0.19122762401657004,
+          -0.1251832100380203
+        ],
+        "prop_mediated": 0.9468809403418627,
+        "PM_ci95": [
+          0.7939143664392178,
+          1.1782771258377527
+        ]
+      },
+      "within_gene_FE": {
+        "TE": -0.054683985537846494,
+        "TE_ci95": [
+          -0.11097138930106602,
+          -0.0003415005779438174
+        ],
+        "NDE": -0.01496715750766997,
+        "NDE_ci95": [
+          -0.05780887455360142,
+          0.0229444253633716
+        ],
+        "NIE": -0.039716828030176524,
+        "NIE_ci95": [
+          -0.0810138836128402,
+          -0.0007428313953841817
+        ],
+        "prop_mediated": 0.7262972447882153,
+        "PM_ci95": [
+          -0.21823327938588416,
+          2.114171256294569
+        ]
+      }
+    },
+    "giant_large_via_cadd": {
+      "unadjusted": {
+        "TE": -0.3819706242350027,
+        "TE_ci95": [
+          -0.44695494141886594,
+          -0.31706005940617693
+        ],
+        "NDE": -0.14571451791606527,
+        "NDE_ci95": [
+          -0.2059576321362729,
+          -0.08759340381055197
+        ],
+        "NIE": -0.23625610631893743,
+        "NIE_ci95": [
+          -0.27399317871557954,
+          -0.19866496939420417
+        ],
+        "prop_mediated": 0.6185190465683135,
+        "PM_ci95": [
+          0.5172316090246631,
+          0.7360363613162637
+        ]
+      },
+      "within_gene_FE": {
+        "TE": -0.20130847762018178,
+        "TE_ci95": [
+          -0.266856777091184,
+          -0.13770599958525914
+        ],
+        "NDE": -0.07305725102662339,
+        "NDE_ci95": [
+          -0.1296473962070748,
+          -0.015199513482204068
+        ],
+        "NIE": -0.1282512265935584,
+        "NIE_ci95": [
+          -0.15966457615190952,
+          -0.09807586345040346
+        ],
+        "prop_mediated": 0.6370880556532549,
+        "PM_ci95": [
+          0.47864762655616894,
+          0.8996276385438654
+        ]
+      }
+    },
+    "backup_skip_via_cadd": {
+      "unadjusted": {
+        "TE": -0.16772300806090928,
+        "TE_ci95": [
+          -0.21161627161441204,
+          -0.12259203813161348
+        ],
+        "NDE": -0.09705246032492743,
+        "NDE_ci95": [
+          -0.13237829277122054,
+          -0.06061467593138136
+        ],
+        "NIE": -0.07067054773598186,
+        "NIE_ci95": [
+          -0.09827747590002663,
+          -0.046718741637179526
+        ],
+        "prop_mediated": 0.42135273241890325,
+        "PM_ci95": [
+          0.2970610833958042,
+          0.5577359988680637
+        ]
+      },
+      "within_gene_FE": {
+        "TE": -0.05468398553784643,
+        "TE_ci95": [
+          -0.1109713893010662,
+          -0.0003415005779439095
+        ],
+        "NDE": -0.06679103615399398,
+        "NDE_ci95": [
+          -0.11217844935744292,
+          -0.024504524817067587
+        ],
+        "NIE": 0.012107050616147549,
+        "NIE_ci95": [
+          -0.022719568894461323,
+          0.04546480319526543
+        ],
+        "prop_mediated": -0.22140029657802351,
+        "PM_ci95": [
+          -2.740979377200402,
+          0.49852683161334893
+        ]
+      }
+    }
+  },
+  "splice_junction_boundary_asymmetry": {
+    "distance_profile": [
+      {
+        "bin": "0-1 bp (Immediate Edge)",
+        "d_lo": 0,
+        "d_hi": 1,
+        "am_benign_n": 1,
+        "am_benign_fn_rate": 0.0,
+        "am_benign_spliceai_ge20": 0.0,
+        "pop_syn_n": 57,
+        "pop_syn_res_plp": 0.0,
+        "pop_syn_plp_count": 0,
+        "pop_mis_n": 64,
+        "pop_mis_res_plp": 0.75
+      },
+      {
+        "bin": "2-3 bp (Consensus Edge)",
+        "d_lo": 2,
+        "d_hi": 3,
+        "am_benign_n": 37,
+        "am_benign_fn_rate": 0.4594594594594595,
+        "am_benign_spliceai_ge20": 0.02702702702702703,
+        "pop_syn_n": 2775,
+        "pop_syn_res_plp": 0.06349206349206349,
+        "pop_syn_plp_count": 4,
+        "pop_mis_n": 4990,
+        "pop_mis_res_plp": 0.8105263157894737
+      },
+      {
+        "bin": "0-3 bp (Combined Edge)",
+        "d_lo": 0,
+        "d_hi": 3,
+        "am_benign_n": 38,
+        "am_benign_fn_rate": 0.4473684210526316,
+        "am_benign_spliceai_ge20": 0.02631578947368421,
+        "pop_syn_n": 2832,
+        "pop_syn_res_plp": 0.06153846153846154,
+        "pop_syn_plp_count": 4,
+        "pop_mis_n": 5054,
+        "pop_mis_res_plp": 0.8080808080808081
+      },
+      {
+        "bin": "4-6 bp (Proximal)",
+        "d_lo": 4,
+        "d_hi": 6,
+        "am_benign_n": 76,
+        "am_benign_fn_rate": 0.2631578947368421,
+        "am_benign_spliceai_ge20": 0.0,
+        "pop_syn_n": 4045,
+        "pop_syn_res_plp": 0.023809523809523808,
+        "pop_syn_plp_count": 2,
+        "pop_mis_n": 8214,
+        "pop_mis_res_plp": 0.7634408602150538
+      },
+      {
+        "bin": "7-10 bp (Flank)",
+        "d_lo": 7,
+        "d_hi": 10,
+        "am_benign_n": 92,
+        "am_benign_fn_rate": 0.2717391304347826,
+        "am_benign_spliceai_ge20": 0.0,
+        "pop_syn_n": 4929,
+        "pop_syn_res_plp": 0.00847457627118644,
+        "pop_syn_plp_count": 1,
+        "pop_mis_n": 11107,
+        "pop_mis_res_plp": 0.8143712574850299
+      },
+      {
+        "bin": "11-20 bp (Near Interior)",
+        "d_lo": 11,
+        "d_hi": 20,
+        "am_benign_n": 220,
+        "am_benign_fn_rate": 0.23636363636363636,
+        "am_benign_spliceai_ge20": 0.031818181818181815,
+        "pop_syn_n": 12717,
+        "pop_syn_res_plp": 0.013029315960912053,
+        "pop_syn_plp_count": 4,
+        "pop_mis_n": 26130,
+        "pop_mis_res_plp": 0.759958071278826
+      },
+      {
+        "bin": "21-50 bp (Intermediate)",
+        "d_lo": 21,
+        "d_hi": 50,
+        "am_benign_n": 474,
+        "am_benign_fn_rate": 0.21940928270042195,
+        "am_benign_spliceai_ge20": 0.012658227848101266,
+        "pop_syn_n": 34007,
+        "pop_syn_res_plp": 0.009067357512953367,
+        "pop_syn_plp_count": 7,
+        "pop_mis_n": 69644,
+        "pop_mis_res_plp": 0.7609797297297297
+      },
+      {
+        "bin": "51-150 bp (Deep Core)",
+        "d_lo": 51,
+        "d_hi": 150,
+        "am_benign_n": 518,
+        "am_benign_fn_rate": 0.23745173745173745,
+        "am_benign_spliceai_ge20": 0.003861003861003861,
+        "pop_syn_n": 34941,
+        "pop_syn_res_plp": 0.014360313315926894,
+        "pop_syn_plp_count": 11,
+        "pop_mis_n": 66649,
+        "pop_mis_res_plp": 0.661498708010336
+      },
+      {
+        "bin": "151-300 bp (Large Core)",
+        "d_lo": 151,
+        "d_hi": 300,
+        "am_benign_n": 178,
+        "am_benign_fn_rate": 0.09550561797752809,
+        "am_benign_spliceai_ge20": 0.0,
+        "pop_syn_n": 6764,
+        "pop_syn_res_plp": 0.005291005291005291,
+        "pop_syn_plp_count": 1,
+        "pop_mis_n": 14229,
+        "pop_mis_res_plp": 0.31893687707641194
+      },
+      {
+        "bin": ">300 bp (Giant Interior)",
+        "d_lo": 301,
+        "d_hi": 1000000,
+        "am_benign_n": 434,
+        "am_benign_fn_rate": 0.03456221198156682,
+        "am_benign_spliceai_ge20": 0.0,
+        "pop_syn_n": 18642,
+        "pop_syn_res_plp": 0.0,
+        "pop_syn_plp_count": 0,
+        "pop_mis_n": 38756,
+        "pop_mis_res_plp": 0.2253711201079622
+      }
+    ],
+    "donor_vs_acceptor_edge_0_3bp": {
+      "am_benign_donor_fn": 0.6521739130434783,
+      "am_benign_donor_n": [
+        15,
+        23
+      ],
+      "am_benign_acceptor_fn": 0.13333333333333333,
+      "am_benign_acceptor_n": [
+        2,
+        15
+      ],
+      "bm_cds_donor_p_rate": 0.24045801526717558,
+      "bm_cds_donor_spl_ge20": 0.026717557251908396,
+      "bm_cds_acceptor_p_rate": 0.17567567567567569,
+      "bm_cds_acceptor_spl_ge20": 0.03153153153153153,
+      "pop_syn_donor_res_plp": 0.12121212121212122,
+      "pop_syn_acceptor_res_plp": 0.0
+    }
+  }
+}
