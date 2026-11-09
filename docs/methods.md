@@ -15,7 +15,7 @@ We ran the pipeline in Python 3.11 with the pinned versions in
 pytest 8.3.3). We verified a clean install and 37/37 passing tests in a
 fresh Python 3.11.17 virtual environment on 2026-10-13; the suite is
 62/62 after the 2026-11-09 fix round, which added data-grounded tests
-over the panel findings (tests/test_panel_fix_round.py). `pyproject.toml`
+over the review findings (tests/test_panel_fix_round.py). `pyproject.toml`
 pins the same packages with `==`, so `pip install -e .` and `pip install
 -r requirements.txt` describe the same environment; we used
 `requirements.txt` for every locked result.

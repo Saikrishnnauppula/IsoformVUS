@@ -1,8 +1,8 @@
 # Limitations
 
 This document lists what is wrong or unproven in IsoformVUS, with the
-numbers behind each item. The manuscript built from this work was
-rejected in November 2026 (REJECT, confidence 4/5); the items here are
+numbers behind each item. An internal review of the manuscript in
+November 2026 recommended against its original form; the items here are
 the reasons.
 
 ## Research code only
@@ -286,7 +286,7 @@ points to `src/isoformvus/data/splits.py` (the generator string in
 The reference list in the reviewed manuscript was rebuilt from primary
 sources: of 15 entries, 6 were wrong, 3 partly wrong, and 2 cited works
 were missing from it entirely (CADD, Kircher et al. 2014; CEP290, Taylor
-et al. 2022). The panel's proposed SpliceAI and Pozo fixes were both wrong
+et al. 2022). The review's proposed SpliceAI and Pozo fixes were both wrong
 on re-check: the SpliceAI DOI 10.1016/j.cell.2019.01.017 is not that paper's
 DOI, and the Pozo DOI 10.1186/s12864-018-5013-2 belongs to Bhuiyan et al.
 2018. The rebuilt list has 11 entries, only works the manuscript text
