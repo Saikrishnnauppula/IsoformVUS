@@ -74,23 +74,23 @@ We added one feature group per tier, in this order:
   with 95% CI [+0.0473, +0.0546], positive in 24 of 24 test genes. After
   the 2026-11-09 refit (CADD removed from all tiers), M4 is +0.0189 above
   M1 in tie-corrected AUPRC (0.8526 against 0.8336; gene-clustered 95% CI
-  [+0.0107, +0.0278]). The intervening rebuilt run, which put M4 at -0.0069
+  [+0.0107, +0.0279]). The intervening rebuilt run, which put M4 at -0.0069
   below M1, was inflated by test-time CADD signal through a constant-fit
   coefficient and is superseded.
 - M5, isoform usage: the dominant transcript's GTEx usage in the gene's top
   tissue, assigned to every variant of the gene. It is also a gene-level
   constant. On the shipped matrix it added nothing (AUPRC change about
-  -0.0001); on the 2026-11-09 refit M5 is -0.0000 from M4 in tie-corrected
-  AUPRC (step AUPRC change -0.0001).
+  -0.0001); on the 2026-11-09 refit M5 is -0.0001 from M4 in tie-corrected
+  AUPRC (step AUPRC change -0.0002).
 
 We scored average precision two ways. Standard step AUPRC (right-endpoint)
 penalizes tied score blocks, and M1 holds a 6,077-SNV tie block of variants
 with missing AlphaMissense scores. Under analytical tie-corrected average
 precision (McSherry and Najork 2008), on the 2026-11-09 refit M1 scores
-0.8336, M2 0.8343, M3 0.8350, M4 0.8526, and M5 0.8526. The +0.031
+0.8336, M2 0.8344, M3 0.8344, M4 0.8526, and M5 0.8525. The +0.031
 step-AUPRC jumps in M2 and M3 were a tie artifact; tie-corrected, M2
-gains +0.0007 and M3 +0.0014. The rebuilt run's tie-corrected values
-(M1 0.9463, M4 0.9394) are superseded: on that run, real CADD values in
+gains +0.0008 and M3 +0.0008. The rebuilt run's tie-corrected values
+(M1 0.9465, M4 0.9395) are superseded: on that run, real CADD values in
 validation and test broke the tie block by leaking signal into the tiers
 through a coefficient fit on a constant in train.
 
@@ -106,7 +106,7 @@ bootstraps, 2,000 permutations) with Bonferroni alpha 0.01. Gene-clustered
 intervals (cluster bootstrap over the 24 test genes, 2,000 resamples, plus
 a leave-one-gene-out jackknife) are computed by
 scripts/19_refit_statistics.py on the 2026-11-09 refit: M4-M1 +0.0189
-[+0.0107, +0.0278]; M2-M1 +0.0007 [-0.0029, +0.0045]. An earlier check put
+[+0.0107, +0.0279]; M2-M1 +0.0008 [-0.0029, +0.0047]. An earlier check put
 the M4 minus M1 gene-cluster interval at [+0.0425, +0.0582] on step
 AUPRC, which penalizes M1's tie block; the tie-corrected interval above
 supersedes it. Tier claims in the manuscript rest on the clustered
@@ -114,37 +114,44 @@ intervals, not the variant-level ones.
 
 ## Run order
 
-We ran the pipeline in stage order 01 to 19, as listed in
-`scripts/run_all.sh`: 19 numbered stages in 23 script invocations (stage 04
-runs two scripts, stage 09 runs five, stages 10-11 share one script, and
-stage 19 is the pytest suite). Every stage now calls a real script: the six
-stub stages were deleted or implemented, and the runner wires in
-`scripts/10_11_benchmark.py` (stages 10-11), `scripts/12b_paired_analysis.py`
-(stage 12), `scripts/14_add_baselines.py` (stage 14), and
-`scripts/18_exon_architecture_nmd.py` (stage 18). The intended entry points
-are `make test`, `make benchmark`, and `make figures`. Stage 18 writes
-`results/exon_architecture_nmd.json`,
+We ran the pipeline in stage order 01 to 19: 19 numbered stages in 23
+script invocations (stage 04 runs two scripts, stage 09 runs five, stages
+10-11 share one script, and stage 19 is the pytest suite). Every stage
+calls a real script: the six stub stages were deleted or implemented, and
+the runner wires in `scripts/10_11_benchmark.py` (stages 10-11),
+`scripts/12b_paired_analysis.py` (stage 12),
+`scripts/14_add_baselines.py` (stage 14), and
+`scripts/18_exon_architecture_nmd.py` (stage 18). Since 2026-11-09
+`scripts/run_all.sh` has two modes: the default verify mode runs the
+stages that execute from shipped data (10-11, 12, 14, 18, the refit
+statistics script in place of 17, figures, tests) and runs to completion
+from a fresh clone; `--full` keeps the stage order above behind a
+preflight that fails fast on missing inputs. Stage 13 is verify-excluded
+(it needs the GENCODE GTF and MANE summary in `data/raw/`). The intended
+entry points are `make test`, `make benchmark`, and `make figures`.
+Stage 18 writes `results/exon_architecture_nmd.json`,
 `results/exon_skipping_nmd_candidates.tsv`,
 `results/vus_bayesian_stratification.tsv`, and
-`results/cmh_per_gene_tables.tsv`. A full from-scratch run is not currently
-possible: the ClinVar weekly the locked results were built from returns
-HTTP 404 (stage 01 now pins the live `clinvar_20261108.vcf.gz`, verified
-2026-11-09, which is a different ClinVar version), `data/raw/` and
-`data/interim/` are not in the repository, stages 04a and 05 need the live
-GTEx API, and stage 09b needs the live CADD API.
+`results/cmh_per_gene_tables.tsv`. A full from-scratch run does not
+reproduce the locked results: the ClinVar weekly they were built from
+returns HTTP 404 (stage 01 now pins the live `clinvar_20261108.vcf.gz`,
+verified 2026-11-09, which is a different ClinVar version), `data/raw/`
+is not in the repository, stages 04a and 05 need the live GTEx API, and
+stage 09b needs the live CADD API.
 
 ## Test-access guard
 
 We locked the test set before training. `scripts/10_11_benchmark.py`
 refuses to run when `results/test_access.log` exists unless `--allow-rerun`
 is passed, and it appends one line per access. Scripts 12b and 18 log their
-test accesses the same way. The log records 13 entries: 1 benchmark run on
+test accesses the same way. The log records 16 entries: 1 benchmark run on
 2026-10-06, 8 baseline-enrichment evaluations (SpliceAI plus CADD) on
-2026-10-07, 2 benchmark reruns and 1 baseline run on 2026-11-08, and 1
-script-18 M6 evaluation on 2026-11-08. Four earlier script-18 M6
-evaluations on 2026-11-08 were not logged by that script, so the test split
-was read 17 times in all. The committed log is the original timestamped
-record; it sat untracked in the working tree until 2026-11-09 because
+2026-10-07, 2 benchmark reruns, 1 baseline run, and 1 script-18 M6
+evaluation on 2026-11-08, and on 2026-11-09 a script-18 verification
+rerun, a benchmark rerun for the pinned-stack refit, and 1 baseline run.
+Four earlier script-18 M6 evaluations on 2026-11-08 were not logged by
+that script, so the test split was read 20 times in all. The committed
+log is the original timestamped record; it sat untracked in the working tree until 2026-11-09 because
 `.gitignore` carried a bare `*.log` rule, and a negation
 (`!results/test_access.log`) now keeps it tracked. Any statement that the
 test set was accessed once is false.
@@ -244,5 +251,5 @@ train-fit quantity, M5 minus CADD AUPRC on the CADD-scored test subset, is
 -0.2367, not +0.0191). What survived that check was the
 tie correction itself, and the M4 structural signal at a smaller size: on
 the 2026-11-09 refit M4 is +0.0189 above M1 in tie-corrected AUPRC
-(gene-clustered 95% CI [+0.0107, +0.0278]). The rebuilt run's -0.0069
+(gene-clustered 95% CI [+0.0107, +0.0279]). The rebuilt run's -0.0069
 reading was a CADD artifact (manuscript Section 3.1).

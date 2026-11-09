@@ -43,11 +43,13 @@ holds `benchmark.json`, `statistics.json`, `per_model_cis.json`,
 
 ## What must be re-downloaded
 
-`data/raw/` (~5.1 GB) and `data/interim/` (~3.1 GB) are not in the
-repository. A rebuild from raw inputs needs the ClinVar VCF, the GENCODE
-v46 GTF, the MANE v1.5 summary, HPO v2026-02-16, the GTEx v8 API, the
-SpliceAI package with a GRCh38 FASTA and GTF, the CADD v1.7 REST API, and
-the AlphaMissense Zenodo file, at the URLs in the table above.
+`data/raw/` (~5.1 GB) and most of `data/interim/` (~3.1 GB) are not in
+the repository; the exception is `data/interim/script18/`, whose five
+tables ship (see "Script-18 inputs" below). A rebuild from raw inputs
+needs the ClinVar VCF, the GENCODE v46 GTF, the MANE v1.5 summary, HPO
+v2026-02-16, the GTEx v8 API, the SpliceAI package with a GRCh38 FASTA
+and GTF, the CADD v1.7 REST API, and the AlphaMissense Zenodo file, at
+the URLs in the table above.
 
 What still blocks a full fresh-clone run, stated plainly:
 
@@ -63,10 +65,11 @@ What still blocks a full fresh-clone run, stated plainly:
 - Stages 04a and 05 need the live GTEx Portal v2 API; stage 09b needs the
   live CADD v1.7 REST API (about 12 h for the validation+test scope);
   stages 09d-09f need a SpliceAI installation with a GRCh38 FASTA and GTF.
-- Stage 18 cannot run from a fresh clone at all: its five input files sit
-  in `data/interim/script18/`, which is not shipped, and the code that
-  built them was removed with the experiment archive (see "Script-18
-  inputs" below).
+- Stage 13 needs the GENCODE v46 GTF and MANE summary in `data/raw/`, so
+  it is not part of the verify mode in `scripts/run_all.sh`. Stage 18
+  does run from a fresh clone since 2026-11-09: its five input files ship
+  in `data/interim/script18/`, although the code that built them was
+  removed with the experiment archive (see "Script-18 inputs" below).
 
 And the GTEx v8 to GENCODE v46 join loses an unquantified number of
 transcripts: GTEx v8 used GENCODE v26 identifiers, the join used the ENST
@@ -94,23 +97,28 @@ pathogenic test variants, and 0% of deletions. SpliceAI scoring was also
 partial: 13,687 of 14,310 test variants scored, 623 unscorable for lack of
 an annotated transcript window.
 
-## Script-18 inputs (not shipped)
+## Script-18 inputs (shipped since 2026-11-09)
 
-Stage 18 (`scripts/18_exon_architecture_nmd.py`) needs five large files
-that live in `data/interim/script18/` and are not committed:
+Stage 18 (`scripts/18_exon_architecture_nmd.py`) needs five files that
+ship in `data/interim/script18/` (committed under a `.gitignore`
+negation; the rest of `data/interim/` stays uncommitted):
 
 | File | Size | Provenance |
 |---|---|---|
-| `supp_clinvar_all_table.tsv` | 67 MB | The 587,227-row ClinVar table with dual GENCODE v44/v46 consequences, from the project archive |
+| `supp_clinvar_all_table.tsv.gz` | 7.9 MB (67 MB uncompressed) | The 587,227-row ClinVar table with dual GENCODE v44/v46 consequences, from the project archive |
 | `variant_molecular_consequences.tsv.gz` | 512 KB | Per-variant molecular consequences from the experiment archive |
 | `ptc_features.tsv.gz` | 300 KB | Premature-termination-codon features from the experiment archive |
 | `variant_transcript_sev.tsv.gz` | 2.6 MB | Per-transcript severity scores from the experiment archive |
 | `labels_2024_vs_2026.tsv.gz` | 1.5 MB | 2024 vs 2026 ClinVar labels for the temporal holdout, from the experiment archive |
 
 The code that built these five files was removed with the experiment
-archive (`breakthrough/`, deleted 2026-11-08), so they cannot currently
-be regenerated from the repository. A fresh clone cannot run stage 18
-until they are restored to `data/interim/script18/`.
+archive (`breakthrough/`, deleted 2026-11-08), so the inputs themselves
+cannot be regenerated from the repository. With them shipped, stage 18
+runs from a fresh clone: a 2026-11-09 rerun reproduced its committed TSV
+outputs byte-identically and its JSON values to within 2e-6. The
+committed `results/exon_architecture_nmd.json` also carries hand-applied
+note edits (CMH p-values removed) that the script does not re-emit, so
+the JSON is not byte-regenerated.
 
 ## Licences
 

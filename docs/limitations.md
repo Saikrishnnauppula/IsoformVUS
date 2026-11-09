@@ -29,15 +29,15 @@ were a tie artifact. M1 holds a 6,077-SNV tie block of variants with
 missing AlphaMissense scores, and standard right-endpoint step AUPRC
 penalizes that block by -0.0318. Under analytical tie-corrected average
 precision (McSherry and Najork 2008), on the 2026-11-09 refit M1 scores
-0.8336, M2 0.8343, and M3 0.8350, so the tie-corrected gains are +0.0007
-and +0.0014. On that refit (CADD removed from all fitted tiers), the
-tie-corrected values are M1 0.8336, M2 0.8343 (+0.0007), M3 0.8350
-(+0.0014), M4 0.8526 (+0.0189), M5 0.8526 (+0.0189); gene-clustered 95%
-CIs over the 24 test genes include zero for M2-M1 ([-0.0029, +0.0045])
-and exclude zero for M4-M1 ([+0.0107, +0.0278]). The old step-AUPRC gain
+0.8336, M2 0.8344, and M3 0.8344, so the tie-corrected gains are +0.0008
+and +0.0008. On that refit (CADD removed from all fitted tiers), the
+tie-corrected values are M1 0.8336, M2 0.8344 (+0.0008), M3 0.8344
+(+0.0008), M4 0.8526 (+0.0189), M5 0.8525 (+0.0188); gene-clustered 95%
+CIs over the 24 test genes include zero for M2-M1 ([-0.0029, +0.0047])
+and exclude zero for M4-M1 ([+0.0107, +0.0279]). The old step-AUPRC gain
 (+0.0509) overstates the M4 effect because step evaluation penalizes the
 tied M1 baseline; the tie-corrected gain is +0.0189. The rebuilt run's
-values (M1 0.9463, M4 0.9394, M2 0.9533 as "best tier") are superseded:
+values (M1 0.9465, M4 0.9395, M2 0.9533 as "best tier") are superseded:
 real CADD in validation and test entered through a coefficient fit on a
 constant in train (0 of 35,921 train rows scored). Both layers are
 gene-level constants: every variant in a gene carries the same value, so
@@ -48,13 +48,15 @@ the shipped numbers give 94.0%, 94.9%, and 96.8%, and none gives 94.5%.
 
 ## Test-set access and tuning on test genes
 
-The test set was accessed 13 times as recorded in `results/test_access.log`,
+The test set was accessed 16 times as recorded in `results/test_access.log`,
 not once: 1 benchmark run on 2026-10-06, 8 baseline-enrichment evaluations
-on 2026-10-07, 2 benchmark reruns and 1 baseline run on 2026-11-08, and 1
-script-18 M6 evaluation on 2026-11-08. Four earlier script-18 M6
-evaluations on 2026-11-08 were not logged by that script, so the test split
-was read 17 times in all during this revision. The committed log is the
-original timestamped record (13 entries, 2026-10-06 to 2026-11-08). It
+on 2026-10-07, 2 benchmark reruns, 1 baseline run, and 1 script-18 M6
+evaluation on 2026-11-08, and on 2026-11-09 a script-18 verification rerun,
+a benchmark rerun for the pinned-stack refit, and 1 baseline run. Four
+earlier script-18 M6 evaluations on 2026-11-08 were not logged by that
+script, so the test split was read 20 times in all during this revision.
+The committed log is the original timestamped record (16 entries,
+2026-10-06 to 2026-11-09). It
 sat untracked in the working tree until 2026-11-09 because `.gitignore`
 carried a bare `*.log` rule; a negation (`!results/test_access.log`) now
 keeps it tracked. The "held-out" label applies
@@ -127,8 +129,8 @@ MaxEntScan comparison was run for these variants.
 
 All three isoform-regime rates are withdrawn in full (2026-11-09). The
 regime classification sat on the 587k variant table in
-`data/interim/script18/`, which is not shipped, and the code that built
-it was deleted with the experiment archive, so no regime count — neither
+`data/interim/script18/` (shipped since 2026-11-09), and the code that
+built it was deleted with the experiment archive, so no regime count — neither
 the original rates (Regime I 99.93% benign, Regime II 89.20%, Regime III
 28.57%) nor the corrected rates published in the previous revision
 (98.38%, 730 of 742; 35.02%, 145 of 414) — can be regenerated from

@@ -3,6 +3,44 @@
 All notable changes to IsoformVUS. Versions follow semantic versioning.
 Current version: 0.1.0.
 
+## [Unreleased] - 2026-11-09 (professor-audit fixes)
+
+- Refit regenerated on the pinned `requirements.txt` stack
+  (scikit-learn 1.5.1 / pandas 2.2.2 / numpy 1.26.4). The earlier
+  2026-11-09 refit ran on an unpinned system stack; its M3 test values
+  drifted (AUROC 0.7975 -> 0.7962, step AUPRC 0.8335 -> 0.8328) and its
+  M3 validation AUROC by 0.0054. Live values now come from
+  scripts 10_11 + 14 + 19 run on the pinned stack, in that order.
+- `scripts/19_refit_statistics.py`: the `auprc_diffs` permutation p-value
+  now uses the same tie-aware AUPRC as the reported CI (it used step
+  AUPRC before), and `significant` requires perm p < 0.01 (Bonferroni)
+  AND the bootstrap CI to exclude zero. M2-M1 and M3-M1 variant-level
+  flags are now `false` (they were `true` while their CIs included
+  zero); M4-M1 and M5-M1 stay `true`. Script 19 also carries its
+  labelled superseded sections forward on reruns instead of
+  relabelling live values as superseded.
+- Stage-18 inputs ship: the five tables in `data/interim/script18/`
+  (the 587k ClinVar table gzipped to 7.9 MB) are committed under a
+  `.gitignore` negation. Stage 18 runs from a fresh clone and reproduced
+  its committed TSVs byte-identically (JSON values within 2e-6).
+- Figures 09-12 are replotted by `scripts/16_make_missing_figures.py`
+  from the shipped stage-18 outputs; they are new renderings, not the
+  original images, and stale values in the originals (donor-edge LR
+  4.52; M6 internal-missense AUROC 95.1%) are corrected to the shipped
+  values (1.817; 0.9321).
+- `scripts/run_all.sh` has two modes: default verify mode (stages
+  runnable from shipped data, runs to completion from a fresh clone)
+  and `--full` (original 19-stage rebuild behind a fail-fast preflight).
+  Bit-exact full reproduction remains impossible: the locked ClinVar
+  weekly returns HTTP 404 and `data/raw/` is not shipped.
+- Test-set access count updated to the log as committed: 16 logged
+  accesses, 20 reads in all. The 2026-11-09 entries are a script-18
+  verification rerun, the pinned-stack benchmark refit rerun, and a
+  baseline-enrichment run.
+- `docs/limitations.md` and `docs/methods.md`: the dead rebuilt run's
+  step values now read M1 0.9465 / M4 0.9395 everywhere (two places said
+  0.9463 / 0.9394, which are that run's tie-corrected values).
+
 ## [0.1.0] - 2026-10-13
 
 First public release.
