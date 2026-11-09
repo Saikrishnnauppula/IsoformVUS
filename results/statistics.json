@@ -3,57 +3,57 @@
   "n_boot": 5000,
   "n_perm": 2000,
   "test_n": 14400,
-  "refit": "2026-11-09: all values below recomputed from tiers fit WITHOUT cadd_phred and cadd_missing (train 0/35,921 CADD-scored). CADD is a pure external baseline. Environment: scikit-learn 1.9.1 / pandas 3.0.6 (system python), vs pinned 1.5.1-era stack; expect <=0.003 drift from version change alone.",
+  "refit": "2026-11-09: all values below recomputed from tiers fit WITHOUT cadd_phred and cadd_missing (train 0/35,921 CADD-scored). CADD is a pure external baseline. Environment: pinned requirements stack (scikit-learn 1.5.1 / pandas 2.2.2 / numpy 1.26.4); an earlier 2026-11-09 refit ran on an unpinned system stack: its test values drift from these by up to 0.0013 (M3 test AUROC) and its M3 validation AUROC by 0.0054.",
   "auprc_diffs": {
     "M4_minus_M1": {
-      "mean": 0.01893010983154948,
-      "ci_lo": 0.01535388058532107,
-      "ci_hi": 0.022773888407904893,
+      "mean": 0.018936855068284204,
+      "ci_lo": 0.015344135674856946,
+      "ci_hi": 0.022793044662409362,
       "perm_p": 0.0004997501249375312,
       "significant": true,
       "alpha": 0.01,
       "metric": "tie-aware AUPRC (McSherry & Najork 2008 expected AP)",
-      "note": "Variant-level paired bootstrap CI + permutation p (step AUPRC). Variant-level CIs are NOT gene-level evidence; see gene_clustered_cis."
+      "note": "Variant-level paired bootstrap CI and permutation p, both on tie-aware AUPRC. Significant = perm_p < alpha AND the bootstrap CI excludes zero. Variant-level CIs are NOT gene-level evidence; see gene_clustered_cis."
     },
     "M5_minus_M1": {
-      "mean": 0.01888829149012213,
-      "ci_lo": 0.015263145473798864,
-      "ci_hi": 0.022746284728235366,
+      "mean": 0.01882549690877336,
+      "ci_lo": 0.015250187473857138,
+      "ci_hi": 0.02268054848801953,
       "perm_p": 0.0004997501249375312,
       "significant": true,
       "alpha": 0.01,
       "metric": "tie-aware AUPRC (McSherry & Najork 2008 expected AP)",
-      "note": "Variant-level paired bootstrap CI + permutation p (step AUPRC). Variant-level CIs are NOT gene-level evidence; see gene_clustered_cis."
+      "note": "Variant-level paired bootstrap CI and permutation p, both on tie-aware AUPRC. Significant = perm_p < alpha AND the bootstrap CI excludes zero. Variant-level CIs are NOT gene-level evidence; see gene_clustered_cis."
     },
     "M2_minus_M1": {
-      "mean": 0.0006988090662332502,
-      "ci_lo": -0.0011953311025826058,
-      "ci_hi": 0.0025959673327433205,
-      "perm_p": 0.0004997501249375312,
-      "significant": true,
-      "alpha": 0.01,
-      "metric": "tie-aware AUPRC (McSherry & Najork 2008 expected AP)",
-      "note": "Variant-level paired bootstrap CI + permutation p (step AUPRC). Variant-level CIs are NOT gene-level evidence; see gene_clustered_cis."
-    },
-    "M3_minus_M1": {
-      "mean": 0.0013899138549571678,
-      "ci_lo": -0.0005273191921812498,
-      "ci_hi": 0.0033372625633391255,
-      "perm_p": 0.0004997501249375312,
-      "significant": true,
-      "alpha": 0.01,
-      "metric": "tie-aware AUPRC (McSherry & Najork 2008 expected AP)",
-      "note": "Variant-level paired bootstrap CI + permutation p (step AUPRC). Variant-level CIs are NOT gene-level evidence; see gene_clustered_cis."
-    },
-    "M5_minus_M4": {
-      "mean": -4.181834142735313e-05,
-      "ci_lo": -0.00017708994288715975,
-      "ci_hi": 8.864463643136754e-05,
-      "perm_p": 0.5362318840579711,
+      "mean": 0.0007714481184369484,
+      "ci_lo": -0.0011527610908202035,
+      "ci_hi": 0.0026788077117723013,
+      "perm_p": 0.5172413793103449,
       "significant": false,
       "alpha": 0.01,
       "metric": "tie-aware AUPRC (McSherry & Najork 2008 expected AP)",
-      "note": "Variant-level paired bootstrap CI + permutation p (step AUPRC). Variant-level CIs are NOT gene-level evidence; see gene_clustered_cis."
+      "note": "Variant-level paired bootstrap CI and permutation p, both on tie-aware AUPRC. Significant = perm_p < alpha AND the bootstrap CI excludes zero. Variant-level CIs are NOT gene-level evidence; see gene_clustered_cis."
+    },
+    "M3_minus_M1": {
+      "mean": 0.0007513228078799198,
+      "ci_lo": -0.0010916215424755238,
+      "ci_hi": 0.002598397265804389,
+      "perm_p": 0.5002498750624688,
+      "significant": false,
+      "alpha": 0.01,
+      "metric": "tie-aware AUPRC (McSherry & Najork 2008 expected AP)",
+      "note": "Variant-level paired bootstrap CI and permutation p, both on tie-aware AUPRC. Significant = perm_p < alpha AND the bootstrap CI excludes zero. Variant-level CIs are NOT gene-level evidence; see gene_clustered_cis."
+    },
+    "M5_minus_M4": {
+      "mean": -0.00011135815951084743,
+      "ci_lo": -0.0002314593886383859,
+      "ci_hi": 1.888990343479608e-05,
+      "perm_p": 0.11944027986006997,
+      "significant": false,
+      "alpha": 0.01,
+      "metric": "tie-aware AUPRC (McSherry & Najork 2008 expected AP)",
+      "note": "Variant-level paired bootstrap CI and permutation p, both on tie-aware AUPRC. Significant = perm_p < alpha AND the bootstrap CI excludes zero. Variant-level CIs are NOT gene-level evidence; see gene_clustered_cis."
     }
   },
   "auprc_diffs_superseded_pre_rebuild": {
@@ -108,17 +108,17 @@
   "m2_m3_clarification": {
     "M2": {
       "auroc": {
-        "mean": -0.0015845147230379645,
-        "ci_lo": -0.00445938746682518,
-        "ci_hi": 0.0012515923413237704,
+        "mean": -0.001578892140164746,
+        "ci_lo": -0.004446234953858388,
+        "ci_hi": 0.0012533533344498769,
         "perm_p": 0.38580709645177413,
         "significant": false,
         "alpha": 0.01
       },
       "auprc": {
-        "mean": 0.03124945758421351,
-        "ci_lo": 0.029259969562945867,
-        "ci_hi": 0.03325781177913324,
+        "mean": 0.03132038033617259,
+        "ci_lo": 0.0293297878727738,
+        "ci_hi": 0.03333334538468196,
         "perm_p": 0.0004997501249375312,
         "significant": true,
         "alpha": 0.01
@@ -126,17 +126,17 @@
     },
     "M3": {
       "auroc": {
-        "mean": -0.0009769985275940747,
-        "ci_lo": -0.003800947591400475,
-        "ci_hi": 0.00185638419377548,
-        "perm_p": 0.5807096451774113,
+        "mean": -0.002277942238749786,
+        "ci_lo": -0.005019480036660201,
+        "ci_hi": 0.00041415686431782683,
+        "perm_p": 0.20239880059970014,
         "significant": false,
         "alpha": 0.01
       },
       "auprc": {
-        "mean": 0.0319302081122354,
-        "ci_lo": 0.029934049008733223,
-        "ci_hi": 0.03397355599633131,
+        "mean": 0.03129380231025395,
+        "ci_lo": 0.029403442410862964,
+        "ci_hi": 0.03325402866310865,
         "perm_p": 0.0004997501249375312,
         "significant": true,
         "alpha": 0.01
@@ -194,52 +194,52 @@
     "test_n": 14400,
     "tie_auprc": {
       "M1": 0.833634123523018,
-      "M2": 0.8343402605271326,
-      "M3": 0.8350348928276408,
-      "M4": 0.8526089624123537,
-      "M5": 0.8525677129127107
+      "M2": 0.8344127543103146,
+      "M3": 0.8343843395264374,
+      "M4": 0.852615250479819,
+      "M5": 0.8525045825018459
     },
     "step_auprc": {
       "M1": 0.8015190900473401,
-      "M2": 0.8327706663429844,
-      "M3": 0.8334527122739248,
-      "M4": 0.8523512066707913,
-      "M5": 0.8523085777987933
+      "M2": 0.832841392331382,
+      "M3": 0.8328135195017587,
+      "M4": 0.8523573398294968,
+      "M5": 0.8522455978125649
     },
     "diffs": {
       "M4_minus_M1": {
-        "mean": 0.01893010983154948,
-        "ci_lo": 0.01535388058532107,
-        "ci_hi": 0.022773888407904893,
+        "mean": 0.018936855068284204,
+        "ci_lo": 0.015344135674856946,
+        "ci_hi": 0.022793044662409362,
         "perm_p": 0.0004997501249375312,
         "significant": true
       },
       "M5_minus_M1": {
-        "mean": 0.01888829149012213,
-        "ci_lo": 0.015263145473798864,
-        "ci_hi": 0.022746284728235366,
+        "mean": 0.01882549690877336,
+        "ci_lo": 0.015250187473857138,
+        "ci_hi": 0.02268054848801953,
         "perm_p": 0.0004997501249375312,
         "significant": true
       },
       "M2_minus_M1": {
-        "mean": 0.0006988090662332502,
-        "ci_lo": -0.0011953311025826058,
-        "ci_hi": 0.0025959673327433205,
-        "perm_p": 0.0004997501249375312,
-        "significant": true
+        "mean": 0.0007714481184369484,
+        "ci_lo": -0.0011527610908202035,
+        "ci_hi": 0.0026788077117723013,
+        "perm_p": 0.5172413793103449,
+        "significant": false
       },
       "M3_minus_M1": {
-        "mean": 0.0013899138549571678,
-        "ci_lo": -0.0005273191921812498,
-        "ci_hi": 0.0033372625633391255,
-        "perm_p": 0.0004997501249375312,
-        "significant": true
+        "mean": 0.0007513228078799198,
+        "ci_lo": -0.0010916215424755238,
+        "ci_hi": 0.002598397265804389,
+        "perm_p": 0.5002498750624688,
+        "significant": false
       },
       "M5_minus_M4": {
-        "mean": -4.181834142735313e-05,
-        "ci_lo": -0.00017708994288715975,
-        "ci_hi": 8.864463643136754e-05,
-        "perm_p": 0.5362318840579711,
+        "mean": -0.00011135815951084743,
+        "ci_lo": -0.0002314593886383859,
+        "ci_hi": 1.888990343479608e-05,
+        "perm_p": 0.11944027986006997,
         "significant": false
       }
     }
@@ -293,29 +293,29 @@
     "test_n": 14400,
     "diffs": {
       "M4_minus_M1": {
-        "mean": 0.004306423193115569,
-        "ci_lo": -0.00011613184189021018,
-        "ci_hi": 0.008597889906111931
+        "mean": 0.004343275042161585,
+        "ci_lo": -8.62853015426157e-05,
+        "ci_hi": 0.00864434404958814
       },
       "M5_minus_M1": {
-        "mean": 0.004245547678927443,
-        "ci_lo": -0.00018254099710086346,
-        "ci_hi": 0.008596462580540257
+        "mean": 0.004270951180897065,
+        "ci_lo": -0.00013211586319352152,
+        "ci_hi": 0.008630519962955073
       },
       "M2_minus_M1": {
-        "mean": -0.0015765993914059987,
-        "ci_lo": -0.00445963389179363,
-        "ci_hi": 0.001252289888401603
+        "mean": -0.001570718567202516,
+        "ci_lo": -0.004446234953858388,
+        "ci_hi": 0.001263865091101418
       },
       "M3_minus_M1": {
-        "mean": -0.0009728251151141622,
-        "ci_lo": -0.003777869771651002,
-        "ci_hi": 0.0018923062603053333
+        "mean": -0.002263641961299246,
+        "ci_lo": -0.0049769233765594115,
+        "ci_hi": 0.0004909507379892892
       },
       "M5_minus_M4": {
-        "mean": -6.087551418812553e-05,
-        "ci_lo": -0.00025621397788958,
-        "ci_hi": 0.00013090171420218315
+        "mean": -7.232386126451995e-05,
+        "ci_lo": -0.0002524621441177072,
+        "ci_hi": 0.0001093825448423734
       }
     }
   },
@@ -356,92 +356,92 @@
       "M2_minus_M1": {
         "method": "cluster bootstrap resampling the 24 test genes with replacement, n_boot=2000, seed=20261013; plus leave-one-gene-out jackknife (24 folds)",
         "n_clusters": 24,
-        "cluster_bootstrap_mean": 0.0007528219386515769,
-        "cluster_bootstrap_median": 0.0007025876185992597,
+        "cluster_bootstrap_mean": 0.0008227588288781719,
+        "cluster_bootstrap_median": 0.0007612306682290848,
         "cluster_ci95": [
-          -0.0028599208552822605,
-          0.0044716893975168
+          -0.0028625268682021835,
+          0.004655503417222106
         ],
         "cluster_excludes_zero": false,
         "jackknife": {
-          "full_diff": 0.0007061370041145931,
-          "jackknife_mean": 0.0007072861313958632,
-          "jackknife_se": 0.0020517271119075806,
+          "full_diff": 0.0007786307872965637,
+          "jackknife_mean": 0.00077970380975415,
+          "jackknife_se": 0.002069859548606041,
           "ci95_normal": [
-            -0.0033152481352242648,
-            0.004727522143453451
+            -0.003278293927971277,
+            0.004835555502564404
           ],
-          "jackknife_diffs_min": -0.00015857274662278709,
-          "jackknife_diffs_max": 0.0015898403928751303,
+          "jackknife_diffs_min": -8.965350588185927e-05,
+          "jackknife_diffs_max": 0.0016799377568028628,
           "n_clusters": 24
         }
       },
       "M4_minus_M1": {
         "method": "cluster bootstrap resampling the 24 test genes with replacement, n_boot=2000, seed=20261013; plus leave-one-gene-out jackknife (24 folds)",
         "n_clusters": 24,
-        "cluster_bootstrap_mean": 0.018910731021071332,
-        "cluster_bootstrap_median": 0.018780745443345404,
+        "cluster_bootstrap_mean": 0.018917613736123884,
+        "cluster_bootstrap_median": 0.018770282832567653,
         "cluster_ci95": [
-          0.010661375469384435,
-          0.02784437436605055
+          0.010725584068353347,
+          0.027862320422695697
         ],
         "cluster_excludes_zero": true,
         "jackknife": {
-          "full_diff": 0.01897483888933571,
-          "jackknife_mean": 0.0189709710186526,
-          "jackknife_se": 0.004584758369553011,
+          "full_diff": 0.018981126956800987,
+          "jackknife_mean": 0.018977347130117023,
+          "jackknife_se": 0.0045802706960522,
           "ci95_normal": [
-            0.009988712485011809,
-            0.02796096529365961
+            0.010003796392538674,
+            0.0279584575210633
           ],
-          "jackknife_diffs_min": 0.01671220837729026,
-          "jackknife_diffs_max": 0.021016089079323064,
+          "jackknife_diffs_min": 0.016719324879248987,
+          "jackknife_diffs_max": 0.021012607834541508,
           "n_clusters": 24
         }
       },
       "M5_minus_M1": {
         "method": "cluster bootstrap resampling the 24 test genes with replacement, n_boot=2000, seed=20261013; plus leave-one-gene-out jackknife (24 folds)",
         "n_clusters": 24,
-        "cluster_bootstrap_mean": 0.018868586859484827,
-        "cluster_bootstrap_median": 0.01874037203383233,
+        "cluster_bootstrap_mean": 0.0188052682819335,
+        "cluster_bootstrap_median": 0.018678460652095386,
         "cluster_ci95": [
-          0.010699362978121582,
-          0.027663212457458015
+          0.010628202579511544,
+          0.027555791474746662
         ],
         "cluster_excludes_zero": true,
         "jackknife": {
-          "full_diff": 0.018933589389692695,
-          "jackknife_mean": 0.018929844570231762,
-          "jackknife_se": 0.0045505090347552814,
+          "full_diff": 0.018870458978827886,
+          "jackknife_mean": 0.018866747091101865,
+          "jackknife_se": 0.0045440219348870355,
           "ci95_normal": [
-            0.010014591681572343,
-            0.027852587097813047
+            0.009964175986449298,
+            0.027776741971206477
           ],
-          "jackknife_diffs_min": 0.016650315017172068,
-          "jackknife_diffs_max": 0.020942112207214425,
+          "jackknife_diffs_min": 0.01661377375657269,
+          "jackknife_diffs_max": 0.02089213011148372,
           "n_clusters": 24
         }
       },
       "M5_minus_M4": {
         "method": "cluster bootstrap resampling the 24 test genes with replacement, n_boot=2000, seed=20261013; plus leave-one-gene-out jackknife (24 folds)",
         "n_clusters": 24,
-        "cluster_bootstrap_mean": -4.214416158650825e-05,
-        "cluster_bootstrap_median": -4.486027883099375e-05,
+        "cluster_bootstrap_mean": -0.00011234545419037667,
+        "cluster_bootstrap_median": -0.00012082133361535075,
         "cluster_ci95": [
-          -0.0004206469941272356,
-          0.0003674093597762301
+          -0.00046784545167285194,
+          0.00029991926087002637
         ],
         "cluster_excludes_zero": false,
         "jackknife": {
-          "full_diff": -4.124949964301461e-05,
-          "jackknife_mean": -4.1126448420839935e-05,
-          "jackknife_se": 0.0001919535179709538,
+          "full_diff": -0.00011066797797310013,
+          "jackknife_mean": -0.0001106000390151592,
+          "jackknife_se": 0.00017855102965303309,
           "ci95_normal": [
-            -0.00041747839486608405,
-            0.00033497939558005483
+            -0.000460627996093045,
+            0.00023929204014684472
           ],
-          "jackknife_diffs_min": -0.00012217271967163157,
-          "jackknife_diffs_max": 3.0845576608373726e-05,
+          "jackknife_diffs_min": -0.00018434449655935214,
+          "jackknife_diffs_max": -3.5273680513592254e-05,
           "n_clusters": 24
         }
       }
@@ -454,20 +454,20 @@
     "test_cadd_scored_n": 11240,
     "weak_n": 8601,
     "weak_pathogenic_n": 1915,
-    "m5_auroc_weak": 0.861015998796197,
+    "m5_auroc_weak": 0.8608314177246231,
     "m5_auroc_weak_ci": [
-      0.8483830885160937,
-      0.8737257321780357
+      0.8481557650533326,
+      0.873536363167542
     ],
-    "m5_auprc_weak": 0.8276729102690812,
+    "m5_auprc_weak": 0.8274007853859664,
     "m5_auprc_weak_ci": [
-      0.8124192472594869,
-      0.8428346946066001
+      0.8120900189682727,
+      0.8425823389320009
     ],
-    "mean_m5_pathogenic_weak": 0.758139469467139,
-    "mean_m5_pathogenic_all_cadd_test": 0.5372863772753252,
-    "mean_m5_benign_weak": 0.2783977828441623,
-    "top_decile_precision": 0.9709302325581395,
+    "mean_m5_pathogenic_weak": 0.7577745313067514,
+    "mean_m5_pathogenic_all_cadd_test": 0.5371989537918976,
+    "mean_m5_benign_weak": 0.27833950907690785,
+    "top_decile_precision": 0.9697674418604652,
     "top_decile_base_rate": 0.22264852924078596,
     "top_decile_enrichment_ratio": 4.36,
     "note": "Refit M5 (no CADD in fitted tiers). Threshold T recomputed from validation; unchanged from pre-refit value if CADD file unchanged."
@@ -500,13 +500,13 @@
     "verdict": "NOT REPRODUCIBLE from any shipped file or script: no validation-trained stack exists in the repo (all fits are train-split; no script fits on validation), and +0.0191 / +0.0015 / 0.0000 appear nowhere in results/. Closest computable train-fit quantities on the CADD-scored test subset are recorded below; none equals +0.0191. Numbers removed from methods.md.",
     "closest_computable_train_fit": {
       "population": "test variants with CADD scored (n=11240)",
-      "m5_auprc_same_subset": 0.7223297073462869,
+      "m5_auprc_same_subset": 0.7223415047142501,
       "cadd_auprc_same_subset": 0.9589980928940496,
-      "m5_minus_cadd_auprc": -0.2366683855477627,
-      "m5_auroc_same_subset": 0.7147169932341038,
+      "m5_minus_cadd_auprc": -0.2366565881797995,
+      "m5_auroc_same_subset": 0.7147956905170694,
       "cadd_auroc_same_subset": 0.9554091008429614,
-      "m5_minus_cadd_auroc": -0.24069210760885762,
-      "m4_auprc_same_subset": 0.7223412797973539,
+      "m5_minus_cadd_auroc": -0.240613410325892,
+      "m4_auprc_same_subset": 0.7223543671135051,
       "m4_minus_m1_auprc_same_subset": "not computed; M1 AUPRC on this subset not part of the claim"
     }
   },
@@ -514,7 +514,7 @@
     "method": "Bonferroni correction across the 5 paired tier comparisons",
     "n_comparisons": 5,
     "per_comparison_alpha": 0.01,
-    "note": "A tier comparison is marked significant only if its permutation p-value clears the Bonferroni-corrected per-comparison alpha (0.01) AND the effect points in the tested (positive) direction. The `significant` flags on auprc_diffs use variant-level inference only; a tier claim ALSO needs its gene-clustered 95% CI to exclude zero (see gene_clustered_cis). M2-M1: WITHDRAW 'M2 best tier' as a claim: gene-clustered 95% CI for the M2-M1 tie-aware AUPRC gain includes zero; report as a non-significant descriptive difference."
+    "note": "A tier comparison is marked significant only if its permutation p-value -- computed with the same metric as its reported confidence interval (tie-aware AUPRC for auprc_diffs) -- clears the Bonferroni-corrected per-comparison alpha (0.01) AND its paired bootstrap 95% CI excludes zero. The `significant` flags on auprc_diffs use variant-level inference only; a tier claim ALSO needs its gene-clustered 95% CI to exclude zero (see gene_clustered_cis). M2-M1: WITHDRAW 'M2 best tier' as a claim: gene-clustered 95% CI for the M2-M1 tie-aware AUPRC gain includes zero; report as a non-significant descriptive difference."
   },
   "correction_note": "2026-11-09 no-CADD refit supersedes the pre-rebuild record. Pre-rebuild: the feature matrix had cadd_phred = -1.0 for all 60,521 rows, so M1 never saw a real CADD value; M4-M1 +0.0509 (significant:true) was the headline of that run and is DEAD -- it survives only under auprc_diffs_superseded_pre_rebuild. Rebuilt-matrix run (2026-11-08) still had the defect in a subtler form: real CADD values in validation/test, but the fitted coefficient was fit on a constant in train (0/35,921 scored), so test-time CADD signal entered through an uncalibrated coefficient; its tie-corrected values (M4-M1 -0.0069) are preserved under tie_corrected_superseded_pre_refit. Live values are the *_refit_no_cadd sections. The M2-M1 (+0.0310) and M3-M1 (+0.0317) step-AUPRC gains in the pre-rebuild run were a tie-breaking artifact: a 6,077-variant tie block (test SNVs with am_missing=1 and review_stars=1) penalised M1 step AUPRC by -0.0318; tie-corrected gains on the pre-rebuild matrix were M2-M1 +0.0006 and M3-M1 -0.0002."
 }

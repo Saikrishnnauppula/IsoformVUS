@@ -13,7 +13,7 @@
         "precision": 0.9003051881993896,
         "recall": 0.6145833333333334,
         "f1": 0.730499380932728,
-        "brier": 0.1650656758886679,
+        "brier": 0.16506567588866441,
         "top1_recall": 0.0001388888888888889,
         "top5_recall": 0.0006944444444444445,
         "top10_recall": 0.001388888888888889,
@@ -30,23 +30,23 @@
     },
     "M2": {
       "n_cols": 9,
-      "val_auroc": 0.8242258938869664,
+      "val_auroc": 0.8242047866205305,
       "test": {
         "n": 14400,
         "n_positive": 7200,
-        "auroc": 0.7969210455246913,
-        "auprc": 0.8327706663429844,
+        "auroc": 0.796926388888889,
+        "auprc": 0.832841392331382,
         "precision": 0.9004884004884005,
         "recall": 0.6145833333333334,
         "f1": 0.7305596830113917,
-        "brier": 0.16500685340388688,
+        "brier": 0.1650113435922185,
         "top1_recall": 0.0001388888888888889,
         "top5_recall": 0.0006944444444444445,
         "top10_recall": 0.001388888888888889,
         "top20_recall": 0.002777777777777778,
         "auroc_ci95": [
-          0.7893221005347849,
-          0.8053020760989348
+          0.789331326158234,
+          0.8053033835213099
         ],
         "top10_recall_ci95": [
           0.0013664889098562705,
@@ -56,23 +56,23 @@
     },
     "M3": {
       "n_cols": 12,
-      "val_auroc": 0.8248706459054209,
+      "val_auroc": 0.8303152825836216,
       "test": {
         "n": 14400,
         "n_positive": 7200,
-        "auroc": 0.7975327353395062,
-        "auprc": 0.8334527122739248,
-        "precision": 0.9006716873600651,
-        "recall": 0.6145833333333334,
-        "f1": 0.7306199950466441,
-        "brier": 0.16503629483776508,
+        "auroc": 0.7962255208333335,
+        "auprc": 0.8328135195017587,
+        "precision": 0.9006514657980456,
+        "recall": 0.6144444444444445,
+        "f1": 0.7305151915455746,
+        "brier": 0.1652844024000606,
         "top1_recall": 0.0001388888888888889,
         "top5_recall": 0.0006944444444444445,
         "top10_recall": 0.001388888888888889,
         "top20_recall": 0.002777777777777778,
         "auroc_ci95": [
-          0.7901253447548318,
-          0.8058700660575929
+          0.7888545218270387,
+          0.8043618037800919
         ],
         "top10_recall_ci95": [
           0.0013664889098562705,
@@ -82,23 +82,23 @@
     },
     "M4": {
       "n_cols": 21,
-      "val_auroc": 0.8326030949634755,
+      "val_auroc": 0.8327643406382161,
       "test": {
         "n": 14400,
         "n_positive": 7200,
-        "auroc": 0.8028709683641976,
-        "auprc": 0.8523512066707913,
-        "precision": 0.8938906752411575,
-        "recall": 0.6177777777777778,
-        "f1": 0.7306176084099869,
-        "brier": 0.16501954177337103,
+        "auroc": 0.8029077546296296,
+        "auprc": 0.8523573398294968,
+        "precision": 0.893574297188755,
+        "recall": 0.6180555555555556,
+        "f1": 0.7307060755336617,
+        "brier": 0.16506279538798724,
         "top1_recall": 0.0001388888888888889,
         "top5_recall": 0.0006944444444444445,
         "top10_recall": 0.001388888888888889,
         "top20_recall": 0.002777777777777778,
         "auroc_ci95": [
-          0.7954709617471493,
-          0.8105472814918234
+          0.7955437758387194,
+          0.8106438418811991
         ],
         "top10_recall_ci95": [
           0.0013664889098562705,
@@ -108,23 +108,23 @@
     },
     "M5": {
       "n_cols": 24,
-      "val_auroc": 0.8327220876585929,
+      "val_auroc": 0.8325492502883506,
       "test": {
         "n": 14400,
         "n_positive": 7200,
-        "auroc": 0.8028112847222222,
-        "auprc": 0.8523085777987933,
-        "precision": 0.8935529222735489,
-        "recall": 0.6179166666666667,
-        "f1": 0.7306018556531735,
-        "brier": 0.1650931303222496,
+        "auroc": 0.802836188271605,
+        "auprc": 0.8522455978125649,
+        "precision": 0.8935315387705905,
+        "recall": 0.6177777777777778,
+        "f1": 0.7304976186565939,
+        "brier": 0.1650730930086498,
         "top1_recall": 0.0001388888888888889,
         "top5_recall": 0.0006944444444444445,
         "top10_recall": 0.001388888888888889,
         "top20_recall": 0.002777777777777778,
         "auroc_ci95": [
-          0.7955071861158544,
-          0.81056606404035
+          0.7955155267445424,
+          0.8106192639723651
         ],
         "top10_recall_ci95": [
           0.0013664889098562705,
@@ -178,7 +178,7 @@
       "top10_recall": 0.0014677821811243212,
       "top20_recall": 0.0029355643622486424,
       "n_subset": 13687,
-      "m5_minus_baseline_auroc": 0.10570578009377318
+      "m5_minus_baseline_auroc": 0.1057296310203999
     },
     "cadd_phred": {
       "n": 11240,
@@ -194,9 +194,9 @@
       "top10_recall": 0.0021992522542335605,
       "top20_recall": 0.004398504508467121,
       "n_subset": 11240,
-      "m5_minus_baseline_auroc": -0.24069210760885762,
-      "m5_auroc_same_subset": 0.7147169932341038,
-      "m5_full_test_auroc_minus_cadd_subset_auroc": -0.1525978161207392
+      "m5_minus_baseline_auroc": -0.240613410325892,
+      "m5_auroc_same_subset": 0.7147956905170694,
+      "m5_full_test_auroc_minus_cadd_subset_auroc": -0.1525729125713564
     }
   },
   "recovery_M5_vs_M1": {
@@ -210,7 +210,7 @@
       "k": 20,
       "n_new_topk_pathogenic": 20,
       "n_base_topk_pathogenic": 20,
-      "n_recovered_missed_by_baseline": 11
+      "n_recovered_missed_by_baseline": 12
     },
     "top50": {
       "k": 50,
@@ -220,5 +220,5 @@
     }
   },
   "seed": 20261006,
-  "note": "Held-out test set; gene-level splits; see results/test_access.log. Refit 2026-11-09 with cadd_phred and cadd_missing REMOVED from all fitted tiers (train n=35,921 had 0 CADD-scored rows: cadd_phred constant -1.0, cadd_missing constant 1). CADD is a pure external baseline now (baselines.cadd_phred). Environment at refit: system python, scikit-learn 1.9.1 / pandas 3.0.6 / numpy 2.5.3, vs pinned 1.5.1-era stack; expect <=0.003 drift from version change alone."
+  "note": "Held-out test set; gene-level splits; see results/test_access.log. Refit 2026-11-09 with cadd_phred and cadd_missing REMOVED from all fitted tiers (train n=35,921 had 0 CADD-scored rows: cadd_phred constant -1.0, cadd_missing constant 1). CADD is a pure external baseline now (baselines.cadd_phred). Environment at refit: pinned requirements stack (scikit-learn 1.5.1 / pandas 2.2.2 / numpy 1.26.4). An earlier 2026-11-09 refit ran on an unpinned system stack: its test values drift from these by up to 0.0013 (M3 test AUROC) and its M3 validation AUROC by 0.0054."
 }

@@ -11,3 +11,6 @@
 2026-11-08T21:00:09.720965 benchmark run (allow_rerun=True)
 2026-11-08T21:02:48.129070 baseline enrichment evaluation (spliceai+cadd)
 2026-11-08T21:22:59.350036 script-18 M6 evaluation (refit M1 on train, score test)
+2026-11-09T20:52:34.015474 script-18 M6 evaluation (refit M1 on train, score test)
+2026-11-09T20:53:54.470419 benchmark run (allow_rerun=True)
+2026-11-09T20:55:25.743170 baseline enrichment evaluation (spliceai+cadd)

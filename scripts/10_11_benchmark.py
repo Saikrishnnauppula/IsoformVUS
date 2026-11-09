@@ -28,6 +28,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import sklearn
 
 REPO = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(REPO / "src"))
@@ -190,8 +191,11 @@ def main() -> int:
             "Refit 2026-11-09 with cadd_phred and cadd_missing REMOVED from all fitted tiers "
             "(train n=35,921 had 0 CADD-scored rows: cadd_phred constant -1.0, cadd_missing "
             "constant 1). CADD is a pure external baseline now (baselines.cadd_phred). "
-            "Environment at refit: system python, scikit-learn 1.9.1 / pandas 3.0.6 / "
-            "numpy 2.5.3, vs pinned 1.5.1-era stack; expect <=0.003 drift from version change alone."
+            f"Environment at refit: pinned requirements stack (scikit-learn "
+            f"{sklearn.__version__} / pandas {pd.__version__} / numpy {np.__version__}). "
+            "An earlier 2026-11-09 refit ran on an unpinned system stack: its test "
+            "values drift from these by up to 0.0013 (M3 test AUROC) and its M3 "
+            "validation AUROC by 0.0054."
         ),
     }
     (REPO / "results/benchmark.json").write_text(json.dumps(out, indent=2))
@@ -212,8 +216,9 @@ def main() -> int:
         "M4 0.9395) are SUPERSEDED: they were inflated by test-time CADD signal flowing "
         "through the constant-fit coefficient. The refit values agree with the pre-rebuild "
         "run (CADD constant in all splits; M1 0.8016, M4 0.8524) to within 0.0001, which "
-        "cross-validates the refit. Environment: scikit-learn 1.9.1 / pandas 3.0.6, "
-        "vs the pinned 1.5.1-era stack; expect <=0.003 drift from version change alone.",
+        "cross-validates the refit. Environment: pinned requirements stack "
+        f"(scikit-learn {sklearn.__version__} / pandas {pd.__version__} / "
+        f"numpy {np.__version__}).",
         "",
         "| Model | Feats | Val AUROC | Test AUROC [95% CI] | Test AUPRC | "
         "Top-10 recall [95% CI] |",

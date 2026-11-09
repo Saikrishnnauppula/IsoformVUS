@@ -11,7 +11,9 @@ class_weight=balanced, seed=20261006, train split only):
   1. Step AUPRC + tie-aware AUPRC (McSherry & Najork 2008 expected AP under
      uniform tie-breaking; function copied from scripts/18_exon_architecture_nmd.py)
      per tier, with paired variant-level bootstrap CIs (n_boot=5000) and
-     permutation p-values (n_perm=2000, script 17 method) for the 5 tier diffs.
+     permutation p-values on the same tie-aware metric (n_perm=2000) for
+     the 5 tier diffs. A diff is significant only if perm p < 0.01
+     (Bonferroni) AND the bootstrap CI excludes zero.
   2. Gene-clustered inference for tier AUPRC diffs: cluster bootstrap resampling
      the 24 test genes (n_boot=5000) + leave-one-gene-out jackknife (24 folds).
      Variant-level CIs are invalid for gene-level HPO constants, so the cluster
@@ -37,6 +39,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+import sklearn
 from scipy.stats import rankdata
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import average_precision_score, roc_auc_score
@@ -239,10 +242,8 @@ def main() -> int:
         mean, lo, hi = paired_diff_ci(
             yt, probas[a], probas[b], tie_aware_auprc, n_boot=2000
         )
-        pval, obs = paired_perm_pvalue(
-            yt, probas[a], probas[b], average_precision_score
-        )
-        sig = bool(pval < BONF_ALPHA and mean > 0)
+        pval, obs = paired_perm_pvalue(yt, probas[a], probas[b], tie_aware_auprc)
+        sig = bool(pval < BONF_ALPHA and (lo > 0 or hi < 0))
         auprc_diffs[f"{a}_minus_{b}"] = {
             "mean": mean,
             "ci_lo": lo,
@@ -251,8 +252,10 @@ def main() -> int:
             "significant": sig,
             "alpha": BONF_ALPHA,
             "metric": "tie-aware AUPRC (McSherry & Najork 2008 expected AP)",
-            "note": "Variant-level paired bootstrap CI + permutation p (step AUPRC). "
-            "Variant-level CIs are NOT gene-level evidence; see gene_clustered_cis.",
+            "note": "Variant-level paired bootstrap CI and permutation p, both on "
+            "tie-aware AUPRC. Significant = perm_p < alpha AND the bootstrap CI "
+            "excludes zero. Variant-level CIs are NOT gene-level evidence; "
+            "see gene_clustered_cis.",
         }
         print(
             f"[19] tie-AUPRC {a}-{b}: {mean:+.4f} [{lo:+.4f},{hi:+.4f}] perm p={pval:.4f}"
@@ -308,7 +311,7 @@ def main() -> int:
         ]:
             mean, lo, hi = paired_diff_ci(yt, probas[m], probas["M1"], fn)
             pval, _ = paired_perm_pvalue(yt, probas[m], probas["M1"], fn)
-            sig = bool(pval < BONF_ALPHA and mean > 0)
+            sig = bool(pval < BONF_ALPHA and (lo > 0 or hi < 0))
             row[metric] = {
                 "mean": mean,
                 "ci_lo": lo,
@@ -432,6 +435,15 @@ def main() -> int:
 
     # --- 7: assemble statistics.json, preserving superseded values explicitly ---
     old = json.loads((REPO / "results/statistics.json").read_text())
+
+    def carried(section_key, live_key):
+        # On a rerun the file already carries labelled superseded sections;
+        # carry them forward instead of relabelling the live values as old.
+        section = old.get(section_key)
+        if isinstance(section, dict) and section.get("values") is not None:
+            return section["values"]
+        return old.get(live_key)
+
     stats = {
         "seed": SEED,
         "n_boot": N_BOOT,
@@ -439,20 +451,25 @@ def main() -> int:
         "test_n": int(test.sum()),
         "refit": "2026-11-09: all values below recomputed from tiers fit WITHOUT cadd_phred "
         "and cadd_missing (train 0/35,921 CADD-scored). CADD is a pure external "
-        "baseline. Environment: scikit-learn 1.9.1 / pandas 3.0.6 (system python), "
-        "vs pinned 1.5.1-era stack; expect <=0.003 drift from version change alone.",
+        f"baseline. Environment: pinned requirements stack (scikit-learn "
+        f"{sklearn.__version__} / pandas {pd.__version__} / numpy {np.__version__}); "
+        "an earlier 2026-11-09 refit ran on an unpinned system stack: its test "
+        "values drift from these by up to 0.0013 (M3 test AUROC) and its M3 "
+        "validation AUROC by 0.0054.",
         "auprc_diffs": auprc_diffs,
         "auprc_diffs_superseded_pre_rebuild": {
             "note": "SUPERSEDED. Pre-rebuild run: feature matrix had cadd_phred = -1.0 for all "
             "60,521 rows and the fitted cadd_phred coefficient was fit on a constant. "
             "The M4-M1 +0.0509 below is DEAD and must not be cited as a live gain. "
             "Kept only as the labelled record of that run.",
-            "values": old.get("auprc_diffs"),
+            "values": carried("auprc_diffs_superseded_pre_rebuild", "auprc_diffs"),
         },
         "m2_m3_clarification": m2_m3,
         "m2_m3_clarification_superseded_pre_rebuild": {
             "note": "SUPERSEDED pre-rebuild values (same CADD-constant defect).",
-            "values": old.get("m2_m3_clarification"),
+            "values": carried(
+                "m2_m3_clarification_superseded_pre_rebuild", "m2_m3_clarification"
+            ),
         },
         "tie_corrected_refit_no_cadd": {
             "method": "Tie-aware AUPRC: expected average precision under uniform tie-breaking "
@@ -485,7 +502,7 @@ def main() -> int:
             "the old tie_auprc values it is 0.9454-0.9463 = -0.0009 (step: -0.0011), "
             "and M5-M4 tie diff was 0.9454-0.9394 = +0.0060. Live values: "
             "tie_corrected_refit_no_cadd.",
-            "values": old.get("tie_corrected"),
+            "values": carried("tie_corrected_superseded_pre_refit", "tie_corrected"),
         },
         "paired_auroc_diffs_refit_no_cadd": {
             "method": "Paired bootstrap CIs for AUROC differences, scripts/12b_paired_analysis.py "
@@ -496,7 +513,9 @@ def main() -> int:
         },
         "paired_auroc_diffs_rebuilt_superseded": {
             "note": "SUPERSEDED. Rebuilt-matrix AUROC diffs computed with the CADD-sentinel fit.",
-            "values": old.get("paired_auroc_diffs_rebuilt"),
+            "values": carried(
+                "paired_auroc_diffs_rebuilt_superseded", "paired_auroc_diffs_rebuilt"
+            ),
         },
         "gene_clustered_cis": {
             "method": "Cluster bootstrap resampling the 24 test genes with replacement "
@@ -510,16 +529,20 @@ def main() -> int:
         "cadd_complementarity": cadd_comp,
         "cadd_complementarity_superseded_pre_refit": {
             "note": "SUPERSEDED. Same protocol with the pre-refit M5 (CADD-sentinel fit).",
-            "values": old.get("cadd_complementarity"),
+            "values": carried(
+                "cadd_complementarity_superseded_pre_refit", "cadd_complementarity"
+            ),
         },
         "methods_209_check": methods_check,
         "significance_rule": {
             "method": "Bonferroni correction across the 5 paired tier comparisons",
             "n_comparisons": N_COMPARISONS,
             "per_comparison_alpha": BONF_ALPHA,
-            "note": "A tier comparison is marked significant only if its permutation p-value "
-            "clears the Bonferroni-corrected per-comparison alpha (0.01) AND the effect "
-            "points in the tested (positive) direction. The `significant` flags on "
+            "note": "A tier comparison is marked significant only if its permutation "
+            "p-value -- computed with the same metric as its reported confidence "
+            "interval (tie-aware AUPRC for auprc_diffs) -- clears the "
+            "Bonferroni-corrected per-comparison alpha (0.01) AND its paired "
+            "bootstrap 95% CI excludes zero. The `significant` flags on "
             "auprc_diffs use variant-level inference only; a tier claim ALSO needs its "
             "gene-clustered 95% CI to exclude zero (see gene_clustered_cis). M2-M1: "
             + m2_verdict,

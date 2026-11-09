@@ -22,9 +22,11 @@ Choices, stated:
   `tie_corrected_refit_no_cadd`; the dead pre-rebuild +0.0509 gain may
   appear only under `auprc_diffs_superseded_pre_rebuild`, labelled
   superseded.
-- The test-access log is the original record: 13 timestamped entries
-  (1 on 2026-10-06, 8 on 2026-10-07, 4 on 2026-11-08), matching the
-  counts in paper/manuscript.md Section 2.4. It was untracked until
+- The test-access log is the original record: 16 timestamped entries
+  (1 on 2026-10-06, 8 on 2026-10-07, 4 on 2026-11-08, 3 on 2026-11-09),
+  matching the counts in paper/manuscript.md Section 2.4. The 2026-11-09
+  entries are a script-18 verification rerun, the pinned-stack benchmark
+  refit rerun, and a baseline-enrichment run. It was untracked until
   2026-11-09 because .gitignore carried a bare *.log rule; the negation
   !results/test_access.log now keeps it in the repository.
 """
@@ -182,18 +184,39 @@ def test_statistics_gene_clustered_m2_verdict_present():
     assert "M2" in clustered["m2_minus_m1_verdict"]
 
 
+def test_statistics_significance_flags_match_rule():
+    # Defect fixed 2026-11-09: the permutation p-value and the CI are both
+    # tie-aware AUPRC, and significant requires perm_p < alpha AND the CI
+    # to exclude zero. Before the fix M2-M1 and M3-M1 were flagged
+    # significant:true on a step-AUPRC permutation p while their
+    # tie-aware CIs included zero.
+    stats = json.loads((RESULTS / "statistics.json").read_text())
+    diffs = stats["auprc_diffs"]
+    for name, row in diffs.items():
+        expected = row["perm_p"] < row["alpha"] and (
+            row["ci_lo"] > 0 or row["ci_hi"] < 0
+        )
+        assert row["significant"] == expected, name
+    assert diffs["M2_minus_M1"]["significant"] is False
+    assert diffs["M3_minus_M1"]["significant"] is False
+    assert diffs["M4_minus_M1"]["significant"] is True
+    assert diffs["M5_minus_M1"]["significant"] is True
+    assert diffs["M5_minus_M4"]["significant"] is False
+
+
 def test_access_log_matches_manuscript_record():
     lines = [
         line
         for line in (RESULTS / "test_access.log").read_text().splitlines()
         if line.strip()
     ]
-    assert len(lines) == 13
+    assert len(lines) == 16
     dates = [re.match(r"\d{4}-\d{2}-\d{2}", line).group(0) for line in lines]
     assert dates.count("2026-10-06") == 1
     assert dates.count("2026-10-07") == 8
     assert dates.count("2026-11-08") == 4
+    assert dates.count("2026-11-09") == 3
     joined = "\n".join(lines)
-    assert joined.count("benchmark run") == 3
-    assert joined.count("baseline enrichment") == 9
-    assert joined.count("script-18") == 1
+    assert joined.count("benchmark run") == 4
+    assert joined.count("baseline enrichment") == 10
+    assert joined.count("script-18") == 2
