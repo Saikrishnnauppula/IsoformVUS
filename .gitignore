@@ -7,7 +7,13 @@
 
 # Large raw downloads and intermediates (regenerable)
 data/raw/
-data/interim/
+data/interim/*
+# ...but the five stage-18 input tables ARE committed: they cannot be
+# regenerated (the code that built them was removed with the experiment
+# archive), and without them stage 18 and figures 09-12 do not run.
+!data/interim/script18/
+data/interim/script18/*
+!data/interim/script18/*.tsv.gz
 
 # Deleted experiment archive; do not re-add
 breakthrough/

@@ -21,16 +21,23 @@ transcripts, and the M5 rank of 8 in results/recovered_variants.tsv. The
 counterfactual.json file itself records 10 protein-coding transcripts with a
 coding-specific effect, not 5.
 
-## Archival — unregenerable, no manuscript claim rests on them
+## Regenerable since 2026-11-09 (scripts/16_make_missing_figures.py)
 
-| Figure | Content | Status |
+Figures 09–12 were archival and unregenerable until 2026-11-09: no script
+in the repository generated them and their stage-18 inputs were not
+shipped. The inputs now ship in data/interim/script18/, and
+scripts/16_make_missing_figures.py replots all four from the shipped
+stage-18 outputs. The replots are new renderings of the same result
+files, not the original images (layout and palette differ), and a few
+stale values in the originals are corrected by the shipped data: figure
+11 uses the shipped donor-edge LR of 1.817, not 4.52, and drops the
+ACMG-point threshold lines; figure 12 uses the shipped M6
+internal-missense AUROC of 0.9321, not 95.1%. No manuscript claim rests
+on any of them. Do not cite them as evidence.
+
+| Figure | Content | Source |
 | --- | --- | --- |
-| 09_exon_architecture_nmd.png | Exon architecture and NMD | Archival. No script in the repository generates it. |
-| 10_structural_mediation_controls.png | Structural mediation controls | Archival. No script in the repository generates it. |
-| 11_donor_acceptor_boundary_asymmetry.png | Donor–acceptor boundary asymmetry | Archival. Depicts the withdrawn donor-edge finding (manuscript Section 6.1). Retained only as a record of what was withdrawn, not as evidence. |
-| 12_exon_skipping_candidates.png | Exon-skipping candidates | Archival. No script in the repository generates it. |
-
-Figures 09–12 came from the stage-18 run. The five input files stage 18 needs
-sit in data/interim/script18/, which is not in the shipped tree, and the code
-that built them was removed with the experiment archive, so these figures cannot
-currently be regenerated from the repository. Do not cite them as evidence.
+| 09_exon_architecture_nmd.png | Exon tensor (missense resolved P/LP by size x skip x symmetry), NMD zones, in-frame indel cells | results/exon_architecture_nmd.json (exon_phase_symmetry, inframe_indels_and_nmd_zones) |
+| 10_structural_mediation_controls.png | Label-free biophysical controls; mediation and sensitivity panel | results/exon_architecture_nmd.json (biophysical_and_density_controls, causal_mediation, sensitivity_checks). The mediation values are carried over, not recomputed, and the mediation percentages are withdrawn (manuscript Section 6.1); the figure says so on its face. |
+| 11_donor_acceptor_boundary_asymmetry.png | Donor–acceptor boundary asymmetry; per-cell likelihood ratios | results/exon_architecture_nmd.json (splice_junction_boundary_asymmetry, tiered_model_and_bayesian_lr). Depicts the withdrawn donor-edge finding (manuscript Section 6.1); the distance profile is carried over, not recomputed. Retained only as a record of what was withdrawn, not as evidence. |
+| 12_exon_skipping_candidates.png | Top-15 candidate exons (Tier 1/2 PTV records); stage-18 model comparison | results/exon_skipping_nmd_candidates.tsv; results/exon_architecture_nmd.json (tiered_model_and_bayesian_lr) |

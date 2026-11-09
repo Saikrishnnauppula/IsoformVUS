@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Stage 16: the four remaining manuscript figures.
+"""Stage 16: the remaining manuscript figures.
 
 Generates figures/01_architecture.png, 02_workflow.png, 03_isoform_usage.png,
-08_case_study.png.
+08_case_study.png, and (since 2026-11-09) replotted 09-12 from the shipped
+stage-18 outputs in results/.
 
 - 01_architecture and 02_workflow are schematics drawn from the manuscript's
   methods (§2) and labeled as such; all counts inside them come from
@@ -199,7 +200,7 @@ def fig_workflow():
         ),
         ("24 features · 5 tiers\nM1→M5\n(gene-level splits\n61 / 17 / 24)", PURPLE),
         (
-            "Locked held-out test\n24 genes · 14,400 variants\n13 logged accesses · 17 reads",
+            "Locked held-out test\n24 genes · 14,400 variants\n16 logged accesses · 20 reads",
             RED,
         ),
     ]
@@ -492,12 +493,408 @@ def fig_case_study():
     print("[16] 08_case_study.png")
 
 
+SIZE_SHORT = {
+    "1_Compact_<=180": "Compact\n<=180 bp",
+    "2_Medium_181_400": "Medium\n181-400 bp",
+    "3_Large_401_1000": "Large\n401-1000 bp",
+    "4_Giant_>1000": "Giant\n>1000 bp",
+}
+SIZE_ORDER = list(SIZE_SHORT)
+
+
+def _stage18():
+    return json.loads((REPO / "results/exon_architecture_nmd.json").read_text())
+
+
+def fig_exon_architecture():
+    """Figure 09: 4x2x2 exon tensor (missense resolved P/LP rate), NMD zones,
+    and in-frame indel resolved rates, from results/exon_architecture_nmd.json."""
+    d = _stage18()
+    tensor = d["exon_phase_symmetry"]["tensor_4x2x2"]
+    fig, axes = plt.subplots(1, 3, figsize=(13.5, 4.4))
+    combos = [(0, 0), (0, 1), (1, 0), (1, 1)]
+    labels = [
+        "constitutive, asymmetric",
+        "constitutive, symmetric",
+        "backup-skipped, asymmetric",
+        "backup-skipped, symmetric",
+    ]
+    colors = [BLUE, GREEN, ORANGE, RED]
+    x = np.arange(len(SIZE_ORDER))
+    for j, ((sk, sy), lab, col) in enumerate(zip(combos, labels, colors)):
+        vals = []
+        for sb in SIZE_ORDER:
+            row = next(
+                r
+                for r in tensor
+                if r["size_bin"] == sb
+                and r["backup_skip"] == sk
+                and r["symmetric_phase"] == sy
+            )
+            vals.append(row["missense_res_rate"] * 100)
+        axes[0].bar(x + (j - 1.5) * 0.19, vals, width=0.19, color=col, label=lab)
+    for sk, marker in [(0, "D"), (1, "s")]:
+        ptv = []
+        for sb in SIZE_ORDER:
+            rows = [r for r in tensor if r["size_bin"] == sb and r["backup_skip"] == sk]
+            plp = sum(r["frameshift_plp"] + r["stop_gained_plp"] for r in rows)
+            blb = sum(r["frameshift_blb"] + r["stop_gained_blb"] for r in rows)
+            ptv.append(100 * plp / (plp + blb))
+        axes[0].plot(
+            x + (sk - 0.5) * 0.38,
+            ptv,
+            marker=marker,
+            color="0.15",
+            ls="--",
+            lw=1,
+            label=f"PTV resolved P/LP (skip={sk})",
+        )
+    axes[0].set_xticks(x, [SIZE_SHORT[s] for s in SIZE_ORDER], fontsize=8)
+    axes[0].set_ylabel("Missense resolved P/LP (%)")
+    axes[0].set_title("A. Exon tensor: missense by size x skip x symmetry")
+    axes[0].legend(fontsize=6.5, loc="lower left")
+
+    zones = d["inframe_indels_and_nmd_zones"]["nmd_zones_587k"]
+    zx = np.arange(len(zones))
+    axes[1].bar(
+        zx - 0.2,
+        [z["raw_plp_rate"] * 100 for z in zones],
+        width=0.4,
+        color=BLUE,
+        label="P/LP rate (all labels)",
+    )
+    axes[1].bar(
+        zx + 0.2,
+        [z["vus_conf_rate"] * 100 for z in zones],
+        width=0.4,
+        color=ORANGE,
+        label="VUS-conflicting rate",
+    )
+    axes[1].set_xticks(
+        zx, [f"Zone {i + 1}\nn={z['n']:,}" for i, z in enumerate(zones)], fontsize=8
+    )
+    axes[1].set_ylabel("Rate (%)")
+    axes[1].set_title("B. NMD zones (587k ClinVar)")
+    axes[1].legend(fontsize=7)
+
+    indels = d["inframe_indels_and_nmd_zones"]["indel_matrix"]
+    ix = np.arange(len(indels))
+    axes[2].bar(
+        ix,
+        [r["res_plp"] * 100 for r in indels],
+        color=[RED if r["class"] == "inframe_deletion" else TEAL for r in indels],
+    )
+    axes[2].set_xticks(
+        ix,
+        [
+            f"{'del' if r['class'] == 'inframe_deletion' else 'ins'}\n"
+            f"{'<=400' if '<=' in r['size_group'] else '>400'}\nskip={r['backup_skip']}"
+            for r in indels
+        ],
+        fontsize=7,
+    )
+    axes[2].set_ylabel("Resolved P/LP (%)")
+    axes[2].set_title("C. In-frame indels (all 8 cells)")
+    fig.suptitle(
+        "Exon architecture and NMD — replotted 2026-11-09 from "
+        "results/exon_architecture_nmd.json"
+    )
+    fig.tight_layout(rect=[0, 0, 1, 0.92])
+    fig.savefig(FIG / "09_exon_architecture_nmd.png", dpi=150)
+    plt.close(fig)
+    print("[16] 09_exon_architecture_nmd.png")
+
+
+def fig_mediation_controls():
+    """Figure 10: label-free biophysical controls per exon group, and the
+    (carried-over, withdrawn) AlphaMissense mediation panel with sensitivity
+    reductions, from results/exon_architecture_nmd.json."""
+    d = _stage18()
+    fig, axes = plt.subplots(1, 2, figsize=(12.5, 4.6))
+    rows = d["biophysical_and_density_controls"]
+    x = np.arange(len(rows))
+    axes[0].bar(
+        x - 0.27,
+        [r["am_median_all"] * 100 for r in rows],
+        width=0.27,
+        color=BLUE,
+        label="AlphaMissense median (x100)",
+    )
+    axes[0].bar(
+        x,
+        [r["am_frac_gt_056"] * 100 for r in rows],
+        width=0.27,
+        color=GREEN,
+        label="% AM > 0.56",
+    )
+    axes[0].bar(
+        x + 0.27,
+        [r["blb_to_plp_mis_ratio"] * 4 for r in rows],
+        width=0.27,
+        color=ORANGE,
+        label="B/LB:P/LP missense ratio (x4, labels true)",
+    )
+    for i, r in enumerate(rows):
+        axes[0].text(
+            i + 0.27,
+            r["blb_to_plp_mis_ratio"] * 4 + 2,
+            f"{r['blb_to_plp_mis_ratio']:.1f}x",
+            ha="center",
+            fontsize=7,
+        )
+    axes[0].set_xticks(
+        x,
+        [
+            f"{SIZE_SHORT[r['size_bin']].splitlines()[0]}\nskip={r['backup_skip']}"
+            for r in rows
+        ],
+        fontsize=7.5,
+    )
+    axes[0].set_ylabel("Percent / scaled ratio")
+    axes[0].set_title("A. Label-free controls by exon group")
+    axes[0].legend(fontsize=7)
+
+    med = d["causal_mediation"]
+    entries = []
+    for key, lab in [
+        ("giant_large_via_alphamissense", "Giant/large via AM"),
+        ("backup_skip_via_alphamissense", "Backup-skip via AM"),
+    ]:
+        for adj, alab in [("unadjusted", "unadj."), ("within_gene_FE", "gene FE")]:
+            v = med[key][adj]
+            entries.append((f"{lab} ({alab})", v["prop_mediated"] * 100, PURPLE, ""))
+    sc = d["sensitivity_checks"]
+    sens = [
+        (
+            "Leave-top-genes-out",
+            sc["test1_leave_top_genes_out"],
+            "compact_constit_res_plp",
+            "giant_skip_res_plp",
+        ),
+        (
+            "High-confidence (>=2 stars)",
+            sc["test2_high_confidence_2plus_stars"],
+            "compact_constit_mis_p_rate",
+            "giant_skip_mis_p_rate",
+        ),
+        (
+            "Prospective 2024->2026",
+            sc["test7_prospective_2024_to_2026"],
+            "compact_constit_p_rate",
+            "giant_skip_p_rate",
+        ),
+    ]
+    for lab, blk, ck, gk in sens:
+        red = 100 * (blk[ck] - blk[gk]) / blk[ck]
+        entries.append((f"{lab} reduction", red, GREEN, ""))
+    y = np.arange(len(entries))[::-1]
+    axes[1].barh(y, [e[1] for e in entries], color=[e[2] for e in entries])
+    axes[1].set_yticks(y, [e[0] for e in entries], fontsize=7.5)
+    for yi, e in zip(y, entries):
+        axes[1].text(e[1] + 1.5, yi, f"{e[1]:.1f}%", va="center", fontsize=7.5)
+    axes[1].set_xlabel("Proportion mediated / relative reduction (%)")
+    axes[1].set_title("B. Mediation (withdrawn) and sensitivity reductions")
+    axes[1].text(
+        0.02,
+        0.02,
+        "Mediation values carried over, not recomputed;\n"
+        "mediation percentages withdrawn (manuscript 6.1).",
+        transform=axes[1].transAxes,
+        fontsize=7,
+        style="italic",
+        bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="0.6"),
+    )
+    fig.suptitle(
+        "Structural mediation controls — replotted 2026-11-09 from "
+        "results/exon_architecture_nmd.json"
+    )
+    fig.tight_layout(rect=[0, 0, 1, 0.92])
+    fig.savefig(FIG / "10_structural_mediation_controls.png", dpi=150)
+    plt.close(fig)
+    print("[16] 10_structural_mediation_controls.png")
+
+
+def fig_boundary_asymmetry():
+    """Figure 11: exon-boundary distance profile and per-cell likelihood
+    ratios. The donor-edge finding is withdrawn; this figure is the record
+    of it, replotted from results/exon_architecture_nmd.json."""
+    d = _stage18()
+    sj = d["splice_junction_boundary_asymmetry"]
+    fig, axes = plt.subplots(1, 2, figsize=(12.5, 5.0))
+    prof = sj["distance_profile"]
+    x = np.arange(len(prof))
+    axes[0].plot(
+        x,
+        [p["am_benign_fn_rate"] * 100 for p in prof],
+        marker="o",
+        color=RED,
+        label="AM-benign false-negative rate",
+    )
+    axes[0].plot(
+        x,
+        [p["pop_mis_res_plp"] * 100 for p in prof],
+        marker="s",
+        color=BLUE,
+        label="Missense resolved P/LP",
+    )
+    axes[0].plot(
+        x,
+        [p["pop_syn_res_plp"] * 100 for p in prof],
+        marker="^",
+        color=GREEN,
+        label="Synonymous resolved P/LP",
+    )
+    axes[0].set_xticks(x, [p["bin"].split(" (")[0] for p in prof], fontsize=7.5)
+    axes[0].set_xlabel("Distance from exon boundary")
+    axes[0].set_ylabel("Rate (%)")
+    dva = sj["donor_vs_acceptor_edge_0_3bp"]
+    axes[0].set_title(
+        "A. Distance profile (carried over, not recomputed)\n"
+        f"edge 0-3 bp AM-benign FN: donor {dva['am_benign_donor_fn']:.1%}, "
+        f"acceptor {dva['am_benign_acceptor_fn']:.1%}"
+    )
+    axes[0].legend(fontsize=7)
+
+    tl = d["tiered_model_and_bayesian_lr"]
+    rows = sorted(tl["bayesian_lr_table"], key=lambda r: r["likelihood_ratio"])
+    labels = [
+        f"{SIZE_SHORT[r['size_bin']].splitlines()[0]} skip={r['backup_skip']} "
+        f"sym={r['symmetric_phase']}"
+        for r in rows
+    ]
+    lrs = [r["likelihood_ratio"] for r in rows]
+    los = [np.log2(r["likelihood_ratio"] / r["lr_ci95_lo"]) for r in rows]
+    his = [np.log2(r["lr_ci95_hi"] / r["likelihood_ratio"]) for r in rows]
+    y = np.arange(len(rows) + 1)
+    axes[1].barh(y[1:], np.log2(lrs), color=BLUE)
+    axes[1].errorbar(
+        np.log2(lrs), y[1:], xerr=[los, his], fmt="none", color="0.25", lw=0.8
+    )
+    dlr = tl["donor_edge_lr"]
+    axes[1].barh(0, np.log2(dlr["likelihood_ratio"]), color=RED)
+    axes[1].errorbar(
+        np.log2(dlr["likelihood_ratio"]),
+        0,
+        xerr=[
+            [np.log2(dlr["likelihood_ratio"] / dlr["lr_ci95_lo"])],
+            [np.log2(dlr["lr_ci95_hi"] / dlr["likelihood_ratio"])],
+        ],
+        fmt="none",
+        color="0.25",
+        lw=0.8,
+    )
+    axes[1].set_yticks(y, ["donor edge (<=3 bp, <=400 bp)"] + labels, fontsize=7)
+    axes[1].axvline(0, color="0.3", lw=1)
+    axes[1].set_xlabel("log2 likelihood ratio (resolved missense)")
+    axes[1].set_title("B. Cell likelihood ratios — research only, no ACMG points")
+    fig.suptitle(
+        "Donor-acceptor boundary asymmetry (withdrawn finding) — replotted "
+        "2026-11-09 from results/exon_architecture_nmd.json"
+    )
+    fig.tight_layout(rect=[0, 0, 1, 0.9])
+    fig.savefig(FIG / "11_donor_acceptor_boundary_asymmetry.png", dpi=150)
+    plt.close(fig)
+    print("[16] 11_donor_acceptor_boundary_asymmetry.png")
+
+
+def fig_skipping_candidates():
+    """Figure 12: top exon-skipping candidate exons (computational
+    nomination, no functional evidence) and the stage-18 model comparison,
+    from results/exon_skipping_nmd_candidates.tsv and
+    results/exon_architecture_nmd.json."""
+    d = _stage18()
+    fig, axes = plt.subplots(1, 2, figsize=(13, 5.2))
+    cand = pd.read_csv(REPO / "results/exon_skipping_nmd_candidates.tsv", sep="\t")
+    top = (
+        cand[cand["aso_tier"].str.startswith(("Tier 1", "Tier 2"))]
+        .sort_values("ptv_plp", ascending=False)
+        .head(15)
+        .iloc[::-1]
+    )
+    y = np.arange(len(top))
+    axes[0].barh(y, top["stop_plp"], color=RED, label="nonsense P/LP")
+    axes[0].barh(
+        y, top["fs_plp"], left=top["stop_plp"], color=ORANGE, label="frameshift P/LP"
+    )
+    axes[0].set_yticks(
+        y,
+        [
+            f"{g} (exon {e}, {ln:,} bp)"
+            for g, e, ln in zip(top["gene_symbol"], top["exon_id"], top["exon_len"])
+        ],
+        fontsize=7.5,
+    )
+    for yi, (_, r) in zip(y, top.iterrows()):
+        axes[0].text(
+            r["ptv_plp"] + 60,
+            yi,
+            f"{int(r['ptv_plp']):,} PTVs (missense P/LP "
+            f"{r['mis_resolved_plp_rate']:.1%}, score "
+            f"{r['ASO_Rescuability_Score']:.2f})",
+            va="center",
+            fontsize=7,
+        )
+    axes[0].set_xlabel("ClinVar PTV records (not patients)")
+    axes[0].set_title("A. Top 15 candidate exons (Tier 1/2)")
+    axes[0].legend(fontsize=7)
+
+    tl = d["tiered_model_and_bayesian_lr"]
+    mc = tl["model_comparison_test_24_genes"]
+    groups = [
+        ("M1", mc["M1_Baseline"]),
+        ("M3", mc["M3_CellContext"]),
+        ("M4", mc["M4_IsoformFlags"]),
+        ("M6", mc["IsoformVUS_Mechanistic_v3"]),
+        ("consequence\nonly", tl["consequence_only_baseline"]),
+    ]
+    x = np.arange(len(groups))
+    series = [
+        ("test AUROC", "test_auroc", BLUE),
+        ("test tie-AUPRC", "test_tie_auprc", GREEN),
+        ("internal-missense AUROC", "test_internal_missense_auroc", ORANGE),
+    ]
+    for j, (lab, key, col) in enumerate(series):
+        axes[1].bar(
+            x + (j - 1) * 0.27,
+            [g[1][key] * 100 for g in groups],
+            width=0.27,
+            color=col,
+            label=lab,
+        )
+    axes[1].set_xticks(x, [g[0] for g in groups], fontsize=8)
+    axes[1].set_ylim(40, 105)
+    axes[1].set_ylabel("Test performance (%)")
+    axes[1].set_title("B. Stage-18 model comparison (24 test genes)")
+    axes[1].legend(fontsize=7)
+    axes[1].text(
+        0.5,
+        0.04,
+        "M6 pooled gain is consequence-class separation\n(manuscript 5.1).",
+        transform=axes[1].transAxes,
+        ha="center",
+        fontsize=7,
+        style="italic",
+        bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="0.6"),
+    )
+    fig.suptitle(
+        "Exon-skipping candidates — replotted 2026-11-09 from shipped stage-18 outputs"
+    )
+    fig.tight_layout(rect=[0, 0, 1, 0.93])
+    fig.savefig(FIG / "12_exon_skipping_candidates.png", dpi=150)
+    plt.close(fig)
+    print("[16] 12_exon_skipping_candidates.png")
+
+
 def main() -> int:
     fig_architecture()
     fig_workflow()
     fig_isoform_usage()
     fig_case_study()
-    print("[16] done -> figures/ (4 missing figures now complete)")
+    fig_exon_architecture()
+    fig_mediation_controls()
+    fig_boundary_asymmetry()
+    fig_skipping_candidates()
+    print("[16] done -> figures/ (01-03, 08-12 regenerated)")
     return 0
 
 
