@@ -40,6 +40,10 @@ Current version: 0.1.0.
 - `docs/limitations.md` and `docs/methods.md`: the dead rebuilt run's
   step values now read M1 0.9465 / M4 0.9395 everywhere (two places said
   0.9463 / 0.9394, which are that run's tie-corrected values).
+- The access-log test now pins the committed 16-entry prefix and
+  permits later appended entries: the log is append-only, and a
+  verify-mode run appends 4 real entries before its own pytest stage,
+  which the exact-count version of the test rejected.
 
 ## [0.1.0] - 2026-10-13
 

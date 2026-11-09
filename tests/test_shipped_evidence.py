@@ -205,18 +205,26 @@ def test_statistics_significance_flags_match_rule():
 
 
 def test_access_log_matches_manuscript_record():
+    # The committed record is 16 entries. The log is append-only by
+    # design: any local rerun of a test-scoring script (the benchmark,
+    # 12b, 14, 18, or a full verify-mode run) appends real entries, so
+    # the committed prefix is what this test pins; extra lines must be
+    # later, timestamped entries, never edits to the record.
     lines = [
         line
         for line in (RESULTS / "test_access.log").read_text().splitlines()
         if line.strip()
     ]
-    assert len(lines) == 16
-    dates = [re.match(r"\d{4}-\d{2}-\d{2}", line).group(0) for line in lines]
+    assert len(lines) >= 16
+    committed = lines[:16]
+    dates = [re.match(r"\d{4}-\d{2}-\d{2}", line).group(0) for line in committed]
     assert dates.count("2026-10-06") == 1
     assert dates.count("2026-10-07") == 8
     assert dates.count("2026-11-08") == 4
     assert dates.count("2026-11-09") == 3
-    joined = "\n".join(lines)
+    joined = "\n".join(committed)
     assert joined.count("benchmark run") == 4
     assert joined.count("baseline enrichment") == 10
     assert joined.count("script-18") == 2
+    for extra in lines[16:]:
+        assert re.match(r"\d{4}-\d{2}-\d{2}T", extra), extra
