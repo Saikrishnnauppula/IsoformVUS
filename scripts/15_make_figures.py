@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage 15: publication figures (all from real artifacts; never hand-drawn).
+"""Stage 15: publication figures (from results/*.json).
 
 Generates figures/04_benchmark.png, 05_ablation.png, 06_topk_recovery.png,
 07_counterfactual.png from results/*.json. Architecture/workflow/usage/case
@@ -67,9 +67,11 @@ def fig_benchmark():
 
 def fig_ablation():
     # Paired AUROC differences from results/statistics.json
-    # (paired_auroc_diffs_rebuilt: 12b method, rebuilt feature matrix).
+    # (paired_auroc_diffs_refit_no_cadd: 12b method, 2026-11-09 no-CADD
+    # refit, scripts/19_refit_statistics.py). The rebuilt-matrix diffs are
+    # kept in statistics.json under paired_auroc_diffs_rebuilt_superseded.
     stats = json.loads((REPO / "results/statistics.json").read_text())
-    diffs = stats["paired_auroc_diffs_rebuilt"]["diffs"]
+    diffs = stats["paired_auroc_diffs_refit_no_cadd"]["diffs"]
     comps = [
         ("M4-M1\n(+isoform struct.)", diffs["M4_minus_M1"]),
         ("M5-M4\n(+usage)", diffs["M5_minus_M4"]),

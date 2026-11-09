@@ -5,13 +5,12 @@ Generates figures/01_architecture.png, 02_workflow.png, 03_isoform_usage.png,
 08_case_study.png.
 
 - 01_architecture and 02_workflow are schematics drawn from the manuscript's
-  methods (§4) and labeled as such; all counts inside them come from real
-  artifacts (data/processed/feature_tiers.json, results/splits.json,
-  data/DATA_PROVENANCE.md).
+  methods (§2) and labeled as such; all counts inside them come from
+  results and data files (data/processed/feature_tiers.json,
+  results/splits.json, data/DATA_PROVENANCE.md).
 - 03_isoform_usage and 08_case_study are data-driven, from
   data/processed/variant_isoform_effects.tsv.gz,
   data/processed/isoform_usage.tsv.gz, and results/counterfactual.json.
-  Nothing is hand-drawn from memory.
 """
 
 from __future__ import annotations
@@ -74,7 +73,8 @@ def _arrow(ax, x0, y0, x1, y1, color="0.35"):
 def fig_architecture():
     tiers = json.loads((PROC / "feature_tiers.json").read_text())["tiers"]
     counts = {m: len(tiers[m]) for m in ["M1", "M2", "M3", "M4", "M5"]}
-    assert counts == {"M1": 9, "M2": 11, "M3": 14, "M4": 23, "M5": 26}, counts
+    # Counts after the 2026-11-09 refit (CADD columns removed from all tiers).
+    assert counts == {"M1": 7, "M2": 9, "M3": 12, "M4": 21, "M5": 24}, counts
 
     fig, ax = plt.subplots(figsize=(12, 6.4))
     ax.set_xlim(0, 12)
@@ -95,11 +95,11 @@ def fig_architecture():
         ("Isoform usage\n(GTEx transcript\nusage)", PURPLE),
     ]
     tier_names = [
-        "M1\n9 features",
-        "M2\n11 features",
-        "M3\n14 features",
-        "M4\n23 features",
-        "M5\n26 features",
+        "M1\n7 features",
+        "M2\n9 features",
+        "M3\n12 features",
+        "M4\n21 features",
+        "M5\n24 features",
     ]
     added = [
         "variant\nfeatures",
@@ -122,7 +122,7 @@ def fig_architecture():
         (0.35, 0.55),
         10.25,
         1.30,
-        "Learners: logistic regression (interpretable) → LightGBM\n"
+        "Learner: logistic regression (interpretable)\n"
         "Output: pathogenicity score per variant  •  Gene-level grouped splits "
         "(train 61 / val 17 / test 24 genes, disease-stratified)\n"
         "Critical comparison: M4 vs M3 — identical data, splits, and learner; "
@@ -197,9 +197,9 @@ def fig_workflow():
             "GTEx tissue expression\n→ cell relevance\n→ isoform usage\n(categorical)",
             TEAL,
         ),
-        ("26 features · 5 tiers\nM1→M5\n(gene-level splits\n61 / 17 / 24)", PURPLE),
+        ("24 features · 5 tiers\nM1→M5\n(gene-level splits\n61 / 17 / 24)", PURPLE),
         (
-            "Locked held-out test\n24 genes · 14,400 variants\naccessed 13 times, logged",
+            "Locked held-out test\n24 genes · 14,400 variants\n13 logged accesses · 17 reads",
             RED,
         ),
     ]
