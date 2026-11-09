@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """Stage 03: build labeled variant set from the ClinVar GRCh38 VCF.
 
-Labels (per docs/leakage_prevention.md — VUSs are NEVER a training class):
+Labels (VUSs are never a training class):
     1 = Pathogenic / Likely pathogenic, review status >= 1 star, no conflicts
     0 = Benign / Likely benign, review status >= 1 star, no conflicts
         (control_type = "clinvar_blb")
 
-gnomAD population-common controls (control_type = "gnomad_common") are added
-by scripts/03b_gnomad_af.py, which also fills af_gnomad_max.
+gnomAD population-common controls (control_type = "gnomad_common") were planned
+via scripts/03b_gnomad_af.py, which was never run to completion; no gnomAD
+controls are in the benchmark.
 
 Review-status mapping (ClinVar VCF CLNREVSTAT):
     "criteria_provided,_single_submitter"            -> 1 star
@@ -21,7 +22,7 @@ Output: data/processed/variant_labels.tsv.gz
     label, control_type, review_stars, clnsig, condition, rsid
 
 Usage: python3 scripts/03_build_variant_labels.py --config config/base.yaml
-       [--panel metadata/gene_panel.tsv] [--vcf data/raw/clinvar_20261004.vcf.gz]
+       [--panel metadata/gene_panel.tsv] [--vcf data/raw/clinvar_20261108.vcf.gz]
 """
 
 from __future__ import annotations
@@ -84,7 +85,7 @@ def main() -> int:
     ap.add_argument("--config", default=str(REPO / "config" / "base.yaml"))
     ap.add_argument("--panel", default=str(REPO / "metadata" / "gene_panel.tsv"))
     ap.add_argument(
-        "--vcf", default=str(REPO / "data" / "raw" / "clinvar_20261004.vcf.gz")
+        "--vcf", default=str(REPO / "data" / "raw" / "clinvar_20261108.vcf.gz")
     )
     ap.add_argument(
         "--out", default=str(REPO / "data" / "processed" / "variant_labels.tsv.gz")

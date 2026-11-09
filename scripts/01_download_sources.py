@@ -5,10 +5,14 @@ Usage:
     python scripts/01_download_sources.py --source clinvar --out data/raw
     python scripts/01_download_sources.py --source all --out data/raw
 
-URLS are read from research/data_urls_verified.md once the verification agent
-completes; until then this script runs in --dry-run mode, printing what it
-*would* fetch. It never fabricates data: every downloaded file gets a
-.provenance.json sidecar (url, date, sha256, bytes).
+URLs are pinned in SOURCES below. The ClinVar VCF pins the weekly release
+clinvar_20261108.vcf.gz (HEAD-verified live on NCBI FTP, 2026-11-09); the
+weekly the locked results were built from (clinvar_20261004.vcf.gz) now
+returns HTTP 404. If a pinned ClinVar weekly has rotated off the FTP site,
+the script falls back to the unversioned latest file (see FALLBACKS) and
+the provenance sidecar records the URL actually fetched. It never
+fabricates data: every downloaded file gets a .provenance.json sidecar
+(url, date, sha256, bytes).
 """
 
 from __future__ import annotations
@@ -23,12 +27,12 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 
-# Placeholder entries. Real URLs land here after data_urls_verified.md exists.
-# Format: name -> (url, filename). None url = not yet verified; script refuses.
+# Pinned sources. Format: name -> (url, filename). None url = not yet
+# verified; script refuses.
 SOURCES: dict[str, tuple[str | None, str]] = {
     "clinvar_vcf": (
-        "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/clinvar_20261004.vcf.gz",
-        "clinvar_20261004.vcf.gz",
+        "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/clinvar_20261108.vcf.gz",
+        "clinvar_20261108.vcf.gz",
     ),
     "clinvar_summary": (
         "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/tab_delimited/variant_summary.txt.gz",
@@ -62,6 +66,17 @@ SOURCES: dict[str, tuple[str | None, str]] = {
     ),
 }
 
+# Fallbacks, tried once when the pinned URL fails. ClinVar weeklies rotate
+# off the FTP site (the pinned clinvar_20261004.vcf.gz now returns 404), so
+# the ClinVar VCF falls back to the unversioned latest weekly file. A build
+# from the fallback is a different ClinVar version from the locked results.
+FALLBACKS: dict[str, tuple[str, str]] = {
+    "clinvar_vcf": (
+        "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/clinvar.vcf.gz",
+        "clinvar.vcf.gz",
+    ),
+}
+
 
 def sha256_of(path: Path) -> str:
     h = hashlib.sha256()
@@ -71,7 +86,8 @@ def sha256_of(path: Path) -> str:
     return h.hexdigest()
 
 
-def download(url: str, dest: Path) -> None:
+def download(url: str, dest: Path) -> bool:
+    """Fetch url to dest. Returns True on success, False on failure."""
     dest.parent.mkdir(parents=True, exist_ok=True)
     tmp = dest.with_suffix(dest.suffix + ".part")
     req = urllib.request.Request(
@@ -88,17 +104,24 @@ def download(url: str, dest: Path) -> None:
         if tmp.exists():
             tmp.unlink()
         print(
-            f"\n[ERROR] Could not download {url}\n"
-            f"        Reason: {type(e).__name__}: {e}\n"
-            f"        The raw-data sources listed in data/DATA_PROVENANCE.md may have\n"
-            f"        rotated or moved (e.g. NCBI keeps only recent ClinVar weeklies).\n"
-            f"        You can still verify all reported results from the shipped\n"
-            f"        artifacts without raw data — see README 'Verify without\n"
-            f"        re-downloading raw data'.",
+            f"[ERROR] Could not download {url}\n"
+            f"        Reason: {type(e).__name__}: {e}",
             file=sys.stderr,
         )
-        raise SystemExit(1)
+        return False
     tmp.rename(dest)
+    return True
+
+
+def download_failed(url: str) -> SystemExit:
+    return SystemExit(
+        f"\n[ERROR] Could not download {url}\n"
+        f"        The raw-data sources listed in data/DATA_PROVENANCE.md may have\n"
+        f"        rotated or moved (e.g. NCBI keeps only recent ClinVar weeklies).\n"
+        f"        You can still verify all reported results from the shipped\n"
+        f"        artifacts without raw data — see README 'Verify without\n"
+        f"        re-downloading raw data'."
+    )
 
 
 def main() -> int:
@@ -126,6 +149,7 @@ def main() -> int:
             pending.append(name)
             continue
         dest = out / filename
+        used_url = url
         if args.dry_run:
             print(f"[dry-run] would fetch {url} -> {dest}")
             continue
@@ -133,13 +157,24 @@ def main() -> int:
             print(f"[skip] {dest} exists")
         else:
             print(f"[fetch] {url}")
-            download(url, dest)
+            if not download(url, dest):
+                if name not in FALLBACKS:
+                    raise download_failed(url)
+                fb_url, fb_filename = FALLBACKS[name]
+                dest = out / fb_filename
+                if dest.exists():
+                    print(f"[skip] {dest} exists")
+                else:
+                    print(f"[fallback] pinned URL failed; fetching {fb_url}")
+                    if not download(fb_url, dest):
+                        raise download_failed(fb_url)
+                used_url = fb_url
         sidecar = dest.with_suffix(dest.suffix + ".provenance.json")
         sidecar.write_text(
             json.dumps(
                 {
                     "source": name,
-                    "url": url,
+                    "url": used_url,
                     "download_date": date.today().isoformat(),
                     "sha256": sha256_of(dest),
                     "bytes": dest.stat().st_size,
@@ -152,7 +187,7 @@ def main() -> int:
     if pending:
         print(
             f"[blocked] URLs not yet verified for: {', '.join(pending)} "
-            f"(see research/data_urls_verified.md)",
+            f"(no URL pinned in SOURCES)",
             file=sys.stderr,
         )
         return 2

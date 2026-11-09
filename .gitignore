@@ -36,6 +36,10 @@ __pycache__/
 *.egg-info/
 .pytest_cache/
 *.log
+# ...but the test-access log IS committed: it is the audit record for the
+# locked test set (results/test_access.log is a reconstructed record;
+# see its header).
+!results/test_access.log
 
 # OS / editor
 .DS_Store

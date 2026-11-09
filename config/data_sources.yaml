@@ -5,17 +5,18 @@
 sources:
   - name: ClinVar
     role: variant labels (pathogenic/likely pathogenic vs benign/likely benign)
-    url: "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/"
-    version: null
+    url: "https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/clinvar_20261108.vcf.gz"
+    version: "weekly 20261108 (verified live on NCBI FTP 2026-11-09: HTTP 200, 201,585,046 bytes)"
     download_date: null
     genome_build: GRCh38
     license: "NCBI public domain; see https://www.ncbi.nlm.nih.gov/clinvar/docs/maintenance_use/"
-    file: "data/raw/clinvar.vcf.gz"
+    file: "data/raw/clinvar_20261108.vcf.gz"
+    notes: "The locked results were built from weekly clinvar_20261004.vcf.gz, which now returns HTTP 404 (weeklies rotate). Fallback if this pin also rotates: the unversioned latest file https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/clinvar.vcf.gz. A rebuild from any newer weekly is a different ClinVar version and will not reproduce the locked results exactly."
 
   - name: gnomAD
     role: population allele frequencies; benign/common-variant controls
     url: "https://gnomad.broadinstitute.org/downloads"
-    version: "v4.1.0"
+    version: "v4.1.1"
     download_date: null
     genome_build: GRCh38
     license: "ODC-ODbL / CC-BY per file; see https://gnomad.broadinstitute.org/about"

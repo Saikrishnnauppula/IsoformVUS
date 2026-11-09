@@ -3,11 +3,19 @@
 # idempotent and records provenance. Exit on first failure.
 # Every stage calls a real script; no stage is a stub.
 #
+# Stage count: 19 numbered stages (01-19) in 23 script invocations.
+# Stage 04 runs two scripts (04a, 04b), stage 09 runs five (09b-09f),
+# stages 10-11 share one script (scripts/10_11_benchmark.py), and
+# stage 19 is the pytest suite.
+#
 # Network and data requirements (stages that need more than the repo):
-# - Stages 01-03 need data/raw (~5.1 GB). The pinned ClinVar weekly now
-#   returns HTTP 404 from NCBI FTP (see docs/data.md), so a
-#   from-scratch run cannot re-download that file; the shipped data/raw
-#   copy is the input.
+# - Stages 01-03 need data/raw (~5.1 GB). The ClinVar weekly the locked
+#   results were built from (clinvar_20261004.vcf.gz) now returns HTTP 404
+#   from NCBI FTP (see docs/data.md). Stage 01 pins the live weekly
+#   clinvar_20261108.vcf.gz (verified 2026-11-09) with a fallback to the
+#   unversioned latest file, so a from-scratch run downloads a different
+#   ClinVar version and will not reproduce the locked results exactly;
+#   data/raw/ and data/interim/ are not in the repository.
 # - Stage 04a and stage 05 need live GTEx Portal v2 API calls.
 # - Stage 09b needs the live CADD REST API: ~12 h for 60k sequential
 #   calls, so the default scope is validation+test variants only.
@@ -58,7 +66,8 @@ python3 scripts/09f_spliceai_merge.py
 echo "=== [10-11] tiered training + held-out benchmark ==="
 # One script covers both stages (scripts/10_11_benchmark.py). It refuses
 # to run twice without --allow-rerun; every access is appended to
-# results/test_access.log, which already records 9 prior accesses.
+# results/test_access.log, which records 13 logged accesses (17 reads of
+# the test split in all, counting 4 unlogged script-18 evaluations).
 python3 scripts/10_11_benchmark.py --allow-rerun
 
 echo "=== [12] ablation (paired analysis) ==="
