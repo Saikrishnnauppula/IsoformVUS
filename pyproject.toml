@@ -11,24 +11,14 @@ requires-python = ">=3.10"
 license = { text = "MIT" }
 dependencies = [
     # Pinned to match requirements.txt exactly; keep the two files in sync.
+    # Pruned 2026-11-09 (see requirements.txt): only packages actually
+    # imported by src/, scripts/, or tests/ are listed.
     "numpy==1.26.4",
     "pandas==2.2.2",
     "scipy==1.13.1",
     "scikit-learn==1.5.1",
-    "lightgbm==4.5.0",
-    "pysam==0.23.0",
-    "pyBigWig==0.3.22",
-    "biopython==1.83",
     "matplotlib==3.9.2",
-    "seaborn==0.13.2",
-    "pyyaml==6.0.2",
-    "click==8.1.7",
-    "tqdm==4.66.5",
-    "joblib==1.4.2",
-    "shap==0.46.0",
     "pytest==8.3.3",
-    "jupyter==1.1.0",
-    "nbformat==5.10.4",
 ]
 
 [tool.setuptools.packages.find]

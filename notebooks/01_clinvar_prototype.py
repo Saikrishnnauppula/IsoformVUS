@@ -7,7 +7,6 @@
 
 # %% imports
 import gzip
-import re
 from collections import Counter
 from pathlib import Path
 
@@ -17,10 +16,14 @@ VCF = RAW / "clinvar_20261004.vcf.gz"
 
 # %% helpers
 SIG_MAP = {
-    "Pathogenic": 1, "Likely_pathogenic": 1,
+    "Pathogenic": 1,
+    "Likely_pathogenic": 1,
     "Pathogenic/Likely_pathogenic": 1,
-    "Benign": 0, "Likely_benign": 0, "Benign/Likely_benign": 0,
+    "Benign": 0,
+    "Likely_benign": 0,
+    "Benign/Likely_benign": 0,
 }
+
 
 def parse_info(info: str) -> dict:
     d = {}
@@ -30,6 +33,7 @@ def parse_info(info: str) -> dict:
             d[k] = v
     return d
 
+
 def significance_bucket(clnsig: str) -> str | None:
     """Map CLNSIG to pathogenic / benign / other (VUS, conflicting, ...)."""
     s = clnsig.replace(" ", "")
@@ -38,6 +42,7 @@ def significance_bucket(clnsig: str) -> str | None:
     if "Benign" in s and "Pathogenic" not in s and "Uncertain" not in s:
         return "benign"
     return "other"
+
 
 # %% stream the VCF (no full load)
 assert VCF.exists(), f"missing {VCF}; run scripts/01_download_sources.py first"

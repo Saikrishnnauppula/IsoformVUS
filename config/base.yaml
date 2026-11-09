@@ -21,7 +21,8 @@ gene_panel:
   max_genes: 200
 
 # Leakage-safe splits: genes are assigned to splits, never variants of the same gene
-# split across train/validation/test. See docs/leakage_prevention.md.
+# split across train/validation/test. See docs/methods.md ("Seed and splits"
+# and "Test-access guard").
 splits:
   train: 0.60
   validation: 0.20
@@ -30,19 +31,12 @@ splits:
   stratify_by: "disease_category"
 
 models:
+  # Logistic regression is the only learner the benchmark fits
+  # (scripts/10_11_benchmark.py). A LightGBM block used to sit here for the
+  # deleted src/isoformvus/models/tiered.py; it was removed with that module.
   logistic_regression:
     C: 1.0
     max_iter: 5000
-    class_weight: "balanced"
-  lightgbm:
-    n_estimators: 1000
-    learning_rate: 0.03
-    num_leaves: 31
-    min_child_samples: 50
-    subsample: 0.8
-    subsample_freq: 1
-    colsample_bytree: 0.8
-    reg_lambda: 1.0
     class_weight: "balanced"
 
 evaluation:
@@ -50,7 +44,7 @@ evaluation:
   n_bootstrap: 1000
   alpha: 0.05
 
-# Feature tiers (see src/isoformvus/features/spec.py)
+# Feature tiers (see src/isoformvus/features/spec.md)
 feature_tiers:
   model_1_variant_only: ["variant"]
   model_2_plus_phenotype: ["variant", "phenotype"]
