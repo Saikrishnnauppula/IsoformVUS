@@ -1,7 +1,15 @@
 # Feature specification
 
-Every feature below is computed per (variant, phenotype-set, cell-type) context
-unless marked variant-only. Each entry documents *why* it is included — a
+Note (2026-11-09): this spec predates the November 2026 matrix rebuild.
+The tiers below are the design as built. Two later changes matter: no
+fitted tier uses CADD (cadd_phred and cadd_missing were removed from
+every tier on 2026-11-09, so the feature lists in
+data/processed/feature_tiers.json govern, not this spec), and on the
+refit M4 sits above M1 in tie-corrected AUPRC (0.8526 against 0.8336)
+while the M2/M3 step gains were a tie artifact. See docs/methods.md and
+docs/limitations.md.
+
+Every feature below is computed per (variant, phenotype-set, cell-type) context unless marked variant-only. Each entry documents *why* it is included — a
 feature without a biological justification does not enter the model.
 
 ## Tier 1 — variant (variant-only; Baseline A / Model 1)
@@ -9,7 +17,7 @@ feature without a biological justification does not enter the model.
 | Feature | Why included |
 |---|---|
 | `consequence` (VEP-style: missense, stop_gained, splice_*, intronic, …) | Mechanism prior: protein-truncating and splice variants have higher base rates of pathogenicity |
-| `gene_symbol`, `gene_id` | Identity for grouping; NOT one-hot encoded (leakage — see docs/leakage_prevention.md) |
+| `gene_symbol`, `gene_id` | Identity for grouping; NOT one-hot encoded (leakage — see docs/methods.md, "Seed and splits") |
 | `transcript_id` (MANE Select + overlapping) | Which annotation the consequence is called against |
 | `exon_number`, `exon_total` | Positional context; terminal-exon truncations may escape NMD |
 | `af_gnomad` (max across populations) | Population frequency: common variants are unlikely causal for rare severe disease |
@@ -64,6 +72,7 @@ feature without a biological justification does not enter the model.
 
 ## The critical comparison
 
-Model 4 vs Model 3 (and Model 5 vs Model 4) use **identical** variants, splits,
-and learners — the only difference is the isoform feature tiers. Any performance
-delta is attributable to isoform information, not to data or modeling choices.
+Model 4 vs Model 3 (and Model 5 vs Model 4) use **identical** variants,
+splits, and learners — the only difference is the isoform feature tiers.
+A delta between tiers isolates the added feature tier. It does not by
+itself show the gain comes from isoform biology.

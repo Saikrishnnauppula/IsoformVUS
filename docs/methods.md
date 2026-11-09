@@ -12,11 +12,11 @@ input versions and licences live in `docs/data.md`.
 
 We ran the pipeline in Python 3.11 with the pinned versions in
 `requirements.txt` (numpy 1.26.4, pandas 2.2.2, scikit-learn 1.5.1,
-lightgbm 4.5.0, shap 0.46.0, pytest 8.3.3). We verified a clean install and
-37/37 passing tests in a fresh Python 3.11.17 virtual environment on
-2026-10-13. `pyproject.toml` lists the same packages unpinned, so `pip
-install -e .` and `pip install -r requirements.txt` can build different
-environments; we used `requirements.txt` for every locked result.
+pytest 8.3.3). We verified a clean install and 37/37 passing tests in a
+fresh Python 3.11.17 virtual environment on 2026-10-13. `pyproject.toml`
+pins the same packages with `==`, so `pip install -e .` and `pip install
+-r requirements.txt` describe the same environment; we used
+`requirements.txt` for every locked result.
 
 ## Seed and splits
 
@@ -43,9 +43,9 @@ class at any point; VUS was the application target only.
 
 We fit logistic regression only. Each tier is a `LogisticRegression` with
 C=1.0, `class_weight="balanced"`, `max_iter=5000`, fit on train genes. Older
-docs said the benchmark used LightGBM; that was wrong. The docstring in
-`scripts/10_11_benchmark.py` still says "LightGBM if installed", but the
-code fits `LogisticRegression` and nothing else.
+docs said the benchmark used LightGBM; that was wrong: the code fits
+`LogisticRegression` and nothing else, and LightGBM is no longer a
+dependency of the repository.
 
 We added one feature group per tier, in this order:
 
@@ -69,23 +69,30 @@ We added one feature group per tier, in this order:
   cell-type effects.
 - M4, isoform structure: variant-varying flags for MANE Select coding
   membership, alternative-isoform consequence, exon position, and phase.
-  This tier carried the result that did not hold up: on the shipped matrix,
-  test AUPRC 0.8016 to 0.8524, a gain of +0.0509 with 95% CI [+0.0473,
-  +0.0546], positive in 24 of 24 test genes. After the matrix rebuild, M4
-  is -0.0070 below M1 (tie-corrected AUPRC 0.9394 against 0.9463).
+  This tier carried the result that did not hold up at its first size: on
+  the shipped matrix, test step AUPRC 0.8016 to 0.8524, a gain of +0.0509
+  with 95% CI [+0.0473, +0.0546], positive in 24 of 24 test genes. After
+  the 2026-11-09 refit (CADD removed from all tiers), M4 is +0.0189 above
+  M1 in tie-corrected AUPRC (0.8526 against 0.8336; gene-clustered 95% CI
+  [+0.0107, +0.0278]). The intervening rebuilt run, which put M4 at -0.0069
+  below M1, was inflated by test-time CADD signal through a constant-fit
+  coefficient and is superseded.
 - M5, isoform usage: the dominant transcript's GTEx usage in the gene's top
   tissue, assigned to every variant of the gene. It is also a gene-level
   constant. On the shipped matrix it added nothing (AUPRC change about
-  -0.0001); on the rebuilt matrix M5 is +0.0059 above M4 in step AUPRC.
+  -0.0001); on the 2026-11-09 refit M5 is -0.0000 from M4 in tie-corrected
+  AUPRC (step AUPRC change -0.0001).
 
 We scored average precision two ways. Standard step AUPRC (right-endpoint)
 penalizes tied score blocks, and M1 holds a 6,077-SNV tie block of variants
 with missing AlphaMissense scores. Under analytical tie-corrected average
-precision (McSherry and Najork 2008), M1 scores 0.8334, M2 0.8340, M3
-0.8332, and M4 0.8517 on the shipped matrix. The +0.031 step-AUPRC jumps
-in M2 and M3 were a tie artifact; tie-corrected, M2 gains +0.0006 and M3
-loses -0.0002. After the matrix rebuild, the tie block is gone and the
-values are M1 0.9463, M2 0.9533, M3 0.9312, M4 0.9394, M5 0.9454.
+precision (McSherry and Najork 2008), on the 2026-11-09 refit M1 scores
+0.8336, M2 0.8343, M3 0.8350, M4 0.8526, and M5 0.8526. The +0.031
+step-AUPRC jumps in M2 and M3 were a tie artifact; tie-corrected, M2
+gains +0.0007 and M3 +0.0014. The rebuilt run's tie-corrected values
+(M1 0.9463, M4 0.9394) are superseded: on that run, real CADD values in
+validation and test broke the tie block by leaking signal into the tiers
+through a coefficient fit on a constant in train.
 
 We set the benchmark prevalence by construction: each test gene contributes
 exactly 300 pathogenic and 300 benign variants, so test prevalence is 50%.
@@ -95,16 +102,23 @@ sharply by variant type (SNV 0.352, deletion 0.915), so global metrics do
 not carry across variant mixes.
 
 We reported variant-level bootstrap and permutation intervals (5,000
-bootstraps, 2,000 permutations) with Bonferroni alpha 0.01. We did not
-compute gene-clustered intervals in the locked run; on the shipped matrix,
-a later check put the M4 minus M1 gene-cluster interval at [+0.0425,
-+0.0582].
+bootstraps, 2,000 permutations) with Bonferroni alpha 0.01. Gene-clustered
+intervals (cluster bootstrap over the 24 test genes, 2,000 resamples, plus
+a leave-one-gene-out jackknife) are computed by
+scripts/19_refit_statistics.py on the 2026-11-09 refit: M4-M1 +0.0189
+[+0.0107, +0.0278]; M2-M1 +0.0007 [-0.0029, +0.0045]. An earlier check put
+the M4 minus M1 gene-cluster interval at [+0.0425, +0.0582] on step
+AUPRC, which penalizes M1's tie block; the tie-corrected interval above
+supersedes it. Tier claims in the manuscript rest on the clustered
+intervals, not the variant-level ones.
 
 ## Run order
 
 We ran the pipeline in stage order 01 to 19, as listed in
-`scripts/run_all.sh`. Every stage now calls a real script: the six stub
-stages were deleted or implemented, and the runner wires in
+`scripts/run_all.sh`: 19 numbered stages in 23 script invocations (stage 04
+runs two scripts, stage 09 runs five, stages 10-11 share one script, and
+stage 19 is the pytest suite). Every stage now calls a real script: the six
+stub stages were deleted or implemented, and the runner wires in
 `scripts/10_11_benchmark.py` (stages 10-11), `scripts/12b_paired_analysis.py`
 (stage 12), `scripts/14_add_baselines.py` (stage 14), and
 `scripts/18_exon_architecture_nmd.py` (stage 18). The intended entry points
@@ -113,21 +127,27 @@ are `make test`, `make benchmark`, and `make figures`. Stage 18 writes
 `results/exon_skipping_nmd_candidates.tsv`,
 `results/vus_bayesian_stratification.tsv`, and
 `results/cmh_per_gene_tables.tsv`. A full from-scratch run is not currently
-possible: the pinned ClinVar weekly returns HTTP 404, stages 04a and 05
-need the live GTEx API, and stage 09b needs the live CADD API.
+possible: the ClinVar weekly the locked results were built from returns
+HTTP 404 (stage 01 now pins the live `clinvar_20261108.vcf.gz`, verified
+2026-11-09, which is a different ClinVar version), `data/raw/` and
+`data/interim/` are not in the repository, stages 04a and 05 need the live
+GTEx API, and stage 09b needs the live CADD API.
 
 ## Test-access guard
 
 We locked the test set before training. `scripts/10_11_benchmark.py`
 refuses to run when `results/test_access.log` exists unless `--allow-rerun`
 is passed, and it appends one line per access. Scripts 12b and 18 log their
-test accesses the same way. The log holds 13 lines: 1 benchmark run on
+test accesses the same way. The log records 13 entries: 1 benchmark run on
 2026-10-06, 8 baseline-enrichment evaluations (SpliceAI plus CADD) on
 2026-10-07, 2 benchmark reruns and 1 baseline run on 2026-11-08, and 1
 script-18 M6 evaluation on 2026-11-08. Four earlier script-18 M6
 evaluations on 2026-11-08 were not logged by that script, so the test split
-was read 17 times in all. Any statement that the test set was accessed
-once is false.
+was read 17 times in all. The committed log is the original timestamped
+record; it sat untracked in the working tree until 2026-11-09 because
+`.gitignore` carried a bare `*.log` rule, and a negation
+(`!results/test_access.log`) now keeps it tracked. Any statement that the
+test set was accessed once is false.
 
 ## Cutoffs and tuning sets
 
@@ -146,10 +166,13 @@ GTEx v8, ClinVar weekly `clinvar_20261004.vcf.gz`, CADD v1.7, SpliceAI
 v1.3.1, and AlphaMissense v1. Full versions, sources, and licences are in
 `docs/data.md`. Four mismatches shaped the results:
 
-- The pinned ClinVar weekly now returns HTTP 404 from NCBI FTP, so
-  bit-exact reproduction from raw inputs is no longer possible. `data/raw/`
-  (~5.1 GB) is not in the repository and must be re-downloaded per
-  `docs/data.md`.
+- The ClinVar weekly the locked results were built from
+  (`clinvar_20261004.vcf.gz`) now returns HTTP 404 from NCBI FTP, so
+  bit-exact reproduction from raw inputs is no longer possible. Stage 01
+  now pins the live weekly `clinvar_20261108.vcf.gz` (verified 2026-11-09)
+  with a fallback to the unversioned latest file; a rebuild uses that
+  newer ClinVar version instead. `data/raw/` (~5.1 GB) is not in the
+  repository and must be re-downloaded per `docs/data.md`.
 - GTEx v8 was quantified on GENCODE v26. We joined it to the v46 structural
   classification on the ENST base (the identifier without its version
   number). We did not quantify the mapping loss: the unmatched-transcript
@@ -183,9 +206,10 @@ fixed. The fitted donor-edge coefficient is +0.31 (95% CI [-0.86, 1.48]).
 The SpliceAI interaction terms are not identified: no train missense
 variant carries a SpliceAI score. The earlier +3.60 and +1.80 constants
 were hard-coded, not fitted. Script 18 refits M1 with a standardized
-logistic regression, so its pooled M1 (AUROC 0.7981) differs from the
-benchmark's M1 (0.9484); the within-missense comparison in the manuscript
-is internal to script 18. Script 18 reads its five large inputs from
+logistic regression; its pooled M1 (AUROC 0.7981) is a different estimator
+from the benchmark's M1 (AUROC 0.7985 on the 2026-11-09 no-CADD refit),
+and the within-missense comparison in the manuscript is internal to
+script 18. Script 18 reads its five large inputs from
 `data/interim/script18/` (see `docs/data.md`). We record this here because
 the numbers in `results/` came from that code; the model itself was
 withdrawn after peer review, and `docs/limitations.md` gives the reasons.
@@ -200,15 +224,25 @@ shown that low-expression exons are depleted of pathogenic loss-of-function
 variants; our backup-skipping variable is a cruder version of the same
 idea, built from annotated-transcript TPM fractions instead of junction
 measurements, applied to missense rather than loss of function. The biology
-behind the exon gradient was established before we started: long and
-disordered exons tolerate missense variation (Buljan et al. 2012), and
-isoform-selective alleles were demonstrated in patients (Ly et al. 2025;
-Weykopf et al. 2026). Our October follow-up work then falsified the
+behind the exon gradient was established before we started: tissue-specific
+exons often encode disordered protein segments (Buljan et al. 2012),
+isoform-selective alleles were demonstrated in patients (Ly et al. 2025),
+and disease-associated variants map to tissue-specific alternative isoforms
+(Weykopf et al. 2026). Full references for the works cited here are in
+paper/manuscript.md, Section 7. Our October follow-up work then falsified the
 phenotype and cell-type framing we had started with: the M2 and M3 features
-are gene-level constants, their AUPRC gains are a tie artifact, and a
-validation-trained CADD-plus-context stack beats CADD alone by +0.0191
-AUPRC, of which the isoform-specific slice is +0.0015 and the isoform block
-alone on top of CADD adds exactly 0.0000. What survived that check was the
-tie correction itself. The M4 structural signal did not survive the matrix
-rebuild: on the rebuilt matrix M4 is -0.0070 below M1 in tie-corrected
-AUPRC.
+are gene-level constants, their AUPRC gains are a tie artifact. An earlier
+version of this paragraph also claimed that a validation-trained
+CADD-plus-context stack beat CADD alone by +0.0191 AUPRC, of which the
+isoform-specific slice was +0.0015 and the isoform block alone on top of
+CADD added exactly 0.0000. Those three numbers appear in no results file,
+no shipped script fits a validation-trained stack (every fit in the repo
+trains on the train split), and they could not be reproduced from shipped
+files; they were removed on 2026-11-09 as unreproducible (audit trail:
+results/statistics.json, key methods_209_check: the closest computable
+train-fit quantity, M5 minus CADD AUPRC on the CADD-scored test subset, is
+-0.2367, not +0.0191). What survived that check was the
+tie correction itself, and the M4 structural signal at a smaller size: on
+the 2026-11-09 refit M4 is +0.0189 above M1 in tie-corrected AUPRC
+(gene-clustered 95% CI [+0.0107, +0.0278]). The rebuilt run's -0.0069
+reading was a CADD artifact (manuscript Section 3.1).

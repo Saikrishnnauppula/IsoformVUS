@@ -1,13 +1,13 @@
 # Case-study candidacy decisions (2026-10-06)
 
-Rule from the brief: a gene is a case study only if public evidence and
-available data support it — never forced.
+A gene is a case study only if public evidence and available data
+support it — never forced.
 
 ## TRNT1 — INCLUDED (conditional on isoform annotation check)
 
 - **ClinVar evidence (real data, clinvar_20261004.vcf.gz):** 75 P/LP records,
   265 B/LB, 310 VUS, 18 conflicting. Label pool is sufficient.
-- **Published mechanism:** Ly et al., *Molecular Cell* 2025 — nonsense/
+- **Published mechanism:** Ly et al., *Molecular Cell* 2025;85:4198–4214.e11 (DOI: 10.1016/j.molcel.2025.10.013) — nonsense/
   frameshift/missense variants between two translation-initiation sites
   selectively eliminate the longer TRNT1 protein isoform; isoform-specific
   TRNT1 mutations explain heterogeneous SIFD (sideroblastic anemia,
@@ -19,12 +19,13 @@ available data support it — never forced.
 - **Remaining check (stage 06):** GENCODE v46 must annotate the alternative
   start-codon isoforms; if the annotation lacks them, the case study is
   dropped or reframed as an annotation-gap finding (which is itself a
-  result, cf. Weykopf et al. 2026).
+  result, cf. Weykopf et al., *Nature Communications* 2026;17:7627,
+  DOI: 10.1038/s41467-026-74280-w).
 - **Annotation check result (2026-10-06, real GENCODE v46 primary assembly):**
   TRNT1 has 13 protein-coding transcripts with **13 distinct exon
   structures** — alternative isoforms ARE annotated. The Ly et al. mechanism
   (alternative translation-initiation sites) is a CDS-level difference;
-  stage 06 will verify CDS-level distinctness per transcript. PROCEED.
+  stage 06 will verify CDS-level distinctness per transcript.
 
 ## DNM1 — INCLUDED (literature-anchored)
 
@@ -32,7 +33,9 @@ available data support it — never forced.
   (ENST00000372923.8) and a **MANE Plus Clinical** transcript
   (ENST00000486160.4) — the annotation itself acknowledges a clinically
   relevant alternative isoform.
-- **Published mechanism:** AlphaGenome Atlas/AVI (2026 preprint) rescued a
+- **Published mechanism:** AlphaGenome Atlas/AVI (Cheng et al. 2026,
+  medRxiv 2026.09.16.26363192, DOI: 10.64898/2026.09.16.26363192;
+  preprint, not peer-reviewed) rescued a
   real epileptic-encephalopathy VUS in DNM1 intron 10 affecting a
   brain-specific isoform (exon 10a, absent from MANE Select).
 - **IsoformVUS angle:** the counterfactual experiment (stage 13) can show

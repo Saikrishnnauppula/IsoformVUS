@@ -1,41 +1,45 @@
 # Limitations
 
 This document lists what is wrong or unproven in IsoformVUS, with the
-numbers behind each item. It replaces the earlier limitations file, which
-omitted the tie artifact, the test-set accesses, and every withdrawn claim
-below. The manuscript built from this work was rejected in November 2026
-(REJECT, confidence 4/5); the items here are the reasons, stated for the
-record rather than fixed by editing them away.
+numbers behind each item. The manuscript built from this work was
+rejected in November 2026 (REJECT, confidence 4/5); the items here are
+the reasons.
 
 ## Research code only
 
-IsoformVUS is a research project, not a clinical diagnostic tool. Nothing
-here diagnoses a patient or determines clinical care. Scores are research
-prioritization signals. Model output must never be converted into ACMG/AMP
-pathogenicity classifications (Pathogenic, Likely Pathogenic, VUS, Likely
-Benign, Benign) without independent expert review and orthogonal evidence.
-Three things stay distinct: computational evidence (what the model computed
-and why), research prioritization (a ranked shortlist for follow-up
-experiments), and clinical interpretation (a judgment by qualified
-professionals with patient context, family data, and functional validation).
-Do not deploy IsoformVUS scores in a clinical pipeline, do not present them
-to patients or families as results, and do not cite them as standalone
-evidence in a diagnostic report. The manuscript's earlier clinical
-assignments were withdrawn, and this document and the manuscript now agree
-on that point.
+IsoformVUS is a research project, not a clinical diagnostic tool.
+Nothing here diagnoses a patient or determines clinical care. Scores are
+research prioritization signals. Model output must never be converted
+into ACMG/AMP pathogenicity classifications (Pathogenic, Likely
+Pathogenic, VUS, Likely Benign, Benign) without independent expert
+review and orthogonal evidence. Keep three things apart: computational
+evidence (what the model computed and why), research prioritization (a
+ranked shortlist for follow-up experiments), and clinical interpretation
+(a judgment by qualified professionals with patient context, family
+data, and functional validation). Do not deploy IsoformVUS scores in a
+clinical pipeline, do not present them to patients or families as
+results, and do not cite them as standalone evidence in a diagnostic
+report. The manuscript's earlier clinical assignments were withdrawn,
+and this document and the manuscript now agree on that point.
 
 ## The tie artifact and the phenotype and cell-type layers
 
 The +0.031 step-AUPRC gains reported for M2 (phenotype) and M3 (cell type)
 were a tie artifact. M1 holds a 6,077-SNV tie block of variants with
 missing AlphaMissense scores, and standard right-endpoint step AUPRC
-penalizes that block by -0.0321. Under analytical tie-corrected average
-precision (McSherry and Najork 2008), M1 scores 0.8334, M2 0.8340, and M3
-0.8332 on the shipped matrix, so the tie-corrected gains are +0.0006 and
--0.0002. After the matrix rebuild, the tie block is gone: step and
-tie-corrected AUPRC differ by at most 0.0002, and the values are M1 0.9463,
-M2 0.9533 (+0.0070), M3 0.9312 (-0.0151), M4 0.9394 (-0.0069), M5 0.9454.
-The old M1-M4 gain (+0.0509) does not survive the rebuild. Both layers are
+penalizes that block by -0.0318. Under analytical tie-corrected average
+precision (McSherry and Najork 2008), on the 2026-11-09 refit M1 scores
+0.8336, M2 0.8343, and M3 0.8350, so the tie-corrected gains are +0.0007
+and +0.0014. On that refit (CADD removed from all fitted tiers), the
+tie-corrected values are M1 0.8336, M2 0.8343 (+0.0007), M3 0.8350
+(+0.0014), M4 0.8526 (+0.0189), M5 0.8526 (+0.0189); gene-clustered 95%
+CIs over the 24 test genes include zero for M2-M1 ([-0.0029, +0.0045])
+and exclude zero for M4-M1 ([+0.0107, +0.0278]). The old step-AUPRC gain
+(+0.0509) overstates the M4 effect because step evaluation penalizes the
+tied M1 baseline; the tie-corrected gain is +0.0189. The rebuilt run's
+values (M1 0.9463, M4 0.9394, M2 0.9533 as "best tier") are superseded:
+real CADD in validation and test entered through a coefficient fit on a
+constant in train (0 of 35,921 train rows scored). Both layers are
 gene-level constants: every variant in a gene carries the same value, so
 they tested gene-level context offsets, not variant-level phenotype or
 cell-type effects. The claim that 94.5% of M4's gain reflects canonical
@@ -49,7 +53,11 @@ not once: 1 benchmark run on 2026-10-06, 8 baseline-enrichment evaluations
 on 2026-10-07, 2 benchmark reruns and 1 baseline run on 2026-11-08, and 1
 script-18 M6 evaluation on 2026-11-08. Four earlier script-18 M6
 evaluations on 2026-11-08 were not logged by that script, so the test split
-was read 17 times in all during this revision. The "held-out" label applies
+was read 17 times in all during this revision. The committed log is the
+original timestamped record (13 entries, 2026-10-06 to 2026-11-08). It
+sat untracked in the working tree until 2026-11-09 because `.gitignore`
+carried a bare `*.log` rule; a negation (`!results/test_access.log`) now
+keeps it tracked. The "held-out" label applies
 to the final logistic fit only. Every threshold and constant in the analysis
 was set from work covering all 102 genes, including the 24 test genes: the
 exon bins at 180, 400, and 1,000 bp, backup-skip usage at 10% with 1.0 median
@@ -69,9 +77,10 @@ near-deterministic classes: frameshift 99.97% pathogenic, stop-gained
 99.94%, synonymous 0.20%, intronic 3.47%. Within missense, the only class
 where exon architecture could matter, M6 scores 0.9321 against 0.9511 for
 M1 and 0.9493 for M4: M6 is worse than the baseline. Script 18 refits M1
-with a standardized logistic regression, so its pooled M1 (AUROC 0.7981)
-differs from the benchmark's M1 (0.9484); the within-missense comparison is
-internal to script 18. The donor-edge recall of 42.9% is 3 of 7 variants,
+with a standardized logistic regression; its pooled M1 (AUROC 0.7981) is
+a different estimator from the benchmark's M1 (AUROC 0.7985 on the
+2026-11-09 refit); the within-missense comparison is internal to
+script 18. The donor-edge recall of 42.9% is 3 of 7 variants,
 all in validation genes; the test set contributes zero pathogenic edge
 variants, so the recall on held-out test genes is 0 of 0. The fitted M6
 recalls 0 of 7. No consequence-aware baseline (consequence class plus
@@ -80,7 +89,7 @@ M6, and no gnomAD AF column exists in the benchmark at all.
 
 ## The 4x2x2 gradient and cell 4D
 
-The descriptive gradient is real as ClinVar arithmetic: resolved missense
+As ClinVar arithmetic, the gradient holds: resolved missense
 pathogenicity falls from 73.00% (3,741 P/LP of 5,125) in compact,
 constitutive, phase-symmetric exons to 1.17% (3 P/LP of 257) in giant,
 backup-skipped, symmetric exons, an odds ratio of 0.0044. Its decisive
@@ -114,17 +123,18 @@ is also mis-rounded: recomputation gives two-sided p = 0.0025. No
 threshold sweep, no multiplicity correction, and no SpliceAI or
 MaxEntScan comparison was run for these variants.
 
-## Regimes II and III
+## The three isoform regimes
 
-Two of the three isoform regimes in the manuscript were wrong. Regime II
-(alternative-exon missense) resolved benign is 98.38% (730 of 742), not
-89.20% (570 of 639). Of its 2,173 variants, 1,186 (54.58%) remain VUS and
-208 are conflicting, so 1,394 (64.15%) are VUS or conflicting; 37 more are
-unresolved under other labels. Regime III (alternative-exon loss of
-function) resolved pathogenic is 35.02% (145 of 414), not 28.57%, and the
-unconditioned rate already equals the claimed rise to 35.0% at 15% usage
-or more, so no usage gradient was demonstrated. The 15% usage-stratified
-counts are untraced: the 587,227-row table has no usage column.
+All three isoform-regime rates are withdrawn in full (2026-11-09). The
+regime classification sat on the 587k variant table in
+`data/interim/script18/`, which is not shipped, and the code that built
+it was deleted with the experiment archive, so no regime count — neither
+the original rates (Regime I 99.93% benign, Regime II 89.20%, Regime III
+28.57%) nor the corrected rates published in the previous revision
+(98.38%, 730 of 742; 35.02%, 145 of 414) — can be regenerated from
+shipped materials. A correction to an untraceable number is still
+untraceable, so the manuscript reports none of them (Section 6.1,
+item 8).
 
 ## The NMD mechanism
 
@@ -161,9 +171,11 @@ with no stated formula and no confidence interval. The neighbouring 4C
 cell shows how fragile the assignments were: its interval runs 0.0275 to
 0.0511, and its upper bound sits 0.002 below the Strong Benign threshold
 of 0.053, so one more pathogenic variant breaks the assignment. The ratios also
-double-count the evidence curators already use: 77.9% of the exon-length
-effect and 94.7% of the backup-skipping effect runs through
-AlphaMissense, so a variant in a giant backup-skipped exon would attract
+double-count the evidence curators already use: the withdrawn mediation
+analysis claimed 77.9% of the exon-length effect and 94.7% of the
+backup-skipping effect runs through AlphaMissense (those percentages are
+themselves withdrawn — no generating code is in the repository), so a
+variant in a giant backup-skipped exon would attract
 BP4 from its low AlphaMissense score and a further -4 points from an exon
 ratio that is mostly the same signal. The ratio was never computed within
 AlphaMissense bands, so no residual value was ever shown. Applying the
@@ -195,12 +207,12 @@ trained predictor, not a measured biological mediator: it is a function of
 the same sequence features that define the exposure, so sequential
 ignorability cannot hold, and every unmeasured confounder of the
 exon-pathogenicity relationship is also a confounder of the
-AlphaMissense-pathogenicity relationship. The correct reading is that the
-exon gradient and the AlphaMissense gradient largely overlap (77.9% and
-94.7% by the reported numbers). The generating code for those numbers is
-not in the repository, so even the baseline mediation result is not
-verifiable from shipped materials. No swap test with ESM1b or EVE was run
-to check whether the overlap is specific to 3D structure.
+AlphaMissense-pathogenicity relationship. The reported overlap
+percentages (77.9% and 94.7%) are withdrawn: the generating code for
+those numbers is not in the repository, so the mediation result is not
+verifiable from shipped materials, and no percentage is reported in the
+manuscript. No swap test with ESM1b or EVE was run to check whether the
+overlap is specific to 3D structure.
 
 ## Labels and prevalence
 

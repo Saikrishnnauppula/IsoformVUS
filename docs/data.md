@@ -49,24 +49,42 @@ v46 GTF, the MANE v1.5 summary, HPO v2026-02-16, the GTEx v8 API, the
 SpliceAI package with a GRCh38 FASTA and GTF, the CADD v1.7 REST API, and
 the AlphaMissense Zenodo file, at the URLs in the table above.
 
-Two rebuilds from raw inputs will not reproduce the locked results exactly.
-The pinned ClinVar weekly `clinvar_20261004.vcf.gz` now returns HTTP 404
-from NCBI FTP; weeklies rotate and only newer snapshots remain, so a
-rebuild today uses a different ClinVar version. And the GTEx v8 to GENCODE
-v46 join loses an unquantified number of transcripts: GTEx v8 used GENCODE
-v26 identifiers, the join used the ENST base only, and the
-unmatched-transcript counts sat in `data/interim/`, which is not shipped.
+What still blocks a full fresh-clone run, stated plainly:
 
-## The CADD situation
+- The ClinVar weekly in the table (`clinvar_20261004.vcf.gz`) returns
+  HTTP 404 from NCBI FTP; weeklies rotate and only the newest snapshots
+  remain. Stage 01 now pins the live weekly `clinvar_20261108.vcf.gz`
+  (HEAD-verified 2026-11-09: HTTP 200, 201,585,046 bytes, at
+  https://ftp.ncbi.nlm.nih.gov/pub/clinvar/vcf_GRCh38/clinvar_20261108.vcf.gz),
+  with a fallback to the unversioned latest file
+  (`clinvar.vcf.gz` in the same directory). A rebuild therefore uses a
+  different ClinVar version from the locked results and will not
+  reproduce them exactly.
+- Stages 04a and 05 need the live GTEx Portal v2 API; stage 09b needs the
+  live CADD v1.7 REST API (about 12 h for the validation+test scope);
+  stages 09d-09f need a SpliceAI installation with a GRCh38 FASTA and GTF.
+- Stage 18 cannot run from a fresh clone at all: its five input files sit
+  in `data/interim/script18/`, which is not shipped, and the code that
+  built them was removed with the experiment archive (see "Script-18
+  inputs" below).
 
-The CADD scores exist and the feature matrix now carries them.
+And the GTEx v8 to GENCODE v46 join loses an unquantified number of
+transcripts: GTEx v8 used GENCODE v26 identifiers, the join used the ENST
+base only, and the unmatched-transcript counts sat in `data/interim/`,
+which is not shipped.
+
+## CADD
+
+The feature matrix now carries the CADD scores.
 `variant_cadd.tsv.gz` holds real v1.7 scores for 24,600 validation and
 test variants, with 100% variant-key overlap against the matrix. The
 rebuilt matrix merges those scores in (19,014 of 60,521 rows scored), and
 the benchmark was re-run from it. Every train row still carries
 `cadd_phred = -1.0` with `cadd_missing = 1`: CADD was queried only for
 validation and test variants, so the fitted CADD coefficient was never fit
-against varying CADD values. The benchmark's CADD baseline (test AUROC
+against varying CADD values. On 2026-11-09 both CADD columns were removed
+from every fitted tier and the benchmark was refit; CADD is an external
+baseline only. The benchmark's CADD baseline (test AUROC
 0.9554, n = 11,240) was scored from the CADD table, not from the matrix.
 
 CADD scoring itself was partial: 24,600 val+test variants were queried and
