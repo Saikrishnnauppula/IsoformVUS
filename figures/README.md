@@ -13,13 +13,20 @@
 | 07_counterfactual.png | LMNA chr1:156115000:C>T per-transcript effects and M5 score delta | results/counterfactual.json |
 | 08_case_study.png | LMNA case study (same counterfactual, plus interpretation chain) | results/counterfactual.json |
 
-Note on Figure 08, panel C: the disease list, cell types, and "5 affected
-protein-coding isoforms" text are hard-coded in scripts/16_make_missing_figures.py
-and are not backed by a shipped results file. The manuscript (Section 5.3) cites
-only the verified parts of this figure: the +0.0417 score delta, the 45 GENCODE v46
-transcripts, and the M5 rank of 8 in results/recovered_variants.tsv. The
-counterfactual.json file itself records 10 protein-coding transcripts with a
-coding-specific effect, not 5.
+Note on Figure 08, panel C: the panel now reads its counts from
+results/counterfactual.json in code ("LMNA → 45 transcripts; coding-specific
+on 18"). The 18 is the file's total coding_specific count across biotypes;
+the narrower count of protein-coding transcripts with a coding-specific
+effect is 10, a different quantity. The disease list and cell types in the
+panel remain descriptive text. The manuscript (Section 5.3) cites only the
+verified parts of this figure: the +0.0417 score delta, the 45 GENCODE v46
+transcripts, and the M5 rank of 8 in results/recovered_variants.tsv.
+
+Note on Figure 02: the top banner is generated in code from
+results/benchmark.json and results/statistics.json (refit values: test
+AUPRC 0.8015 → 0.8524 step; tie-corrected 0.8336 → 0.8526, +0.0189,
+gene-clustered 95% CI [+0.0107, +0.0279]; 23/50 top M5 pathogenic variants
+missed by M1). No banner number is hard-coded.
 
 ## Regenerable since 2026-11-09 (scripts/16_make_missing_figures.py)
 
@@ -37,7 +44,7 @@ on any of them. Do not cite them as evidence.
 
 | Figure | Content | Source |
 | --- | --- | --- |
-| 09_exon_architecture_nmd.png | Exon tensor (missense resolved P/LP by size x skip x symmetry), NMD zones, in-frame indel cells | results/exon_architecture_nmd.json (exon_phase_symmetry, inframe_indels_and_nmd_zones) |
-| 10_structural_mediation_controls.png | Label-free biophysical controls; mediation and sensitivity panel | results/exon_architecture_nmd.json (biophysical_and_density_controls, causal_mediation, sensitivity_checks). The mediation values are carried over, not recomputed, and the mediation percentages are withdrawn (manuscript Section 6.1); the figure says so on its face. |
-| 11_donor_acceptor_boundary_asymmetry.png | Donor–acceptor boundary asymmetry; per-cell likelihood ratios | results/exon_architecture_nmd.json (splice_junction_boundary_asymmetry, tiered_model_and_bayesian_lr). Depicts the withdrawn donor-edge finding (manuscript Section 6.1); the distance profile is carried over, not recomputed. Retained only as a record of what was withdrawn, not as evidence. |
-| 12_exon_skipping_candidates.png | Top-15 candidate exons (Tier 1/2 PTV records); stage-18 model comparison | results/exon_skipping_nmd_candidates.tsv; results/exon_architecture_nmd.json (tiered_model_and_bayesian_lr) |
+| 09_exon_architecture_nmd.png | Exon tensor (missense resolved P/LP by size x skip x symmetry), NMD zones, in-frame indel cells | results/exon_architecture_nmd.json (exon_phase_symmetry, inframe_indels_and_nmd_zones). This is the reconstructed-geometry tensor; the manuscript's primary tensor is the annotated one in results/exon_reconstruction_validation.json (Section 4.1). |
+| 10_structural_mediation_controls.png | Label-free biophysical controls; mediation and sensitivity panel | results/exon_architecture_nmd.json (biophysical_and_density_controls, sensitivity_checks) and results/withdrawn_carried_over_values.json (causal_mediation). The mediation values are carried over, not recomputed, and the mediation percentages are withdrawn (manuscript Section 6.1); the figure says so on its face. |
+| 11_donor_acceptor_boundary_asymmetry.png | Donor–acceptor boundary asymmetry; per-cell likelihood ratios | results/withdrawn_carried_over_values.json (splice_junction_boundary_asymmetry) and results/exon_architecture_nmd.json (tiered_model_and_bayesian_lr). Depicts the withdrawn donor-edge finding (manuscript Section 6.1); the distance profile is carried over, not recomputed. Retained only as a record of what was withdrawn, not as evidence. |
+| 12_exon_skipping_candidates.png | Top-15 nominated exons (Tier 1/2 PTV records); stage-18 model comparison | results/exon_skipping_nmd_candidates.tsv (Exon_Nomination_Score column); results/exon_architecture_nmd.json (tiered_model_and_bayesian_lr) |

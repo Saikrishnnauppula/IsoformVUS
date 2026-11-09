@@ -158,9 +158,9 @@ def fig_architecture():
         0.35,
         0.28,
         "Rigorous accounting: the pre-rebuild +0.031 AUPRC gains for "
-        "phenotype & cell-type layers were a tie artifact; rebuilt paired "
-        "AUROC diffs are M2-M1 +0.0100 and M3-M1 -0.0030; tissue-level "
-        "isoform usage adds +0.0064 AUROC over structural features (M5-M4).",
+        "phenotype & cell-type layers were a tie artifact; refit paired "
+        "AUROC diffs are M2-M1 -0.0016 and M3-M1 -0.0023; tissue-level "
+        "isoform usage adds -0.0001 AUROC over structural features (M5-M4).",
         fontsize=7.5,
         style="italic",
         color="0.35",
@@ -216,18 +216,33 @@ def fig_workflow():
         elif r == 1:
             _arrow(ax, 10.45, 3.35, 10.45, 2.92)
 
+    bench = json.loads((REPO / "results/benchmark.json").read_text())
+    stats = json.loads((REPO / "results/statistics.json").read_text())
+    m1_step = bench["tiers"]["M1"]["test"]["auprc"]
+    m4_step = bench["tiers"]["M4"]["test"]["auprc"]
+    tie = stats["tie_corrected_refit_no_cadd"]["tie_auprc"]
+    diff = stats["auprc_diffs"]["M4_minus_M1"]["mean"]
+    gc_lo, gc_hi = stats["gene_clustered_cis"]["diffs"]["M4_minus_M1"]["cluster_ci95"]
+    recovered = bench["recovery_M5_vs_M1"]["top50"]["n_recovered_missed_by_baseline"]
+    cadd = bench["baselines"]["cadd_phred"]["auroc"]
+    spliceai = bench["baselines"]["spliceai_max_delta"]["auroc"]
+    am = bench["baselines"]["alphamissense_missense_only"]["auroc"]
+    banner = (
+        f"Benchmark (refit, 2026-11-09): test AUPRC {m1_step:.4f} (M1) \u2192 "
+        f"{m4_step:.4f} (M4) step;\n"
+        f"tie-corrected {tie['M1']:.4f} \u2192 {tie['M4']:.4f} "
+        f"({diff:+.4f}, gene-clustered 95% CI "
+        f"[{gc_lo:+.4f}, {gc_hi:+.4f}])\n"
+        f"{recovered}/50 top M5 pathogenic variants missed by M1 \u00b7 "
+        f"Baselines: CADD {cadd:.4f} / SpliceAI {spliceai:.4f} / "
+        f"AlphaMissense {am:.4f} (missense-only)"
+    )
     _box(
         ax,
         (0.6, 0.15),
         10.8,
         0.95,
-        "Benchmark (rebuilt matrix, 2026-11-08): test AUPRC 0.947 (M1) → "
-        "0.939 (M4) · paired AUROC diff M4-M1 -0.0088 "
-        "(95% CI [-0.0106, -0.0070]) · 19/50 top M5 pathogenic variants "
-        "missed by M1\nBaselines: CADD 0.9554 / SpliceAI 0.6961 / "
-        "AlphaMissense 0.9435 (missense-only)  •  Phenotype & cell-type: "
-        "pre-rebuild +0.031 AUPRC gains were a tie artifact;\n"
-        "single-cell isoform resolution is what the cell-type half needs",
+        banner,
         GRAY,
         alpha=0.25,
         fs=8,
@@ -445,8 +460,9 @@ def fig_case_study():
         ),
         ("Cell types", "skeletal muscle cell\ncardiac muscle cell\n(GTEx-supported)"),
         (
-            "Gene → isoforms",
-            "LMNA → 5 affected\nprotein-coding isoforms\nincl. MANE Select",
+            "Gene \u2192 isoforms",
+            f"LMNA \u2192 {n_tx} transcripts;\n"
+            f"coding-specific on {fx.get('coding_specific', 0)}",
         ),
         ("Prioritization", "M5 score 0.9883\ntest rank #8\n(missed by M1 top-50)"),
     ]
@@ -504,6 +520,13 @@ SIZE_ORDER = list(SIZE_SHORT)
 
 def _stage18():
     return json.loads((REPO / "results/exon_architecture_nmd.json").read_text())
+
+
+def _withdrawn():
+    """Carried-over values quarantined 2026-11-09 (no generating code;
+    withdrawn, do not cite). Figures 10/11 read them from here, not from
+    the stage-18 results JSON."""
+    return json.loads((REPO / "results/withdrawn_carried_over_values.json").read_text())
 
 
 def fig_exon_architecture():
@@ -654,7 +677,7 @@ def fig_mediation_controls():
     axes[0].set_title("A. Label-free controls by exon group")
     axes[0].legend(fontsize=7)
 
-    med = d["causal_mediation"]
+    med = _withdrawn()["causal_mediation"]
     entries = []
     for key, lab in [
         ("giant_large_via_alphamissense", "Giant/large via AM"),
@@ -705,8 +728,8 @@ def fig_mediation_controls():
         bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="0.6"),
     )
     fig.suptitle(
-        "Structural mediation controls — replotted 2026-11-09 from "
-        "results/exon_architecture_nmd.json"
+        "Structural mediation controls — replotted 2026-11-09; mediation "
+        "panel from results/withdrawn_carried_over_values.json (withdrawn)"
     )
     fig.tight_layout(rect=[0, 0, 1, 0.92])
     fig.savefig(FIG / "10_structural_mediation_controls.png", dpi=150)
@@ -719,7 +742,7 @@ def fig_boundary_asymmetry():
     ratios. The donor-edge finding is withdrawn; this figure is the record
     of it, replotted from results/exon_architecture_nmd.json."""
     d = _stage18()
-    sj = d["splice_junction_boundary_asymmetry"]
+    sj = _withdrawn()["splice_junction_boundary_asymmetry"]
     fig, axes = plt.subplots(1, 2, figsize=(12.5, 5.0))
     prof = sj["distance_profile"]
     x = np.arange(len(prof))
@@ -830,7 +853,7 @@ def fig_skipping_candidates():
             yi,
             f"{int(r['ptv_plp']):,} PTVs (missense P/LP "
             f"{r['mis_resolved_plp_rate']:.1%}, score "
-            f"{r['ASO_Rescuability_Score']:.2f})",
+            f"{r['Exon_Nomination_Score']:.2f})",
             va="center",
             fontsize=7,
         )
