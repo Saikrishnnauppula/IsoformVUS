@@ -5,15 +5,15 @@ Reconstructs MANE Select coding exons across the 102 panel genes from the
 587,227-row ClinVar table and evaluates:
   1. The 4 x 2 x 2 internal exon length x GTEx backup skipping (>=10% usage,
      >=1.0 TPM) x reading-frame phase symmetry (length mod 3 == 0) matrix.
-  2. Label-independent AlphaMissense/CADD distributions and coding density
-     per kb.
+  2. AlphaMissense/CADD distributions that do not use ClinVar labels,
+     and coding density per kb.
   3. 5'-splice donor (3' exon end) vs. 3'-splice acceptor (5' exon start)
      asymmetry among near-junction missense variants with am_score < 0.34,
      in-frame deletion vs. insertion polarity, and 50-nt penultimate-exon
      EJC NMD escape zones.
   4. Within-gene Cochran-Mantel-Haenszel tests for the exon-size and
      backup-skipping effects on internal missense pathogenicity.
-  5. Candidate exon ranking for antisense exon-skipping rescue.
+  5. Ranking of computationally nominated exons.
   6. Tiered-model comparison (M1/M3/M4/Mechanistic-v3, called M6 in the
      manuscript) with a consequence-class-only baseline, per-class and
      within-missense metrics, and Bayesian likelihood ratios for VUS
@@ -64,7 +64,7 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
 from scipy.special import expit
-from scipy.stats import fisher_exact, norm, rankdata
+from scipy.stats import fisher_exact, rankdata
 
 REPO = Path(__file__).resolve().parents[1]
 SEED = 20261006
@@ -264,11 +264,16 @@ def run_cmh_stratified(df_sub: pd.DataFrame, x_col: str, y_col: str = "is_plp") 
         n_g += 1
     cmh_or = num_or / max(den_or, 1e-12)
     z = num_z / np.sqrt(max(var_z, 1e-12))
-    p = float(2.0 * norm.sf(abs(z)))
+    # P-values are WITHHELD (2026-11-09): the CMH z/p treats variants as
+    # independent within genes; the effective sample size is genes and exons,
+    # not variants, so the p-value massively overstates the evidence (the
+    # shipped values were 4.29e-187 and 3.53e-42). Report the OR, the z
+    # statistic and the informative-gene count as descriptive values only.
     return {
         "cmh_or": float(cmh_or),
         "z": float(z),
-        "p": p,
+        "p": None,
+        "p_withheld": "variant-level independence assumption; effective n is genes, not variants",
         "n_informative_genes": n_g,
         "per_gene_tables": per_gene,
     }
@@ -666,6 +671,26 @@ def main() -> int:
     bm_int["exon_size_tier"] = size_tier(bm_int["exon_len"])
 
     # --- 4x2x2 tensor ---
+    # Exon attributes must be resolved per exon BEFORE cell assignment
+    # (2026-11-09 fix). `internal` is variant-level and expr_backup_skips is
+    # assigned per variant, so counting nunique(exon_id) per cell on the
+    # variant-level frame double-counted 19 exons whose variants received
+    # mixed expr_backup_skips values (tensor summed to 4,528 vs the true
+    # 4,509 internal coding exons; all 19 excess counts landed in
+    # constitutive cells). Rule: expr_backup_skips per exon = max over the
+    # exon's variants (same rule as the atlas ex_summary below); n_exons and
+    # n_genes are counted from this exon-level frame. Variant counts per cell
+    # still come from the variant-level frame and are unaffected.
+    exon_level = (
+        internal.groupby("exon_id")
+        .agg(
+            gene_symbol=("gene_symbol", "first"),
+            exon_size_tier=("exon_size_tier", "first"),
+            expr_backup_skips=("expr_backup_skips", "max"),
+            is_symmetric_phase=("is_symmetric_phase", "first"),
+        )
+        .reset_index()
+    )
     tensor_4x2x2 = []
     for sz in SIZE_BINS:
         for skip in [0, 1]:
@@ -674,6 +699,11 @@ def main() -> int:
                     (internal["exon_size_tier"] == sz)
                     & (internal["expr_backup_skips"] == skip)
                     & (internal["is_symmetric_phase"] == sym)
+                ]
+                sub_e = exon_level[
+                    (exon_level["exon_size_tier"] == sz)
+                    & (exon_level["expr_backup_skips"] == skip)
+                    & (exon_level["is_symmetric_phase"] == sym)
                 ]
                 sub_b = bm_int[
                     (bm_int["exon_size_tier"] == sz)
@@ -684,8 +714,8 @@ def main() -> int:
                     "size_bin": sz,
                     "backup_skip": skip,
                     "symmetric_phase": sym,
-                    "n_exons": int(sub_p["exon_id"].nunique()),
-                    "n_genes": int(sub_p["gene_symbol"].nunique()),
+                    "n_exons": int(sub_e["exon_id"].nunique()),
+                    "n_genes": int(sub_e["gene_symbol"].nunique()),
                 }
                 for vc in [
                     "missense",
@@ -927,7 +957,7 @@ def main() -> int:
         "population": "internal resolved missense variants (exon_id >= 0, in_last_exon == 0, is_resolved == 1)",
         "n_variants": len(mis_int_res),
         "n_genes": int(mis_int_res["gene_symbol"].nunique()),
-        "note": "P-values treat variants as independent within genes; effective sample size is genes and exons, not variants. Per-gene 2x2 tables: results/cmh_per_gene_tables.tsv",
+        "note": "P-values WITHHELD (2026-11-09): the CMH z/p treats variants as independent within genes; effective sample size is genes and exons, not variants. ORs, z and informative-gene counts are descriptive only. Per-gene 2x2 tables: results/cmh_per_gene_tables.tsv",
         "giant_large_exon_gt400bp": {
             k: v for k, v in cmh_giant.items() if k != "per_gene_tables"
         },
@@ -942,7 +972,7 @@ def main() -> int:
         f"[18] Locked benchmark M1->M4 step AUPRC: {bench_locked['tiers']['M1']['test']['auprc']:.4f} -> {bench_locked['tiers']['M4']['test']['auprc']:.4f} (+{bench_locked['tiers']['M4']['test']['auprc'] - bench_locked['tiers']['M1']['test']['auprc']:.4f})"
     )
     print(
-        f"[18] Internal missense within-gene CMH: exon >400bp OR={cmh_giant['cmh_or']:.4f} (p={cmh_giant['p']:.2e}), backup-skip OR={cmh_skip['cmh_or']:.4f} (p={cmh_skip['p']:.2e})"
+        f"[18] Internal missense within-gene CMH: exon >400bp OR={cmh_giant['cmh_or']:.4f}, backup-skip OR={cmh_skip['cmh_or']:.4f} (p-values withheld: variant-level independence assumption)"
     )
 
     # --- ASO exon-skipping candidate atlas ---
@@ -1057,8 +1087,12 @@ def main() -> int:
             "Tier 3: Structurally Constrained / Non-Skippable Exon",
         ),
     )
+    # Deterministic tie-break (2026-11-09): exon_id as the final sort key, so
+    # rows tied on (ASO_Rescuability_Score, ptv_plp) order identically
+    # regardless of input row order (pandas sort is stable, so without this
+    # key the output order depended on the input frame's row order).
     atlas_sorted = atlas.sort_values(
-        ["ASO_Rescuability_Score", "ptv_plp"], ascending=[False, False]
+        ["ASO_Rescuability_Score", "ptv_plp", "exon_id"], ascending=[False, False, True]
     ).reset_index(drop=True)
     t1_exons = atlas_sorted[atlas_sorted["aso_tier"].str.startswith("Tier 1")]
     t12_exons = atlas_sorted[
@@ -1103,7 +1137,9 @@ def main() -> int:
     print(
         f"[18] Tier 1+2 exons: {len(t12_exons):,d} across {t12_exons['gene_symbol'].nunique()} genes."
     )
-    top_aso_by_burden = t12_exons.sort_values("ptv_plp", ascending=False).head(15)
+    top_aso_by_burden = t12_exons.sort_values(
+        ["ptv_plp", "exon_id"], ascending=[False, True]
+    ).head(15)
 
     # --- Tiered-model comparison with fitted donor-edge offsets ---
     bm_full = fm.merge(

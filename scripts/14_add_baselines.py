@@ -115,10 +115,25 @@ def main() -> int:
         rep["n_subset"] = len(m2)
         d = roc_auc_score(yl2, m5_sub2) - roc_auc_score(yl2, s)
         rep["m5_minus_baseline_auroc"] = float(d)
+        # Same-subset head-to-head only: CADD is scored on a subset (n=11,240 of 14,400 test);
+        # the +d figure must not be read as a full-test comparison. M5 AUROC on the same
+        # CADD-scored subset is roc_auc_score(yl2, m5_sub2); on the FULL test set M5 AUROC is
+        # bench['tiers']['M5']['test']['auroc'], which is BELOW CADD's subset AUROC -- the
+        # two numbers cover different variant populations and are not a head-to-head.
+        m5_sub_auroc = float(roc_auc_score(yl2, m5_sub2))
+        m5_full_auroc = float(bench["tiers"]["M5"]["test"]["auroc"])
+        rep["m5_auroc_same_subset"] = m5_sub_auroc
+        rep["m5_full_test_auroc_minus_cadd_subset_auroc"] = m5_full_auroc - float(
+            rep["auroc"]
+        )
         bench["baselines"]["cadd_phred"] = rep
         lines_extra.append(
             f"- CADD PHRED (n={len(m2)}): AUROC={rep['auroc']:.4f} "
-            f"AUPRC={rep['auprc']:.4f} | M5 minus CADD AUROC={d:+.4f}"
+            f"AUPRC={rep['auprc']:.4f} | M5 minus CADD AUROC={d:+.4f} "
+            f"(SAME-SUBSET head-to-head only, n={len(m2)}; M5 AUROC on this subset={m5_sub_auroc:.4f}). "
+            f"On the FULL test set (n=14400) M5 AUROC={m5_full_auroc:.4f}, i.e. "
+            f"{m5_full_auroc - float(rep['auroc']):+.4f} vs CADD's subset AUROC -- different "
+            f"populations, not a head-to-head."
         )
         print(f"[baselines] CADD n={len(m2)} AUROC={rep['auroc']:.4f} (M5-{d:+.4f})")
 

@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Stages 10+11: tiered training + HELD-OUT TEST benchmark (real implementation).
+"""Stages 10+11: tiered training + test benchmark.
 
 Protocol:
     1. Load feature matrix + splits.
     2. Train M1..M5 (logistic regression) on TRAIN.
     3. Select learner on VALIDATION AUROC (no test access).
-    4. Score the LOCKED TEST set exactly once; compute full metric panel with
-       bootstrap CIs; compute top-k recovery vs baselines.
+4. Score the test set; compute full metric panel with bootstrap CIs; compute
+top-k recovery vs baselines. Every run is logged (see docs/limitations.md).
     5. Write results/benchmark.json + results/benchmark.md.
 
 Baselines on test (no training):
@@ -62,7 +62,7 @@ def main() -> int:
 
     if ACCESS_LOG.exists() and not args.allow_rerun:
         print(
-            "[10/11] test set already accessed once "
+            "[10/11] test set already accessed "
             f"(see {ACCESS_LOG}); pass --allow-rerun to re-access (logged).",
             file=sys.stderr,
         )
@@ -185,7 +185,14 @@ def main() -> int:
         "baselines": baselines,
         "recovery_M5_vs_M1": recovery,
         "seed": args.seed,
-        "note": "Held-out test set; gene-level splits; see results/test_access.log",
+        "note": (
+            "Held-out test set; gene-level splits; see results/test_access.log. "
+            "Refit 2026-11-09 with cadd_phred and cadd_missing REMOVED from all fitted tiers "
+            "(train n=35,921 had 0 CADD-scored rows: cadd_phred constant -1.0, cadd_missing "
+            "constant 1). CADD is a pure external baseline now (baselines.cadd_phred). "
+            "Environment at refit: system python, scikit-learn 1.9.1 / pandas 3.0.6 / "
+            "numpy 2.5.3, vs pinned 1.5.1-era stack; expect <=0.003 drift from version change alone."
+        ),
     }
     (REPO / "results/benchmark.json").write_text(json.dumps(out, indent=2))
 
@@ -196,6 +203,17 @@ def main() -> int:
         f"Test: {test.sum()} variants ({y[test].sum()} pathogenic), "
         f"{len(set(df.loc[test, 'gene_symbol']))} genes. Gene-level splits; "
         "test set accessed per results/test_access.log.",
+        "",
+        "Refit 2026-11-09: cadd_phred and cadd_missing REMOVED from all fitted tiers. "
+        "CADD was queried only for validation+test variants, so every train row (n=35,921) "
+        "carried the -1 sentinel and the fitted cadd_phred coefficient was fit on a constant; "
+        "test-time CADD signal entered through that coefficient. CADD is now a pure external "
+        "baseline (see Baselines). The 2026-11-08 rebuilt-matrix values (M1 AUPRC 0.9465, "
+        "M4 0.9395) are SUPERSEDED: they were inflated by test-time CADD signal flowing "
+        "through the constant-fit coefficient. The refit values agree with the pre-rebuild "
+        "run (CADD constant in all splits; M1 0.8016, M4 0.8524) to within 0.0001, which "
+        "cross-validates the refit. Environment: scikit-learn 1.9.1 / pandas 3.0.6, "
+        "vs the pinned 1.5.1-era stack; expect <=0.003 drift from version change alone.",
         "",
         "| Model | Feats | Val AUROC | Test AUROC [95% CI] | Test AUPRC | "
         "Top-10 recall [95% CI] |",

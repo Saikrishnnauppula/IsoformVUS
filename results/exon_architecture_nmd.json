@@ -38,8 +38,8 @@
         "size_bin": "1_Compact_<=180",
         "backup_skip": 0,
         "symmetric_phase": 0,
-        "n_exons": 1689,
-        "n_genes": 95,
+        "n_exons": 1680,
+        "n_genes": 94,
         "missense_n": 53494,
         "missense_plp": 5582,
         "missense_blb": 2194,
@@ -72,8 +72,8 @@
         "size_bin": "1_Compact_<=180",
         "backup_skip": 0,
         "symmetric_phase": 1,
-        "n_exons": 751,
-        "n_genes": 86,
+        "n_exons": 750,
+        "n_genes": 85,
         "missense_n": 33809,
         "missense_plp": 3741,
         "missense_blb": 1384,
@@ -174,8 +174,8 @@
         "size_bin": "2_Medium_181_400",
         "backup_skip": 0,
         "symmetric_phase": 0,
-        "n_exons": 284,
-        "n_genes": 65,
+        "n_exons": 279,
+        "n_genes": 64,
         "missense_n": 25637,
         "missense_plp": 2153,
         "missense_blb": 1268,
@@ -208,8 +208,8 @@
         "size_bin": "2_Medium_181_400",
         "backup_skip": 0,
         "symmetric_phase": 1,
-        "n_exons": 138,
-        "n_genes": 57,
+        "n_exons": 137,
+        "n_genes": 56,
         "missense_n": 11630,
         "missense_plp": 1167,
         "missense_blb": 535,
@@ -344,8 +344,8 @@
         "size_bin": "3_Large_401_1000",
         "backup_skip": 0,
         "symmetric_phase": 1,
-        "n_exons": 9,
-        "n_genes": 9,
+        "n_exons": 8,
+        "n_genes": 8,
         "missense_n": 2557,
         "missense_plp": 67,
         "missense_blb": 110,
@@ -446,8 +446,8 @@
         "size_bin": "4_Giant_>1000",
         "backup_skip": 0,
         "symmetric_phase": 0,
-        "n_exons": 25,
-        "n_genes": 16,
+        "n_exons": 23,
+        "n_genes": 14,
         "missense_n": 15609,
         "missense_plp": 192,
         "missense_blb": 1224,
@@ -578,7 +578,8 @@
         "bm_mis_p_rate": 0.0,
         "bm_am_median": 0.2412
       }
-    ]
+    ],
+    "tensor_correction_note": "CORRECTED 2026-11-09: per-cell n_exons/n_genes previously summed to 4,528 exons (+19 over the 4,509 internal coding exons in dataset_summary). Cause: the tensor was counted with nunique(exon_id) per cell on the VARIANT-level frame, where expr_backup_skips is assigned per variant; 19 exons whose variants received mixed expr_backup_skips values were counted in both a constitutive (backup_skip=0) cell and a backup-skipped cell. All 19 excess counts were in backup_skip=0 cells (by size bin: Compact +10, Medium +6, Large +1, Giant +2; n_genes inflated by 7 in the same cells). Fix: n_exons/n_genes per cell now taken from the exon-level atlas (results/exon_skipping_nmd_candidates.tsv, one row per exon, expr_backup_skips = max over the exon's variants), which sums to 4,509 and agrees with biophysical_and_density_controls (constitutive 2,918 + backup-skipped 1,591 = 4,509). Variant-level counts per cell (missense_n etc.) were NOT changed: variants of the 19 exons remain split between cells exactly as computed, and reassigning them requires the script-18 input files (data/interim/script18/), which are not shipped. Rule for regeneration: resolve expr_backup_skips per exon (max) BEFORE cell assignment, and count exons from the exon-level frame."
   },
   "biophysical_and_density_controls": [
     {
@@ -1248,17 +1249,15 @@
     "population": "internal resolved missense variants (exon_id >= 0, in_last_exon == 0, is_resolved == 1)",
     "n_variants": 27965,
     "n_genes": 102,
-    "note": "P-values treat variants as independent within genes; effective sample size is genes and exons, not variants. Per-gene 2x2 tables: results/cmh_per_gene_tables.tsv",
+    "note": "P-values REMOVED 2026-11-09 (were 4.29e-187 for giant_large_exon_gt400bp and 3.53e-42 for expr_backup_skip). The CMH z/p treats 27,965 variants as independent within genes; the effective sample size is genes and exons (52 and 42 informative genes), not variants, so the p-values overstate the evidence by orders of magnitude. No valid gene-clustered p-value was computed (would require cluster-robust / gene-resampled inference on the per-gene tables in results/cmh_per_gene_tables.tsv, which needs the script-18 inputs to redo properly). Odds ratios, z statistics and informative-gene counts are retained as descriptive values only. Per-gene 2x2 tables: results/cmh_per_gene_tables.tsv",
     "giant_large_exon_gt400bp": {
       "cmh_or": 0.20047452493489737,
       "z": -29.172856583472214,
-      "p": 4.286326746001379e-187,
       "n_informative_genes": 52
     },
     "expr_backup_skip": {
       "cmh_or": 0.34611712408695855,
       "z": -13.60920072523663,
-      "p": 3.5308407635798134e-42,
       "n_informative_genes": 42
     }
   },
@@ -2813,15 +2812,14 @@
       "cmh_giant_large": {
         "cmh_or": 0.23480490292979317,
         "z": -24.337237630875826,
-        "p": 7.913730000149345e-131,
         "n_informative_genes": 48
       },
       "cmh_backup_skip": {
         "cmh_or": 0.5043439029126313,
         "z": -7.826685631200836,
-        "p": 5.008995076448308e-15,
         "n_informative_genes": 40
-      }
+      },
+      "cmh_p_note": "CMH p-values removed 2026-11-09 for the same reason as cmh_within_gene_missense: variant-level independence assumption; see that section's note. ORs retained as descriptive values."
     },
     "test2_high_confidence_2plus_stars": {
       "compact_constit_mis_p_rate": 0.8547528517110267,

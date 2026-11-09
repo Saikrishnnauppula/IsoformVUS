@@ -3,63 +3,79 @@
   "n_boot": 5000,
   "n_perm": 2000,
   "test_n": 14400,
+  "refit": "2026-11-09: all values below recomputed from tiers fit WITHOUT cadd_phred and cadd_missing (train 0/35,921 CADD-scored). CADD is a pure external baseline. Environment: scikit-learn 1.9.1 / pandas 3.0.6 (system python), vs pinned 1.5.1-era stack; expect <=0.003 drift from version change alone.",
   "auprc_diffs": {
     "M4_minus_M1": {
-      "mean": 0.0509,
-      "ci_lo": 0.0473,
-      "ci_hi": 0.0546,
-      "perm_p": 0.0005,
+      "mean": 0.01893010983154948,
+      "ci_lo": 0.01535388058532107,
+      "ci_hi": 0.022773888407904893,
+      "perm_p": 0.0004997501249375312,
       "significant": true,
-      "alpha": 0.01
+      "alpha": 0.01,
+      "metric": "tie-aware AUPRC (McSherry & Najork 2008 expected AP)",
+      "note": "Variant-level paired bootstrap CI + permutation p (step AUPRC). Variant-level CIs are NOT gene-level evidence; see gene_clustered_cis."
     },
     "M5_minus_M1": {
-      "mean": 0.0507,
-      "ci_lo": 0.0472,
-      "ci_hi": 0.0545,
-      "perm_p": 0.0005,
+      "mean": 0.01888829149012213,
+      "ci_lo": 0.015263145473798864,
+      "ci_hi": 0.022746284728235366,
+      "perm_p": 0.0004997501249375312,
       "significant": true,
-      "alpha": 0.01
+      "alpha": 0.01,
+      "metric": "tie-aware AUPRC (McSherry & Najork 2008 expected AP)",
+      "note": "Variant-level paired bootstrap CI + permutation p (step AUPRC). Variant-level CIs are NOT gene-level evidence; see gene_clustered_cis."
     },
     "M2_minus_M1": {
-      "mean": 0.031,
-      "ci_lo": 0.029,
-      "ci_hi": 0.033,
-      "perm_p": 0.0005,
-      "significant": false,
+      "mean": 0.0006988090662332502,
+      "ci_lo": -0.0011953311025826058,
+      "ci_hi": 0.0025959673327433205,
+      "perm_p": 0.0004997501249375312,
+      "significant": true,
       "alpha": 0.01,
-      "tie_artifact": true,
-      "note": "Step-AUPRC gain is a tie-breaking artifact; tie-corrected gain on the pre-rebuild matrix was +0.0006 (M2-M1) / -0.0002 (M3-M1). Significance flag corrected 2026-11-08; mean, CI and perm p kept as the locked pre-rebuild record."
+      "metric": "tie-aware AUPRC (McSherry & Najork 2008 expected AP)",
+      "note": "Variant-level paired bootstrap CI + permutation p (step AUPRC). Variant-level CIs are NOT gene-level evidence; see gene_clustered_cis."
     },
     "M3_minus_M1": {
-      "mean": 0.0317,
-      "ci_lo": 0.0297,
-      "ci_hi": 0.0336,
-      "perm_p": 0.0005,
-      "significant": false,
+      "mean": 0.0013899138549571678,
+      "ci_lo": -0.0005273191921812498,
+      "ci_hi": 0.0033372625633391255,
+      "perm_p": 0.0004997501249375312,
+      "significant": true,
       "alpha": 0.01,
-      "tie_artifact": true,
-      "note": "Step-AUPRC gain is a tie-breaking artifact; tie-corrected gain on the pre-rebuild matrix was +0.0006 (M2-M1) / -0.0002 (M3-M1). Significance flag corrected 2026-11-08; mean, CI and perm p kept as the locked pre-rebuild record."
+      "metric": "tie-aware AUPRC (McSherry & Najork 2008 expected AP)",
+      "note": "Variant-level paired bootstrap CI + permutation p (step AUPRC). Variant-level CIs are NOT gene-level evidence; see gene_clustered_cis."
     },
     "M5_minus_M4": {
-      "mean": -0.0001,
-      "ci_lo": -0.0003,
-      "ci_hi": -0.0,
-      "perm_p": 0.017,
+      "mean": -4.181834142735313e-05,
+      "ci_lo": -0.00017708994288715975,
+      "ci_hi": 8.864463643136754e-05,
+      "perm_p": 0.5362318840579711,
       "significant": false,
-      "alpha": 0.01
+      "alpha": 0.01,
+      "metric": "tie-aware AUPRC (McSherry & Najork 2008 expected AP)",
+      "note": "Variant-level paired bootstrap CI + permutation p (step AUPRC). Variant-level CIs are NOT gene-level evidence; see gene_clustered_cis."
     }
   },
-  "m2_m3_clarification": {
-    "M2": {
-      "auroc": {
-        "mean": -0.0019,
-        "ci_lo": -0.0047,
-        "ci_hi": 0.0009,
-        "perm_p": 0.3013,
-        "significant": false,
+  "auprc_diffs_superseded_pre_rebuild": {
+    "note": "SUPERSEDED. Pre-rebuild run: feature matrix had cadd_phred = -1.0 for all 60,521 rows and the fitted cadd_phred coefficient was fit on a constant. The M4-M1 +0.0509 below is DEAD and must not be cited as a live gain. Kept only as the labelled record of that run.",
+    "values": {
+      "M4_minus_M1": {
+        "mean": 0.0509,
+        "ci_lo": 0.0473,
+        "ci_hi": 0.0546,
+        "perm_p": 0.0005,
+        "significant": true,
         "alpha": 0.01
       },
-      "auprc": {
+      "M5_minus_M1": {
+        "mean": 0.0507,
+        "ci_lo": 0.0472,
+        "ci_hi": 0.0545,
+        "perm_p": 0.0005,
+        "significant": true,
+        "alpha": 0.01
+      },
+      "M2_minus_M1": {
         "mean": 0.031,
         "ci_lo": 0.029,
         "ci_hi": 0.033,
@@ -67,19 +83,9 @@
         "significant": false,
         "alpha": 0.01,
         "tie_artifact": true,
-        "note": "Step-AUPRC gain is a tie-breaking artifact; see correction_note. AUROC entry unchanged (already non-significant)."
-      }
-    },
-    "M3": {
-      "auroc": {
-        "mean": -0.0018,
-        "ci_lo": -0.0045,
-        "ci_hi": 0.0009,
-        "perm_p": 0.3188,
-        "significant": false,
-        "alpha": 0.01
+        "note": "Step-AUPRC gain is a tie-breaking artifact; tie-corrected gain on the pre-rebuild matrix was +0.0006 (M2-M1) / -0.0002 (M3-M1). Significance flag corrected 2026-11-08; mean, CI and perm p kept as the locked pre-rebuild record."
       },
-      "auprc": {
+      "M3_minus_M1": {
         "mean": 0.0317,
         "ci_lo": 0.0297,
         "ci_hi": 0.0336,
@@ -87,9 +93,360 @@
         "significant": false,
         "alpha": 0.01,
         "tie_artifact": true,
-        "note": "Step-AUPRC gain is a tie-breaking artifact; see correction_note. AUROC entry unchanged (already non-significant)."
+        "note": "Step-AUPRC gain is a tie-breaking artifact; tie-corrected gain on the pre-rebuild matrix was +0.0006 (M2-M1) / -0.0002 (M3-M1). Significance flag corrected 2026-11-08; mean, CI and perm p kept as the locked pre-rebuild record."
+      },
+      "M5_minus_M4": {
+        "mean": -0.0001,
+        "ci_lo": -0.0003,
+        "ci_hi": -0.0,
+        "perm_p": 0.017,
+        "significant": false,
+        "alpha": 0.01
       }
     }
+  },
+  "m2_m3_clarification": {
+    "M2": {
+      "auroc": {
+        "mean": -0.0015845147230379645,
+        "ci_lo": -0.00445938746682518,
+        "ci_hi": 0.0012515923413237704,
+        "perm_p": 0.38580709645177413,
+        "significant": false,
+        "alpha": 0.01
+      },
+      "auprc": {
+        "mean": 0.03124945758421351,
+        "ci_lo": 0.029259969562945867,
+        "ci_hi": 0.03325781177913324,
+        "perm_p": 0.0004997501249375312,
+        "significant": true,
+        "alpha": 0.01
+      }
+    },
+    "M3": {
+      "auroc": {
+        "mean": -0.0009769985275940747,
+        "ci_lo": -0.003800947591400475,
+        "ci_hi": 0.00185638419377548,
+        "perm_p": 0.5807096451774113,
+        "significant": false,
+        "alpha": 0.01
+      },
+      "auprc": {
+        "mean": 0.0319302081122354,
+        "ci_lo": 0.029934049008733223,
+        "ci_hi": 0.03397355599633131,
+        "perm_p": 0.0004997501249375312,
+        "significant": true,
+        "alpha": 0.01
+      }
+    }
+  },
+  "m2_m3_clarification_superseded_pre_rebuild": {
+    "note": "SUPERSEDED pre-rebuild values (same CADD-constant defect).",
+    "values": {
+      "M2": {
+        "auroc": {
+          "mean": -0.0019,
+          "ci_lo": -0.0047,
+          "ci_hi": 0.0009,
+          "perm_p": 0.3013,
+          "significant": false,
+          "alpha": 0.01
+        },
+        "auprc": {
+          "mean": 0.031,
+          "ci_lo": 0.029,
+          "ci_hi": 0.033,
+          "perm_p": 0.0005,
+          "significant": false,
+          "alpha": 0.01,
+          "tie_artifact": true,
+          "note": "Step-AUPRC gain is a tie-breaking artifact; see correction_note. AUROC entry unchanged (already non-significant)."
+        }
+      },
+      "M3": {
+        "auroc": {
+          "mean": -0.0018,
+          "ci_lo": -0.0045,
+          "ci_hi": 0.0009,
+          "perm_p": 0.3188,
+          "significant": false,
+          "alpha": 0.01
+        },
+        "auprc": {
+          "mean": 0.0317,
+          "ci_lo": 0.0297,
+          "ci_hi": 0.0336,
+          "perm_p": 0.0005,
+          "significant": false,
+          "alpha": 0.01,
+          "tie_artifact": true,
+          "note": "Step-AUPRC gain is a tie-breaking artifact; see correction_note. AUROC entry unchanged (already non-significant)."
+        }
+      }
+    }
+  },
+  "tie_corrected_refit_no_cadd": {
+    "method": "Tie-aware AUPRC: expected average precision under uniform tie-breaking (McSherry & Najork 2008), function copied from scripts/18_exon_architecture_nmd.py. Models refit on train with the locked protocol (logistic regression, C=1.0, class_weight=balanced, seed=20261006) on the no-CADD tier set; paired bootstrap CIs, n_boot=2000, seed=20261006.",
+    "matrix": "no-CADD refit 2026-11-09; CADD a pure external baseline",
+    "test_n": 14400,
+    "tie_auprc": {
+      "M1": 0.833634123523018,
+      "M2": 0.8343402605271326,
+      "M3": 0.8350348928276408,
+      "M4": 0.8526089624123537,
+      "M5": 0.8525677129127107
+    },
+    "step_auprc": {
+      "M1": 0.8015190900473401,
+      "M2": 0.8327706663429844,
+      "M3": 0.8334527122739248,
+      "M4": 0.8523512066707913,
+      "M5": 0.8523085777987933
+    },
+    "diffs": {
+      "M4_minus_M1": {
+        "mean": 0.01893010983154948,
+        "ci_lo": 0.01535388058532107,
+        "ci_hi": 0.022773888407904893,
+        "perm_p": 0.0004997501249375312,
+        "significant": true
+      },
+      "M5_minus_M1": {
+        "mean": 0.01888829149012213,
+        "ci_lo": 0.015263145473798864,
+        "ci_hi": 0.022746284728235366,
+        "perm_p": 0.0004997501249375312,
+        "significant": true
+      },
+      "M2_minus_M1": {
+        "mean": 0.0006988090662332502,
+        "ci_lo": -0.0011953311025826058,
+        "ci_hi": 0.0025959673327433205,
+        "perm_p": 0.0004997501249375312,
+        "significant": true
+      },
+      "M3_minus_M1": {
+        "mean": 0.0013899138549571678,
+        "ci_lo": -0.0005273191921812498,
+        "ci_hi": 0.0033372625633391255,
+        "perm_p": 0.0004997501249375312,
+        "significant": true
+      },
+      "M5_minus_M4": {
+        "mean": -4.181834142735313e-05,
+        "ci_lo": -0.00017708994288715975,
+        "ci_hi": 8.864463643136754e-05,
+        "perm_p": 0.5362318840579711,
+        "significant": false
+      }
+    }
+  },
+  "tie_corrected_superseded_pre_refit": {
+    "note": "SUPERSEDED. Tie-corrected diffs on the rebuilt matrix WITH the CADD-sentinel fit (cadd_phred coefficient fit on a constant in train). Kept only as the labelled record; the live values are in tie_corrected_refit_no_cadd. Old values: M2-M1 +0.0070, M3-M1 -0.0151, M4-M1 -0.0069 (tie-aware); M5-M1 was not in the old diffs table -- from the old tie_auprc values it is 0.9454-0.9463 = -0.0009 (step: -0.0011), and M5-M4 tie diff was 0.9454-0.9394 = +0.0060. Live values: tie_corrected_refit_no_cadd.",
+    "values": {
+      "method": "Tie-aware AUPRC: expected average precision under uniform tie-breaking (McSherry & Najork 2008), function from scripts/18_exon_architecture_nmd.py. Models refit on train with the locked protocol (logistic regression, C=1.0, class_weight=balanced, seed=20261006) on the rebuilt feature matrix; paired bootstrap CIs, n_boot=1000, seed=20261006.",
+      "matrix": "rebuilt 2026-11-08, real CADD values (19,014 scored of 60,521)",
+      "test_n": 14400,
+      "tie_auprc": {
+        "M1": 0.9463,
+        "M2": 0.9533,
+        "M3": 0.9312,
+        "M4": 0.9394,
+        "M5": 0.9454
+      },
+      "step_auprc": {
+        "M1": 0.9465,
+        "M2": 0.9533,
+        "M3": 0.9312,
+        "M4": 0.9395,
+        "M5": 0.9454
+      },
+      "diffs": {
+        "M2_minus_M1": {
+          "mean": 0.007,
+          "ci_lo": 0.0048,
+          "ci_hi": 0.0092,
+          "significant": true
+        },
+        "M3_minus_M1": {
+          "mean": -0.0151,
+          "ci_lo": -0.019,
+          "ci_hi": -0.0114,
+          "significant": true
+        },
+        "M4_minus_M1": {
+          "mean": -0.0069,
+          "ci_lo": -0.0086,
+          "ci_hi": -0.0053,
+          "significant": true
+        }
+      },
+      "note": "On the rebuilt matrix the tie correction is negligible (step vs tie-aware AUPRC differ by at most 0.0002): real CADD values break the 6,077-variant tie block, so the artifact that produced the +0.031 step gains is gone. Pre-rebuild tie-corrected values for reference (exon_architecture_nmd.json, model_comparison_test_24_genes): M1 0.8334, M3 0.8332, M4 0.8517; M2-M1 +0.0006, M3-M1 -0.0002. No permutation p-values were recomputed for the tie-corrected diffs; significance here is read off the bootstrap CI."
+    }
+  },
+  "paired_auroc_diffs_refit_no_cadd": {
+    "method": "Paired bootstrap CIs for AUROC differences, scripts/12b_paired_analysis.py method, n_boot=2000, seed=20261006. Models refit on the no-CADD tier set.",
+    "matrix": "no-CADD refit 2026-11-09",
+    "test_n": 14400,
+    "diffs": {
+      "M4_minus_M1": {
+        "mean": 0.004306423193115569,
+        "ci_lo": -0.00011613184189021018,
+        "ci_hi": 0.008597889906111931
+      },
+      "M5_minus_M1": {
+        "mean": 0.004245547678927443,
+        "ci_lo": -0.00018254099710086346,
+        "ci_hi": 0.008596462580540257
+      },
+      "M2_minus_M1": {
+        "mean": -0.0015765993914059987,
+        "ci_lo": -0.00445963389179363,
+        "ci_hi": 0.001252289888401603
+      },
+      "M3_minus_M1": {
+        "mean": -0.0009728251151141622,
+        "ci_lo": -0.003777869771651002,
+        "ci_hi": 0.0018923062603053333
+      },
+      "M5_minus_M4": {
+        "mean": -6.087551418812553e-05,
+        "ci_lo": -0.00025621397788958,
+        "ci_hi": 0.00013090171420218315
+      }
+    }
+  },
+  "paired_auroc_diffs_rebuilt_superseded": {
+    "note": "SUPERSEDED. Rebuilt-matrix AUROC diffs computed with the CADD-sentinel fit.",
+    "values": {
+      "method": "Paired bootstrap CIs for AUROC differences, scripts/12b_paired_analysis.py method, n_boot=2000, seed=20261006. Models refit on the rebuilt feature matrix.",
+      "matrix": "rebuilt 2026-11-08, real CADD values",
+      "test_n": 14400,
+      "diffs": {
+        "M4_minus_M1": {
+          "mean": -0.0088,
+          "ci_lo": -0.0106,
+          "ci_hi": -0.007
+        },
+        "M5_minus_M4": {
+          "mean": 0.0064,
+          "ci_lo": 0.0059,
+          "ci_hi": 0.0069
+        },
+        "M3_minus_M1": {
+          "mean": -0.003,
+          "ci_lo": -0.0056,
+          "ci_hi": -0.0004
+        },
+        "M2_minus_M1": {
+          "mean": 0.01,
+          "ci_lo": 0.0083,
+          "ci_hi": 0.0117
+        }
+      }
+    }
+  },
+  "gene_clustered_cis": {
+    "method": "Cluster bootstrap resampling the 24 test genes with replacement (n_boot=2000, seed=20261013) + leave-one-gene-out jackknife (24 folds). Variant-level CIs are invalid for gene-level HPO constants, so the cluster interval is the deciding evidence for tier claims.",
+    "n_clusters": 24,
+    "diffs": {
+      "M2_minus_M1": {
+        "method": "cluster bootstrap resampling the 24 test genes with replacement, n_boot=2000, seed=20261013; plus leave-one-gene-out jackknife (24 folds)",
+        "n_clusters": 24,
+        "cluster_bootstrap_mean": 0.0007528219386515769,
+        "cluster_bootstrap_median": 0.0007025876185992597,
+        "cluster_ci95": [
+          -0.0028599208552822605,
+          0.0044716893975168
+        ],
+        "cluster_excludes_zero": false,
+        "jackknife": {
+          "full_diff": 0.0007061370041145931,
+          "jackknife_mean": 0.0007072861313958632,
+          "jackknife_se": 0.0020517271119075806,
+          "ci95_normal": [
+            -0.0033152481352242648,
+            0.004727522143453451
+          ],
+          "jackknife_diffs_min": -0.00015857274662278709,
+          "jackknife_diffs_max": 0.0015898403928751303,
+          "n_clusters": 24
+        }
+      },
+      "M4_minus_M1": {
+        "method": "cluster bootstrap resampling the 24 test genes with replacement, n_boot=2000, seed=20261013; plus leave-one-gene-out jackknife (24 folds)",
+        "n_clusters": 24,
+        "cluster_bootstrap_mean": 0.018910731021071332,
+        "cluster_bootstrap_median": 0.018780745443345404,
+        "cluster_ci95": [
+          0.010661375469384435,
+          0.02784437436605055
+        ],
+        "cluster_excludes_zero": true,
+        "jackknife": {
+          "full_diff": 0.01897483888933571,
+          "jackknife_mean": 0.0189709710186526,
+          "jackknife_se": 0.004584758369553011,
+          "ci95_normal": [
+            0.009988712485011809,
+            0.02796096529365961
+          ],
+          "jackknife_diffs_min": 0.01671220837729026,
+          "jackknife_diffs_max": 0.021016089079323064,
+          "n_clusters": 24
+        }
+      },
+      "M5_minus_M1": {
+        "method": "cluster bootstrap resampling the 24 test genes with replacement, n_boot=2000, seed=20261013; plus leave-one-gene-out jackknife (24 folds)",
+        "n_clusters": 24,
+        "cluster_bootstrap_mean": 0.018868586859484827,
+        "cluster_bootstrap_median": 0.01874037203383233,
+        "cluster_ci95": [
+          0.010699362978121582,
+          0.027663212457458015
+        ],
+        "cluster_excludes_zero": true,
+        "jackknife": {
+          "full_diff": 0.018933589389692695,
+          "jackknife_mean": 0.018929844570231762,
+          "jackknife_se": 0.0045505090347552814,
+          "ci95_normal": [
+            0.010014591681572343,
+            0.027852587097813047
+          ],
+          "jackknife_diffs_min": 0.016650315017172068,
+          "jackknife_diffs_max": 0.020942112207214425,
+          "n_clusters": 24
+        }
+      },
+      "M5_minus_M4": {
+        "method": "cluster bootstrap resampling the 24 test genes with replacement, n_boot=2000, seed=20261013; plus leave-one-gene-out jackknife (24 folds)",
+        "n_clusters": 24,
+        "cluster_bootstrap_mean": -4.214416158650825e-05,
+        "cluster_bootstrap_median": -4.486027883099375e-05,
+        "cluster_ci95": [
+          -0.0004206469941272356,
+          0.0003674093597762301
+        ],
+        "cluster_excludes_zero": false,
+        "jackknife": {
+          "full_diff": -4.124949964301461e-05,
+          "jackknife_mean": -4.1126448420839935e-05,
+          "jackknife_se": 0.0001919535179709538,
+          "ci95_normal": [
+            -0.00041747839486608405,
+            0.00033497939558005483
+          ],
+          "jackknife_diffs_min": -0.00012217271967163157,
+          "jackknife_diffs_max": 3.0845576608373726e-05,
+          "n_clusters": 24
+        }
+      }
+    },
+    "m2_minus_m1_verdict": "WITHDRAW 'M2 best tier' as a claim: gene-clustered 95% CI for the M2-M1 tie-aware AUPRC gain includes zero; report as a non-significant descriptive difference."
   },
   "cadd_complementarity": {
     "threshold_source": "validation pathogenic median",
@@ -97,92 +454,67 @@
     "test_cadd_scored_n": 11240,
     "weak_n": 8601,
     "weak_pathogenic_n": 1915,
-    "m5_auroc_weak": 0.861,
+    "m5_auroc_weak": 0.861015998796197,
     "m5_auroc_weak_ci": [
-      0.8484,
-      0.8737
+      0.8483830885160937,
+      0.8737257321780357
     ],
-    "m5_auprc_weak": 0.8277,
+    "m5_auprc_weak": 0.8276729102690812,
     "m5_auprc_weak_ci": [
-      0.8125,
-      0.8429
+      0.8124192472594869,
+      0.8428346946066001
     ],
+    "mean_m5_pathogenic_weak": 0.758139469467139,
+    "mean_m5_pathogenic_all_cadd_test": 0.5372863772753252,
+    "mean_m5_benign_weak": 0.2783977828441623,
     "top_decile_precision": 0.9709302325581395,
     "top_decile_base_rate": 0.22264852924078596,
-    "top_decile_enrichment_ratio": 4.36
+    "top_decile_enrichment_ratio": 4.36,
+    "note": "Refit M5 (no CADD in fitted tiers). Threshold T recomputed from validation; unchanged from pre-refit value if CADD file unchanged."
+  },
+  "cadd_complementarity_superseded_pre_refit": {
+    "note": "SUPERSEDED. Same protocol with the pre-refit M5 (CADD-sentinel fit).",
+    "values": {
+      "threshold_source": "validation pathogenic median",
+      "threshold_T": 28.8,
+      "test_cadd_scored_n": 11240,
+      "weak_n": 8601,
+      "weak_pathogenic_n": 1915,
+      "m5_auroc_weak": 0.861,
+      "m5_auroc_weak_ci": [
+        0.8484,
+        0.8737
+      ],
+      "m5_auprc_weak": 0.8277,
+      "m5_auprc_weak_ci": [
+        0.8125,
+        0.8429
+      ],
+      "top_decile_precision": 0.9709302325581395,
+      "top_decile_base_rate": 0.22264852924078596,
+      "top_decile_enrichment_ratio": 4.36
+    }
+  },
+  "methods_209_check": {
+    "claim": "methods.md:209: validation-trained CADD-plus-context stack beats CADD alone by +0.0191 AUPRC, isoform slice +0.0015, isoform block alone on top of CADD adds exactly 0.0000",
+    "verdict": "NOT REPRODUCIBLE from any shipped file or script: no validation-trained stack exists in the repo (all fits are train-split; no script fits on validation), and +0.0191 / +0.0015 / 0.0000 appear nowhere in results/. Closest computable train-fit quantities on the CADD-scored test subset are recorded below; none equals +0.0191. Numbers removed from methods.md.",
+    "closest_computable_train_fit": {
+      "population": "test variants with CADD scored (n=11240)",
+      "m5_auprc_same_subset": 0.7223297073462869,
+      "cadd_auprc_same_subset": 0.9589980928940496,
+      "m5_minus_cadd_auprc": -0.2366683855477627,
+      "m5_auroc_same_subset": 0.7147169932341038,
+      "cadd_auroc_same_subset": 0.9554091008429614,
+      "m5_minus_cadd_auroc": -0.24069210760885762,
+      "m4_auprc_same_subset": 0.7223412797973539,
+      "m4_minus_m1_auprc_same_subset": "not computed; M1 AUPRC on this subset not part of the claim"
+    }
   },
   "significance_rule": {
     "method": "Bonferroni correction across the 5 paired tier comparisons",
     "n_comparisons": 5,
     "per_comparison_alpha": 0.01,
-    "note": "M5-M4 permutation p=0.017 is nominally < 0.05 but does not clear the Bonferroni-corrected per-comparison alpha of 0.01, hence marked non-significant. The bootstrap 95% CI [-0.0003, -0.0000] is also entirely negative -- a tiny decrease, not an improvement."
+    "note": "A tier comparison is marked significant only if its permutation p-value clears the Bonferroni-corrected per-comparison alpha (0.01) AND the effect points in the tested (positive) direction. The `significant` flags on auprc_diffs use variant-level inference only; a tier claim ALSO needs its gene-clustered 95% CI to exclude zero (see gene_clustered_cis). M2-M1: WITHDRAW 'M2 best tier' as a claim: gene-clustered 95% CI for the M2-M1 tie-aware AUPRC gain includes zero; report as a non-significant descriptive difference."
   },
-  "correction_note": "Locked sections below (auprc_diffs, m2_m3_clarification, cadd_complementarity) are the pre-rebuild run: the feature matrix then had cadd_phred = -1.0 for all 60,521 rows, so M1 never saw a real CADD value. The M2-M1 (+0.0310) and M3-M1 (+0.0317) step-AUPRC gains in that run were a tie-breaking artifact: a 6,077-variant tie block (test SNVs with am_missing=1 and review_stars=1, verified from the feature matrix + splits) penalised M1 step AUPRC by -0.0321. Their \"significant\": true flags are corrected to false below; the step-AUPRC means and permutation p-values are kept as the locked record of that run. On the pre-rebuild matrix the tie-corrected gains were M2-M1 +0.0006 and M3-M1 -0.0002 (manuscript section 2.1). The rebuilt-matrix values are in tie_corrected and paired_auroc_diffs_rebuilt; step values are in results/benchmark.json (rerun 2026-11-08).",
-  "tie_corrected": {
-    "method": "Tie-aware AUPRC: expected average precision under uniform tie-breaking (McSherry & Najork 2008), function from scripts/18_exon_architecture_nmd.py. Models refit on train with the locked protocol (logistic regression, C=1.0, class_weight=balanced, seed=20261006) on the rebuilt feature matrix; paired bootstrap CIs, n_boot=1000, seed=20261006.",
-    "matrix": "rebuilt 2026-11-08, real CADD values (19,014 scored of 60,521)",
-    "test_n": 14400,
-    "tie_auprc": {
-      "M1": 0.9463,
-      "M2": 0.9533,
-      "M3": 0.9312,
-      "M4": 0.9394,
-      "M5": 0.9454
-    },
-    "step_auprc": {
-      "M1": 0.9465,
-      "M2": 0.9533,
-      "M3": 0.9312,
-      "M4": 0.9395,
-      "M5": 0.9454
-    },
-    "diffs": {
-      "M2_minus_M1": {
-        "mean": 0.007,
-        "ci_lo": 0.0048,
-        "ci_hi": 0.0092,
-        "significant": true
-      },
-      "M3_minus_M1": {
-        "mean": -0.0151,
-        "ci_lo": -0.019,
-        "ci_hi": -0.0114,
-        "significant": true
-      },
-      "M4_minus_M1": {
-        "mean": -0.0069,
-        "ci_lo": -0.0086,
-        "ci_hi": -0.0053,
-        "significant": true
-      }
-    },
-    "note": "On the rebuilt matrix the tie correction is negligible (step vs tie-aware AUPRC differ by at most 0.0002): real CADD values break the 6,077-variant tie block, so the artifact that produced the +0.031 step gains is gone. Pre-rebuild tie-corrected values for reference (exon_architecture_nmd.json, model_comparison_test_24_genes): M1 0.8334, M3 0.8332, M4 0.8517; M2-M1 +0.0006, M3-M1 -0.0002. No permutation p-values were recomputed for the tie-corrected diffs; significance here is read off the bootstrap CI."
-  },
-  "paired_auroc_diffs_rebuilt": {
-    "method": "Paired bootstrap CIs for AUROC differences, scripts/12b_paired_analysis.py method, n_boot=2000, seed=20261006. Models refit on the rebuilt feature matrix.",
-    "matrix": "rebuilt 2026-11-08, real CADD values",
-    "test_n": 14400,
-    "diffs": {
-      "M4_minus_M1": {
-        "mean": -0.0088,
-        "ci_lo": -0.0106,
-        "ci_hi": -0.007
-      },
-      "M5_minus_M4": {
-        "mean": 0.0064,
-        "ci_lo": 0.0059,
-        "ci_hi": 0.0069
-      },
-      "M3_minus_M1": {
-        "mean": -0.003,
-        "ci_lo": -0.0056,
-        "ci_hi": -0.0004
-      },
-      "M2_minus_M1": {
-        "mean": 0.01,
-        "ci_lo": 0.0083,
-        "ci_hi": 0.0117
-      }
-    }
-  }
+  "correction_note": "2026-11-09 no-CADD refit supersedes the pre-rebuild record. Pre-rebuild: the feature matrix had cadd_phred = -1.0 for all 60,521 rows, so M1 never saw a real CADD value; M4-M1 +0.0509 (significant:true) was the headline of that run and is DEAD -- it survives only under auprc_diffs_superseded_pre_rebuild. Rebuilt-matrix run (2026-11-08) still had the defect in a subtler form: real CADD values in validation/test, but the fitted coefficient was fit on a constant in train (0/35,921 scored), so test-time CADD signal entered through an uncalibrated coefficient; its tie-corrected values (M4-M1 -0.0069) are preserved under tie_corrected_superseded_pre_refit. Live values are the *_refit_no_cadd sections. The M2-M1 (+0.0310) and M3-M1 (+0.0317) step-AUPRC gains in the pre-rebuild run were a tie-breaking artifact: a 6,077-variant tie block (test SNVs with am_missing=1 and review_stars=1) penalised M1 step AUPRC by -0.0318; tie-corrected gains on the pre-rebuild matrix were M2-M1 +0.0006 and M3-M1 -0.0002."
 }

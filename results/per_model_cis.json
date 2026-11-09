@@ -1,63 +1,68 @@
 {
   "M1": {
-    "auroc": 0.9484,
+    "auroc": 0.7984933449074075,
     "auroc_ci": [
-      0.9444,
-      0.9525
+      0.791575194660447,
+      0.8059981738894083
     ],
-    "auprc": 0.9465,
+    "auprc": 0.8015190900473401,
     "auprc_ci": [
-      0.9418,
-      0.9511
-    ]
+      0.793888411575595,
+      0.8091586608618914
+    ],
+    "tie_auprc": 0.833634123523018
   },
   "M2": {
-    "auroc": 0.9584,
+    "auroc": 0.7969210455246913,
     "auroc_ci": [
-      0.9545,
-      0.9622
+      0.7893221005347849,
+      0.8053020760989348
     ],
-    "auprc": 0.9533,
+    "auprc": 0.8327706663429844,
     "auprc_ci": [
-      0.9483,
-      0.9581
-    ]
+      0.8251414335874884,
+      0.8404011887189593
+    ],
+    "tie_auprc": 0.8343402605271326
   },
   "M3": {
-    "auroc": 0.9454,
+    "auroc": 0.7975327353395062,
     "auroc_ci": [
-      0.941,
-      0.95
+      0.7901253447548318,
+      0.8058700660575929
     ],
-    "auprc": 0.9312,
+    "auprc": 0.8334527122739248,
     "auprc_ci": [
-      0.925,
-      0.9373
-    ]
+      0.8257607282415655,
+      0.8410459893101657
+    ],
+    "tie_auprc": 0.8350348928276408
   },
   "M4": {
-    "auroc": 0.9396,
+    "auroc": 0.8028709683641976,
     "auroc_ci": [
-      0.9355,
-      0.9436
+      0.7954709617471493,
+      0.8105472814918234
     ],
-    "auprc": 0.9395,
+    "auprc": 0.8523512066707913,
     "auprc_ci": [
-      0.9349,
-      0.9439
-    ]
+      0.8459310835728999,
+      0.8588724213338705
+    ],
+    "tie_auprc": 0.8526089624123537
   },
   "M5": {
-    "auroc": 0.9461,
+    "auroc": 0.8028112847222222,
     "auroc_ci": [
-      0.942,
-      0.9498
+      0.7955071861158544,
+      0.81056606404035
     ],
-    "auprc": 0.9454,
+    "auprc": 0.8523085777987933,
     "auprc_ci": [
-      0.941,
-      0.9498
-    ]
+      0.8459023835338801,
+      0.8588595631684697
+    ],
+    "tie_auprc": 0.8525677129127107
   },
-  "note": "Rerun 2026-11-08 from the rebuilt feature matrix with real CADD values. AUROC CIs from results/benchmark.json; AUPRC CIs from a 1000-resample bootstrap on refit test scores (seed 20261006). Pre-rebuild values: M1 0.7985/0.8016, M2 0.7967/0.8327, M3 0.7964/0.8330, M4 0.8029/0.8524, M5 0.8029/0.8523 (AUROC/AUPRC)."
+  "_note": "Refit 2026-11-09, no CADD in fitted tiers; AUPRC CIs are variant-level paired bootstrap (n_boot=5000, seed=20261006). This file previously had no generating script in the repo; values are now produced by scripts/19_refit_statistics.py. Variant-level CIs are descriptive only for gene-level claims; see statistics.json gene_clustered_cis."
 }
