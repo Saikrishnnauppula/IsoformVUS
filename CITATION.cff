@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: "IsoformVUS: Exon Architecture, Alternative Isoform Expression, and NMD in Rare-Disease Variant Interpretation"
+title: "IsoformVUS: Exon Architecture and Alternative Isoform Expression in Rare-Disease Variant Interpretation — A Benchmark Audit"
 message: "If you use IsoformVUS in your research, please cite it as follows."
 type: software
 authors:

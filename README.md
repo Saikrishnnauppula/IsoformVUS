@@ -35,6 +35,30 @@ pandas 2.2.2, numpy 1.26.4); an earlier refit the same day ran on an
 unpinned system stack and its M3 values drifted (test AUROC 0.7975 against
 0.7962 here).
 
+A second panel rejected the revision, on the exon analysis rather than the
+benchmark: variant-level inference for the CMH odds ratios, no accounting
+for the 43.7% of variants ClinVar leaves unresolved, and an exon geometry
+reconstructed from variant spans instead of taken from annotation. The fix
+round (2026-11-09) answers all three in code. Script 18 now ships
+gene-cluster bootstrap intervals for the CMH odds ratios (2,000 resamples
+of genes, seed 0): length over 400 bp OR 0.2005, 95% CI [0.1119, 0.3384];
+backup skipping OR 0.3461, 95% CI [0.1280, 1.0299] — the backup interval
+includes 1, so backup skipping is reported as descriptive. A bounding
+analysis over the unresolved variants ships in the same JSON: the true
+pathogenicity rate of cell 1B lies in [11.07%, 95.91%] and of cell 4D in
+[0.07%, 94.09%], so the gradient is a property of the resolved subset.
+Scripts 20–21 build an annotation exon atlas from GENCODE v46 and MANE
+v1.5 (`data/processed/mane_exon_atlas.tsv.gz`) and re-derive the tensor on
+annotated geometry: 1B reads 78.11% and 4D 1.38% there, against 73.00% and
+1.17% on the reconstruction, and the manuscript now reports the annotated
+tensor as primary. The atlas also falsifies the reconstruction's exon
+count: 3,761 strict-internal CDS exons exist in these transcripts, against
+4,509 reconstructed "internal" exons; 14.65% of matched reconstructed
+exons differ in length from annotation by more than 10%, and 625 have no
+annotated counterpart. The manuscript was retitled (the "and NMD" phrase
+and the co-transcriptional claim are gone). `scripts/run_all.sh` now
+refuses to run the benchmark stages under an unpinned interpreter.
+
 The rest of the manuscript's headline claims were withdrawn after that
 review. The M6 model (test AUROC 0.9923) is consequence-class separation, not
 exon biology: a consequence-only model reaches 0.9848, and within missense
@@ -146,8 +170,8 @@ and checksums.
 ```bibtex
 @software{isoformvus,
   author  = {Sai Krishna Uppula},
-  title   = {IsoformVUS: Exon Architecture, Alternative Isoform Expression,
-             and NMD in Rare-Disease Variant Interpretation},
+  title   = {IsoformVUS: Exon Architecture and Alternative Isoform Expression
+             in Rare-Disease Variant Interpretation — A Benchmark Audit},
   version = {0.1.0},
   url     = {https://github.com/Saikrishnnauppula/IsoformVUS}
 }

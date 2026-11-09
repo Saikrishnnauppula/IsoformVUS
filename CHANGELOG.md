@@ -3,6 +3,61 @@
 All notable changes to IsoformVUS. Versions follow semantic versioning.
 Current version: 0.1.0.
 
+## [Unreleased] - 2026-11-09 (journal-panel fix round)
+
+- Gene-cluster bootstrap for the CMH odds ratios (script 18, 2,000
+  resamples of genes, seed 0), shipped in
+  results/exon_architecture_nmd.json: length OR 0.2005, 95% CI
+  [0.1119, 0.3384]; backup-skip OR 0.3461, 95% CI [0.1280, 1.0299]
+  (includes 1 — backup skipping is now reported as descriptive). The
+  shipped CMH z statistics are withheld at source, as the p-values
+  already were.
+- Bounding analysis over unresolved variants shipped in the same JSON
+  (vus_bounding_analysis): cell 1B true rate in [11.07%, 95.91%], cell
+  4D in [0.07%, 94.09%]; the intervals overlap completely.
+- Annotation exon atlas (scripts/20_build_exon_atlas.py,
+  data/processed/mane_exon_atlas.tsv.gz) from GENCODE v46 + MANE v1.5,
+  and validation + annotated re-derivation of the 4x2x2 tensor
+  (scripts/21_validate_exon_reconstruction.py,
+  results/exon_reconstruction_validation.json, docs/exon_atlas_validation.md):
+  strand agreement 102/102; 14.65% of matched reconstructed exons differ
+  in length from annotation by >10%; 625 reconstructed exons have no
+  annotated counterpart; only 3,761 strict-internal CDS exons exist
+  against 4,509 reconstructed. Annotated tensor is now primary in the
+  manuscript (1B 78.11%, 4D 1.38%; annotated CMH length OR 0.1860
+  [0.0946, 0.3247], backup OR 0.2720 [0.1090, 0.9218]).
+- Usage-threshold sweep shipped in the stage-18 JSON: backup CMH OR
+  0.6063 / 0.3461 / 0.3650 at thresholds 0.05 / 0.10 / 0.20.
+- Composite-CLNSIG sensitivity in results/statistics.json
+  (clnsig_composite_sensitivity): excluding the 17 test rows with
+  drug_response / low_penetrance composite significances changes M1–M5
+  test metrics by at most 0.000862.
+- Carried-over mediation and distance-profile values moved out of
+  results/exon_architecture_nmd.json into
+  results/withdrawn_carried_over_values.json (status: withdrawn
+  2026-11-09; no generating code; do not cite). Script 18 no longer
+  emits them; figures 10/11 read them from the quarantine file.
+- Candidate TSV: ASO_Rescuability_Score renamed to Exon_Nomination_Score;
+  Tier 1/2 labels now say "computational nomination only". The
+  bayesian_lr_table is recomputed on the corrected exon-level frame and
+  its exon counts sum to the tensor's 4,509.
+- Figure 02's banner is generated from results/benchmark.json +
+  results/statistics.json; Figure 08 panel C reads its counts from
+  results/counterfactual.json; Figure 01's footnote carries the refit
+  paired AUROC diffs. statistics.json's step-metric block is renamed to
+  step_metric_tie_artifact_demo with a not-evidence note.
+- run_all.sh refuses to run stages 10-11 under an unpinned interpreter
+  (exit 3 with instructions). Test-access logging in scripts 10_11 and
+  14 now appends on completion, not at start. Degenerate top-10 recall
+  CIs in benchmark.json are null with an explanatory note key.
+- Manuscript retitled ("…— A Benchmark Audit"; the "and NMD" phrase is
+  gone); Section 4.1 reports the annotated tensor, the clustered CIs,
+  and the bounding analysis; Section 4.2 rows recoded C1–C8; McSherry &
+  Najork DOI corrected to 10.1007/978-3-540-78646-7_38; Buljan 2012 and
+  Weykopf 2026 now cited in the text. New data-grounded tests pin the
+  tensor sums, CMH values, clustered CIs, bounding block, LR table, and
+  the annotated-frame headline cells.
+
 ## [Unreleased] - 2026-11-09 (professor-audit fixes)
 
 - Refit regenerated on the pinned `requirements.txt` stack

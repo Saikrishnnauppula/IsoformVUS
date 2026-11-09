@@ -105,7 +105,7 @@ def verify_variant_split_integrity(
 
 def splits_to_json(assignments: list[SplitAssignment]) -> str:
     payload = {
-        "seed_note": "deterministic SHA-256 shuffle; see data/splits.py",
+        "seed_note": "deterministic SHA-256 shuffle; see src/isoformvus/data/splits.py",
         "assignments": [
             {
                 "gene": a.gene_symbol,

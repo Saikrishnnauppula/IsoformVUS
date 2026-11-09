@@ -91,25 +91,52 @@ M6, and no gnomAD AF column exists in the benchmark at all.
 
 ## The 4x2x2 gradient and cell 4D
 
-As ClinVar arithmetic, the gradient holds: resolved missense
-pathogenicity falls from 73.00% (3,741 P/LP of 5,125) in compact,
-constitutive, phase-symmetric exons to 1.17% (3 P/LP of 257) in giant,
-backup-skipped, symmetric exons, an odds ratio of 0.0044. Its decisive
-cell, 4D, is a single gene: TTN, 4 exons (3947, 3971, 3981, 4274), 3
-pathogenic variants. The cell is 94.0% unresolved (4,041 of 4,298 missense
-variants are VUS or conflicting), so every rate quoted for it describes
-the 6% tail curators could resolve. The within-gene CMH odds ratios and
-p-values for the gradient (0.2005, p = 4.29e-187, 52 informative genes;
-0.3461, p = 3.53e-42, 42 informative genes) are now computed by
-scripts/18_exon_architecture_nmd.py with per-gene tables in
-results/cmh_per_gene_tables.tsv, but the p-values still treat variants as
-independent within genes when the effective sample size is genes and exons. A jackknife excluding BRCA1, BRCA2, APC,
-TTN, and NF1 leaves the pooled gradient at 73.39% versus 7.05%, but that
-check empties cell 4D entirely, since 4D is TTN alone. Exon length was
-never adjusted for disorder, domain content, or within-gene position, and
-the median AlphaMissense score falls 0.943 to 0.104 across the same cells,
-so length tracks structural constraint rather than acting as a separate
-effect.
+As ClinVar arithmetic, the gradient holds on both exon geometries. On
+the reconstructed frame (script 18), resolved missense pathogenicity
+falls from 73.00% (3,741 P/LP of 5,125) in compact, constitutive,
+phase-symmetric exons to 1.17% (3 P/LP of 257) in giant, backup-skipped,
+symmetric exons, an odds ratio of 0.0044; its decisive cell, 4D, is a
+single gene: TTN, 4 exons (3947, 3971, 3981, 4274), 3 pathogenic
+variants, 94.0% unresolved (4,041 of 4,298 missense variants are VUS or
+conflicting). On the annotated frame (scripts 20–21, GENCODE v46 / MANE
+v1.5 atlas), the same cells read 78.11% (5,625 of 7,201) and 1.38%
+(8 of 581), and 4D is 7 exons in 3 genes, 91.8% unresolved. The
+manuscript reports the annotated tensor as primary. The reconstruction
+itself does not survive the atlas: only 3,761 strict-internal CDS exons
+exist in these transcripts, against 4,509 reconstructed "internal"
+exons; 14.65% of matched reconstructed exons differ in length from
+annotation by more than 10%, and 625 have no annotated counterpart
+(593 of them single-base artefacts of deletion-POS clustering). Script
+18's other geometry consumers — d_junc edge calls, the M6 features, the
+Tier 1 nomination — still use reconstructed spans; the atlas measures
+their input error but does not correct those outputs.
+
+The within-gene CMH odds ratios for the gradient (0.2005, 52 informative
+genes; 0.3461, 42 informative genes, reconstructed frame) are computed
+by scripts/18_exon_architecture_nmd.py with per-gene tables in
+results/cmh_per_gene_tables.tsv. The p-values that shipped with them
+(4.29e-187; 3.53e-42) treated variants as independent within genes when
+the effective sample size is genes and exons; script 18 now withholds
+the p-values and z statistics at source. Gene-cluster bootstrap
+intervals (2,000 resamples of genes, seed 0) are [0.1119, 0.3384] for
+length and [0.1280, 1.0299] for backup skipping on the reconstructed
+frame, and [0.0946, 0.3247] (OR 0.1860) and [0.1090, 0.9218] (OR 0.2720)
+on the annotated frame. The length association survives clustering on
+both frames; the backup-skip interval includes 1 on the reconstructed
+frame, and the backup odds ratio moves 0.6063 / 0.3461 / 0.3650 across
+usage thresholds 0.05 / 0.10 / 0.20, so backup skipping is reported as
+descriptive. A bounding analysis over the unresolved variants
+(vus_bounding_analysis in the stage-18 JSON; annotated bounds in
+results/exon_reconstruction_validation.json) puts the true 1B rate in
+[11.07%, 95.91%] and the true 4D rate in [0.07%, 94.09%] on the
+reconstructed frame: the intervals overlap completely, and the gradient
+is a property of the resolved subset. A jackknife excluding BRCA1,
+BRCA2, APC, TTN, and NF1 leaves the pooled gradient at 73.39% versus
+7.05%, but that check empties the reconstructed 4D cell entirely, since
+that cell is TTN alone. Exon length was never adjusted for disorder,
+domain content, or within-gene position, and the median AlphaMissense
+score falls 0.943 to 0.104 across the same cells, so length tracks
+structural constraint rather than acting as a separate effect.
 
 ## The donor-edge finding
 
@@ -185,12 +212,17 @@ resolved-cell ratio to the unresolved pool assumes resolved variants are
 exchangeable with VUS; the data contradict that, since resolvability
 itself tracks evidence strength and exon context. The 3,279 cell-4D VUS
 relabeled Likely Benign are all TTN, and 3 pathogenic variants already
-sit inside cell 4D.
+sit inside cell 4D. Counted in the fix round: none of the 23,485 rows in
+results/vus_bayesian_stratification.tsv sits in a stratum whose
+likelihood-ratio interval crosses 1.0, so that particular failure mode
+does not occur in the shipped file; the file stays research-only for the
+reasons above.
 
 ## ASO candidates
 
-The 302 Tier 1 ASO candidate exons are a computational nomination with no
-functional evidence. Missense tolerance does not equal tolerance of
+The 302 Tier 1 nominated exons (Exon_Nomination_Score in
+results/exon_skipping_nmd_candidates.tsv) are a computational nomination
+with no functional evidence. Missense tolerance does not equal tolerance of
 whole-exon deletion: the list includes BRCA2 exon 956 (4,932 bp), BRCA1
 exon 11 (3,423 bp), and TTN exon 3981 (17,097 bp). No candidate has
 protein-level evidence of a functional skipped isoform, and in
@@ -234,17 +266,20 @@ submission rates as much as biology.
 
 ## Feature matrix and benchmark provenance
 
-The feature matrix was rebuilt with real CADD values and the benchmark
-re-run from it. The old matrix carried `cadd_phred = -1.0` and
-`cadd_missing = 1` for all 60,521 rows while `variant_cadd.tsv.gz` held
-real scores for 24,600 rows with 100% key overlap, and the old benchmark
-could not have been produced from it. The rebuilt matrix scores 19,014 of
-60,521 rows; every train row still carries the -1.0 sentinel, so the
-fitted CADD coefficient was never fit against varying CADD values and the
-rebuilt tier comparison is provisional. `statistics.json` now marks the
+The feature matrix was rebuilt with real CADD values on 2026-11-08 and
+the benchmark re-run from it. The old matrix carried `cadd_phred = -1.0`
+and `cadd_missing = 1` for all 60,521 rows while `variant_cadd.tsv.gz`
+held real scores for 24,600 rows with 100% key overlap, and the old
+benchmark could not have been produced from it. The rebuilt matrix
+scores 19,014 of 60,521 rows; every train row still carries the -1.0
+sentinel, so the fitted CADD coefficient was never fit against varying
+CADD values, and the rebuilt tier comparison was superseded the next day
+by the 2026-11-09 refit, which removed CADD from every fitted tier.
+`statistics.json` marks the rebuilt values as superseded and the
 M2-minus-M1 (+0.0310) and M3-minus-M1 (+0.0317) pre-rebuild differences
-not significant, with a tie-artifact note, and `results/splits.json` now
-points to `src/isoformvus/data/splits.py`.
+not significant, with a tie-artifact note, and `results/splits.json`
+points to `src/isoformvus/data/splits.py` (the generator string in
+`src/isoformvus/data/splits.py` now matches it).
 
 ## References and counts
 

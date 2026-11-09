@@ -13,7 +13,9 @@ input versions and licences live in `docs/data.md`.
 We ran the pipeline in Python 3.11 with the pinned versions in
 `requirements.txt` (numpy 1.26.4, pandas 2.2.2, scikit-learn 1.5.1,
 pytest 8.3.3). We verified a clean install and 37/37 passing tests in a
-fresh Python 3.11.17 virtual environment on 2026-10-13. `pyproject.toml`
+fresh Python 3.11.17 virtual environment on 2026-10-13; the suite is
+62/62 after the 2026-11-09 fix round, which added data-grounded tests
+over the panel findings (tests/test_panel_fix_round.py). `pyproject.toml`
 pins the same packages with `==`, so `pip install -e .` and `pip install
 -r requirements.txt` describe the same environment; we used
 `requirements.txt` for every locked result.
@@ -54,10 +56,13 @@ We added one feature group per tier, in this order:
   need a warning. The CADD columns in the shipped matrix were constants
   (`cadd_phred = -1.0`, `cadd_missing = 1` for all 60,521 rows), because the
   matrix was built on 2026-10-06 and the CADD table arrived on 2026-10-07.
-  The matrix was rebuilt with the real scores (19,014 of 60,521 rows
-  scored) and the benchmark re-run from it. Every train row still carries
-  the -1.0 sentinel, so the fitted CADD coefficient was never fit against
-  varying CADD values. Review stars come from the same ClinVar records as
+  The matrix was rebuilt with the real scores on 2026-11-08 (19,014 of
+  60,521 rows scored) and the benchmark re-run from it; that run is
+  superseded, because every train row still carried the -1.0 sentinel, so
+  the fitted CADD coefficient was never fit against varying CADD values.
+  On the 2026-11-09 refit the CADD columns were removed from every fitted
+  tier, so no tier in the reported results uses CADD; it appears only as
+  an external baseline. Review stars come from the same ClinVar records as
   the labels (`CLNREVSTAT` beside `CLNSIG`), so M1 is not a clean
   variant-only baseline; on the shipped matrix, removing review stars and
   AlphaMissense dropped M1 AUPRC to 0.6992, while M4 fell only to 0.8121,
@@ -127,7 +132,12 @@ stages that execute from shipped data (10-11, 12, 14, 18, the refit
 statistics script in place of 17, figures, tests) and runs to completion
 from a fresh clone; `--full` keeps the stage order above behind a
 preflight that fails fast on missing inputs. Stage 13 is verify-excluded
-(it needs the GENCODE GTF and MANE summary in `data/raw/`). The intended
+(it needs the GENCODE GTF and MANE summary in `data/raw/`). Two further
+scripts sit outside the runner: `scripts/20_build_exon_atlas.py` and
+`scripts/21_validate_exon_reconstruction.py` build the annotation exon
+atlas and the annotated tensor reported as primary in manuscript
+Section 4.1; they need the same `data/raw/` downloads (provenance in
+`data/DATA_PROVENANCE.md`). The intended
 entry points are `make test`, `make benchmark`, and `make figures`.
 Stage 18 writes `results/exon_architecture_nmd.json`,
 `results/exon_skipping_nmd_candidates.tsv`,

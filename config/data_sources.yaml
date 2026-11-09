@@ -69,7 +69,7 @@ sources:
     download_date: null
     genome_build: GRCh38
     license: "MIT (code); model weights per repo license"
-    notes: "Run on GRCh38 reference with GENCODE v46 annotation context; record exact reference FASTA."
+    notes: "Run on GRCh38 reference; SpliceAI v1.3.1 scores against its bundled GENCODE V24-era canonical annotation, not v46 (disclosed limitation; see data/DATA_PROVENANCE.md row 8)."
 
   - name: CADD
     role: baseline deleteriousness score (SNVs/indels)
