@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage 02: build the ~100-gene Mendelian panel (real implementation).
+"""Stage 02: build the ~100-gene Mendelian panel.
 
 Inputs (data/raw/):
     variant_summary.txt.gz          ClinVar monthly summary

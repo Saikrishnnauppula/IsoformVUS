@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage 08: leakage-safe splits (real implementation).
+"""Stage 08: leakage-safe splits.
 
 Assigns panel genes to train/validation/test via
 src/isoformvus/data/splits.py (gene-level, disease-stratified, deterministic).

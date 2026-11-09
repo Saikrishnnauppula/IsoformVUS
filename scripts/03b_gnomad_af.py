@@ -10,7 +10,7 @@ genes' regions are collected as control_type="gnomad_common" candidates
 (written separately; NEVER merged silently with clinvar_blb — see
 metadata/gene_selection.md).
 
-Practical notes (from research/data_urls_verified.md):
+Practical notes:
 - Batched queries with GraphQL aliases (many variants per request).
 - Observe rate limits; --batch-size and --sleep tune throughput.
 - Results cached in data/interim/gnomad_af_cache.jsonl so reruns are free.

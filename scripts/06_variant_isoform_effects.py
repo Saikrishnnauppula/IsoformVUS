@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage 06: isoform-specific variant effects (real implementation).
+"""Stage 06: isoform-specific variant effects.
 
 For each labeled variant: load its gene's GENCODE v46 transcripts (once per
 gene), run src/isoformvus/data/transcripts.py classification per transcript,

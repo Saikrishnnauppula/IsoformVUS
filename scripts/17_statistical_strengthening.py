@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Statistical strengthening for IsoformVUS (post-hoc, test-set-only).
+"""Paired CIs and permutation p-values for the tiered benchmark (post-hoc, test-set-only).
 
 1. Bootstrap 95% CIs for AUPRC *differences* (paired, test set):
-   M4-M1, M5-M1, M2-M1, M3-M1, M5-M4. The headline claim is the
-   M1->M4 AUPRC gain (0.802 -> 0.852); AUROC CIs already exist in
-   scripts/12b_paired_analysis.py.
+   M4-M1, M5-M1, M2-M1, M3-M1, M5-M4. The M1->M4 AUPRC gain on the
+   shipped matrix (0.802 -> 0.852) did not survive the matrix rebuild
+   (M4 0.9394 vs M1 0.9463 tie-corrected AUPRC); AUROC CIs already exist
+   in scripts/12b_paired_analysis.py.
 2. Permutation p-values for the AUPRC gains (paired label-score shuffle).
 3. M2/M3 clarification: paired AUROC *and* AUPRC CIs in one table.
-4. CADD complementarity with a PROPER held-out protocol:
+4. CADD complementarity with a held-out protocol:
    - Threshold T = median CADD PHRED among pathogenic VALIDATION variants
      (defined without touching the test set).
    - Test subgroup = test variants with CADD PHRED < T ("CADD-weak").

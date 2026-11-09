@@ -1,7 +1,7 @@
 """Leakage-safe dataset splitting.
 
 Genes — never individual variants — are assigned to TRAIN / VALIDATION /
-HELD-OUT TEST. See docs/leakage_prevention.md for the threat model.
+HELD-OUT TEST. See docs/methods.md ("Seed and splits").
 
 The split is deterministic given (gene list, seed, ratios): the same inputs
 always produce the same assignment, so the held-out test set can be audited

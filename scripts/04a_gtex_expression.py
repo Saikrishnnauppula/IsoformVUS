@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage 04a: GTEx v8 median gene expression for panel genes (real measurement).
+"""Stage 04a: GTEx v8 median gene expression for panel genes.
 
 Two-step route via the GTEx Portal v2 API (https://gtexportal.org/api/v2):
     1. /reference/gene?geneId=<ENSG base> -> v26 versioned gencodeId

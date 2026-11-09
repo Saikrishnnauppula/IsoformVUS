@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage 09c: AlphaMissense join (real implementation).
+"""Stage 09c: AlphaMissense join.
 
 Streams AlphaMissense_hg38.tsv.gz (Zenodo 8208688, md5-verified) once and
 joins scores to labeled variants on (chrom, pos, ref, alt).

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage 05: cell-type -> isoform usage (real implementation).
+"""Stage 05: cell-type -> isoform usage.
 
 For each panel gene and its phenotype-relevant tissues, fetch GTEx v8
 median *transcript* expression

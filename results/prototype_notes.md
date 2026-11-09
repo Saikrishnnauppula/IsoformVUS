@@ -34,8 +34,8 @@ germline cancer-predisposition genes need an explicit include/exclude
 decision in `scripts/02_build_gene_panel.py`, and the 40%-per-category
 diversity cap must be enforced or the panel will be cancer-heavy.
 
-## Panel feasibility verdict
+## Panel feasibility
 
-FEASIBLE: ≥10 P/LP per gene is easily met for hundreds of genes; the binding
+Feasible: ≥10 P/LP per gene is easily met for hundreds of genes; the binding
 constraints will be (a) multi-isoform requirement, (b) cell-type data
 availability, and (c) the diversity cap — not label counts.

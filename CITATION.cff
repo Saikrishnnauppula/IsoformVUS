@@ -1,5 +1,5 @@
 cff-version: 1.2.0
-title: "IsoformVUS: Phenotype- and Cell-Type-Aware Isoform-Level Variant Prioritization for Rare-Disease VUS Interpretation"
+title: "IsoformVUS: Exon Architecture, Alternative Isoform Expression, and NMD in Rare-Disease Variant Interpretation"
 message: "If you use IsoformVUS in your research, please cite it as follows."
 type: software
 authors:

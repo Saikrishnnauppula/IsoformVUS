@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage 13: counterfactual isoform experiment (real implementation).
+"""Stage 13: counterfactual isoform experiment.
 
 For a recovered variant, demonstrate that the same DNA change receives
 different biological interpretations depending on which isoform is assumed
@@ -48,7 +48,7 @@ def main() -> int:
         for a in json.loads((REPO / "results/splits.json").read_text())["assignments"]
     }
 
-    # Per-transcript structural effects for the variant (real GENCODE v46).
+    # Per-transcript structural effects for the variant (GENCODE v46).
     gtf = REPO / "data/raw/gencode.v46.primary_assembly.annotation.gtf.gz"
     txs = load_gene_transcripts(gtf, gene_symbols={GENE})[GENE]
     v = parse_variant_string(VARIANT)

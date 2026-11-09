@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage 04b: phenotype -> cell-type relevance scores (real implementation).
+"""Stage 04b: phenotype -> cell-type relevance scores.
 
 For each panel gene:
     HPO terms -> top-level systems (ontology, measured from annotations)
@@ -16,8 +16,8 @@ cell_relevance(gene, cell_type) =
   0..1 across tissues for that gene (relative expression profile).
 
 Every edge carries its evidence tier. Cell-type assignments are 'inferred'
-until single-cell data (stage 05) refines them — this is disclosed, not
-hidden.
+until single-cell data refines them; stage 05 uses tissue-level GTEx transcript
+data, not single-cell data.
 
 Writes data/processed/cell_relevance.tsv.gz:
     gene_symbol, cell_ontology_id, cell_type_name, tissue,

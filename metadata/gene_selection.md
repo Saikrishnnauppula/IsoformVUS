@@ -1,9 +1,9 @@
 # Gene selection criteria
 
-Target: **~100 Mendelian disease genes** (acceptable range 50–200; 100 chosen to
-balance statistical power against SpliceAI/CADD compute and single-cell data
-wrangling). Final list: `metadata/gene_panel.tsv` [PENDING — built by
-`scripts/04_select_genes.py`].
+Target: **~100 Mendelian disease genes** (acceptable range 50–200; 100
+chosen to balance statistical power against SpliceAI/CADD compute and
+single-cell data wrangling). Final list: `metadata/gene_panel.tsv`,
+built by `scripts/02_build_gene_panel.py`.
 
 ## Inclusion criteria (all must hold)
 
@@ -12,7 +12,7 @@ wrangling). Final list: `metadata/gene_panel.tsv` [PENDING — built by
    phenotype→cell-type chain has measurable input.
 2. **Sufficient ClinVar pathogenic variants.** ≥10 Pathogenic/Likely-pathogenic
    submissions with review status ≥ 1 star (criteria provided), GRCh38-mappable.
-   Guarantees the gene contributes meaningful positive labels.
+   Each gene then contributes enough positive labels to matter.
 3. **Benign controls available.** ≥10 Benign/Likely-benign ClinVar variants OR
    ≥20 gnomAD variants with AF > 1% in the gene region (documented per gene;
    common ≠ benign is respected — these are *controls for the classifier*, and

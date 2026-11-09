@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage 07: build the feature matrix (real implementation).
+"""Stage 07: build the feature matrix.
 
 Joins, per variant:
     variant_labels            -> vartype, review_stars, gene, label

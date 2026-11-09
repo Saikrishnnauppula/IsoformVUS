@@ -4,7 +4,7 @@
 1. Paired bootstrap CI for AUROC differences (M4-M1, M5-M4, M3-M1).
 2. Extract the top-k pathogenic variants M5 ranks highly that M1 misses,
    with full annotation chains for case-study selection.
-3. Isoform-selective subgroup evaluation (pre-registered subgroup).
+3. Isoform-selective subgroup evaluation.
 """
 
 from __future__ import annotations
