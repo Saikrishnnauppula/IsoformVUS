@@ -212,7 +212,7 @@ resolved-cell ratio to the unresolved pool assumes resolved variants are
 exchangeable with VUS; the data contradict that, since resolvability
 itself tracks evidence strength and exon context. The 3,279 cell-4D VUS
 relabeled Likely Benign are all TTN, and 3 pathogenic variants already
-sit inside cell 4D. Counted in the fix round: none of the 23,485 rows in
+sit inside cell 4D. Counted on 2026-11-09: none of the 23,485 rows in
 results/vus_bayesian_stratification.tsv sits in a stratum whose
 likelihood-ratio interval crosses 1.0, so that particular failure mode
 does not occur in the shipped file; the file stays research-only for the

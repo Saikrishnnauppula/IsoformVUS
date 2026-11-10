@@ -3,7 +3,7 @@
 All notable changes to IsoformVUS. Versions follow semantic versioning.
 Current version: 0.1.0.
 
-## [Unreleased] - 2026-11-09 (review fix round)
+## [Unreleased] - 2026-11-09 (annotated tensor, clustered intervals, bounding analysis)
 
 - Gene-cluster bootstrap for the CMH odds ratios (script 18, 2,000
   resamples of genes, seed 0), shipped in
@@ -36,7 +36,7 @@ Current version: 0.1.0.
   results/exon_architecture_nmd.json into
   results/withdrawn_carried_over_values.json (status: withdrawn
   2026-11-09; no generating code; do not cite). Script 18 no longer
-  emits them; figures 10/11 read them from the quarantine file.
+  emits them; figures 10/11 read them from the withdrawn-values file.
 - Candidate TSV: ASO_Rescuability_Score renamed to Exon_Nomination_Score;
   Tier 1/2 labels now say "computational nomination only". The
   bayesian_lr_table is recomputed on the corrected exon-level frame and
@@ -58,7 +58,7 @@ Current version: 0.1.0.
   tensor sums, CMH values, clustered CIs, bounding block, LR table, and
   the annotated-frame headline cells.
 
-## [Unreleased] - 2026-11-09 (professor-audit fixes)
+## [Unreleased] - 2026-11-09 (refit on the pinned stack)
 
 - Refit regenerated on the pinned `requirements.txt` stack
   (scikit-learn 1.5.1 / pandas 2.2.2 / numpy 1.26.4). The earlier
@@ -142,7 +142,7 @@ The feature-matrix checksum above is the pre-CADD build (all `cadd_phred` values
 - Section 3.2 (three isoform regimes) cut from the abstract and body, and the AlphaMissense mediation percentages (77.9% / 94.7%) retracted in Section 4.2: neither has a shipped source (inputs in `data/interim/script18/`, builder code deleted). Both withdrawals are recorded in Section 6.1 (items 8 and 10). CMH p-values deleted from Section 4.1. Indel counts corrected to 1,155 of 1,182; tie penalty corrected to -0.0318; the M6 comparison now uses tie-corrected AUPRC for both models (0.9928 against 0.9856).
 - Figures 09–12 marked as unregenerable archival figures in `figures/README.md` and Section 6.2; Figure 11 is retained only as a record of the withdrawn donor-edge finding. The AI-use statement is completed (AI tools used for language editing and code review; the author takes responsibility for all results). References for Chapman & Lassmann 2025, Buljan et al. 2012, Ly et al. 2025, Weykopf et al. 2026, and Cheng et al. 2026 (AlphaGenome Atlas) verified and added to Section 7.
 
-## 2026-11-09 - Professor-check fixes (code, README, infrastructure)
+## 2026-11-09 - Code, README, and infrastructure fixes
 
 - `results/test_access.log` is now tracked: the original timestamped log (13 entries, 2026-10-06 to 2026-11-08) sat untracked in the working tree because `.gitignore` carried a bare `*.log` rule. `.gitignore` now exempts it (`!results/test_access.log`), and the stale "9 prior accesses" comment in `scripts/run_all.sh` reads 13 logged / 17 in all. README, `docs/methods.md`, and `docs/limitations.md` use the same 13-logged / 17-reads wording (the 4 unlogged script-18 reads are disclosed in the manuscript and docs); figure 02's hard-coded "accessed 13 times, logged" now reads "13 logged accesses · 17 reads".
 - Stage 01 ClinVar pin moved from the dead `clinvar_20261004.vcf.gz` (HTTP 404) to the live weekly `clinvar_20261108.vcf.gz` (HEAD-verified 2026-11-09), with a fallback to the unversioned latest file; `config/data_sources.yaml` and the `scripts/03_build_variant_labels.py` default VCF path match. A rebuild from the new pin is a different ClinVar version; `docs/data.md` states what still blocks a full fresh-clone run (live GTEx/CADD/SpliceAI services, `data/raw/` and `data/interim/` absent, script-18 inputs absent).
