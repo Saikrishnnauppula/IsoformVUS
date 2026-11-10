@@ -15,12 +15,12 @@ pathogenicity classification. See `docs/limitations.md`.
 
 ## Status
 
-The core M1–M5 benchmark reproduces
-on the shipped matrix. On 2026-11-09 the benchmark was refit with CADD
-removed from every fitted tier: the 2026-11-08 rebuilt run had let
-test-time CADD signal in through a coefficient fit on a constant in train
-(0 of 35,921 train rows scored), inflating every tier to about 0.94, and
-its "M2 is the best tier" result is withdrawn. On the refit, tie-corrected
+The M1–M5 benchmark reproduces on the shipped matrix. On 2026-11-09
+the benchmark was refit with CADD removed from every fitted tier: the
+2026-11-08 rebuilt run had let test-time CADD signal in through a
+coefficient fit on a constant in train (0 of 35,921 train rows scored),
+inflating every tier to about 0.94, and its "M2 is the best tier" result
+is withdrawn. On the refit, tie-corrected
 test AUPRC is M1 0.8336 and M4 0.8526 (+0.0189; gene-clustered 95% CI
 [+0.0107, +0.0279] over the 24 test genes). M2 and M3 add nothing
 (gene-clustered intervals include zero) and M5 adds nothing over M4. Step
@@ -34,32 +34,34 @@ pandas 2.2.2, numpy 1.26.4); an earlier refit the same day ran on an
 unpinned system stack and its M3 values drifted (test AUROC 0.7975 against
 0.7962 here).
 
-A later review of the revision raised three problems in the exon analysis
-rather than the benchmark: variant-level inference for the CMH odds
-ratios, no accounting for the 43.7% of variants ClinVar leaves unresolved,
-and an exon geometry reconstructed from variant spans instead of taken
-from annotation. A fix round (2026-11-09) answers all three in code. Script 18 now ships
-gene-cluster bootstrap intervals for the CMH odds ratios (2,000 resamples
-of genes, seed 0): length over 400 bp OR 0.2005, 95% CI [0.1119, 0.3384];
-backup skipping OR 0.3461, 95% CI [0.1280, 1.0299] — the backup interval
-includes 1, so backup skipping is reported as descriptive. A bounding
-analysis over the unresolved variants ships in the same JSON: the true
-pathogenicity rate of cell 1B lies in [11.07%, 95.91%] and of cell 4D in
-[0.07%, 94.09%], so the gradient is a property of the resolved subset.
-Scripts 20–21 build an annotation exon atlas from GENCODE v46 and MANE
-v1.5 (`data/processed/mane_exon_atlas.tsv.gz`) and re-derive the tensor on
-annotated geometry: 1B reads 78.11% and 4D 1.38% there, against 73.00% and
-1.17% on the reconstruction, and the manuscript now reports the annotated
-tensor as primary. The atlas also falsifies the reconstruction's exon
-count: 3,761 strict-internal CDS exons exist in these transcripts, against
-4,509 reconstructed "internal" exons; 14.65% of matched reconstructed
-exons differ in length from annotation by more than 10%, and 625 have no
-annotated counterpart. The manuscript was retitled (the "and NMD" phrase
-and the co-transcriptional claim are gone). `scripts/run_all.sh` now
-refuses to run the benchmark stages under an unpinned interpreter.
+Internal review in November 2026 found three problems in the exon
+analysis, not the benchmark: variant-level inference for the CMH odds
+ratios, no accounting for the 43.7% of variants ClinVar leaves
+unresolved, and an exon geometry reconstructed from variant spans
+instead of taken from annotation. The 2026-11-09 revision fixes all
+three. Script 18 reports gene-cluster bootstrap intervals for the CMH
+odds ratios (2,000 resamples of genes, seed 0): length over 400 bp OR
+0.2005, 95% CI [0.1119, 0.3384]; backup skipping OR 0.3461, 95% CI
+[0.1280, 1.0299] — the backup interval includes 1, so backup skipping
+is reported as descriptive. A bounding analysis over the unresolved
+variants is in the same JSON: the true pathogenicity rate of cell 1B
+lies in [11.07%, 95.91%] and of cell 4D in [0.07%, 94.09%], so the
+gradient is a property of the resolved subset. Scripts 20–21 build an
+exon atlas from GENCODE v46 and MANE v1.5
+(`data/processed/mane_exon_atlas.tsv.gz`) and re-derive the tensor on
+annotated geometry: 1B reads 78.11% and 4D 1.38% there, against 73.00%
+and 1.17% on the reconstruction, and the manuscript reports the
+annotated tensor as primary. The atlas also falsifies the
+reconstruction's exon count: 3,761 strict-internal CDS exons exist in
+these transcripts, against 4,509 reconstructed "internal" exons; 14.65%
+of matched reconstructed exons differ in length from annotation by more
+than 10%, and 625 have no annotated counterpart. The manuscript was
+retitled in the same revision (the "and NMD" phrase and the
+co-transcriptional claim are gone). `scripts/run_all.sh` refuses to
+run the benchmark stages under an unpinned interpreter.
 
-The rest of the manuscript's headline claims were withdrawn after that
-review. The M6 model (test AUROC 0.9923) is consequence-class separation, not
+The other headline claims from the first version are withdrawn. The M6
+model (test AUROC 0.9923) is consequence-class separation, not
 exon biology: a consequence-only model reaches 0.9848, and within missense
 M6 scores 0.9321 against 0.9511 for the M1 baseline. The VUS likelihood
 ratios, the ASO candidate list, the donor-edge finding, and the
@@ -103,8 +105,8 @@ the baselines (14), stage 18 (its five input tables ship in
 (`scripts/19_refit_statistics.py`, which supersedes stage 17), the figure
 scripts (15, 16 — including the replotted figures 09-12), and the pytest
 suite. Stage 13 is excluded: it needs the GENCODE v46 GTF and MANE summary
-in `data/raw/`, which are not shipped. Each test-scoring stage appends a
-real entry to `results/test_access.log`; that is the log working as
+in `data/raw/`, which are not shipped. Each test-scoring stage appends an
+entry to `results/test_access.log`; that is the log working as
 intended. Set `PYTHON` to the venv interpreter if `python3` is not the
 pinned environment (`PYTHON=.venv/bin/python ./scripts/run_all.sh`).
 
@@ -123,7 +125,7 @@ not reproduce the locked results. The shipped `data/processed/` tables and
 `results/*.json` files are the verifiable record. See `docs/data.md` and
 `docs/methods.md`.
 
-The Makefile and CI remain the per-piece interface:
+The Makefile and CI run the pieces separately:
 
 ```bash
 make test       # pytest suite on Python 3.11
