@@ -39,7 +39,7 @@ def main() -> int:
 
     from datetime import datetime
 
-    # Panel finding m-7: the access is logged AFTER successful completion
+    # The access is logged AFTER successful completion
     # of the evaluation (see end of main), not at run start, so a killed or
     # failed run does not count as a completed test-set evaluation.
     df = pd.read_csv(proc / "feature_matrix.tsv.gz", sep="\t")
@@ -140,7 +140,7 @@ def main() -> int:
         fh.write("\n".join(lines_extra) + "\n")
     print("[baselines] benchmark.json + benchmark.md updated")
     # Log the test-set access only now: the evaluation completed and its
-    # outputs are written (panel finding m-7). Line format unchanged.
+    # outputs are written. Line format unchanged.
     with open(ACCESS_LOG, "a") as fh:
         fh.write(
             f"{datetime.now().isoformat()} baseline enrichment "

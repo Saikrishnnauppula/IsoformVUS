@@ -48,7 +48,7 @@ Two sections of the previously shipped JSON cannot be regenerated because
 no code that produces them exists in the repo: causal_mediation, and the
 distance_profile / donor_vs_acceptor_edge_0_3bp parts of
 splice_junction_boundary_asymmetry. They are NOT emitted into
-exon_architecture_nmd.json. On 2026-11-09 they were quarantined into
+exon_architecture_nmd.json. On 2026-11-09 they were moved into
 results/withdrawn_carried_over_values.json (status: withdrawn; no
 generating code; do not cite). This script writes that file once, copying
 the blocks verbatim from the previous results file, only if the file does
@@ -854,7 +854,7 @@ def main() -> int:
                 tensor_4x2x2.append(row_d)
 
     # --- Bounding analysis: true pathogenicity rates once unresolved
-    # missense variants are counted (panel finding C-3). For each cell the
+    # missense variants are counted. For each cell the
     # unresolved variants are assigned 0% pathogenic (min) and 100%
     # pathogenic (max); no modelling assumption is made. Cell codes:
     # digit = size bin (1 Compact, 2 Medium, 3 Large, 4 Giant);
@@ -2171,7 +2171,7 @@ def main() -> int:
         },
         "withdrawn_blocks_moved": "distance_profile and donor_vs_acceptor_edge_0_3bp are no longer shipped in this file: no code in the repo computes them, and on 2026-11-09 they were moved to results/withdrawn_carried_over_values.json (withdrawn; do not cite). Only synonymous_587k_donor_vs_acceptor above is computed by this script.",
     }
-    # Quarantine file for the carried-over blocks: written once, from the
+    # Withdrawn-values file for the carried-over blocks: written once, from the
     # previous results file, only if it does not already exist.
     withdrawn_path = REPO / "results/withdrawn_carried_over_values.json"
     if not withdrawn_path.exists():
@@ -2188,7 +2188,7 @@ def main() -> int:
             },
         }
         withdrawn_path.write_text(json.dumps(clean_json(withdrawn), indent=2))
-        print(f"[18] wrote {withdrawn_path} (quarantined carried-over blocks)")
+        print(f"[18] wrote {withdrawn_path} (carried-over blocks, withdrawn)")
     out = {
         "provenance": {
             "script": "scripts/18_exon_architecture_nmd.py",

@@ -523,7 +523,7 @@ def _stage18():
 
 
 def _withdrawn():
-    """Carried-over values quarantined 2026-11-09 (no generating code;
+    """Carried-over values withdrawn 2026-11-09 (no generating code;
     withdrawn, do not cite). Figures 10/11 read them from here, not from
     the stage-18 results JSON."""
     return json.loads((REPO / "results/withdrawn_carried_over_values.json").read_text())

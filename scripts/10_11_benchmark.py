@@ -68,7 +68,7 @@ def main() -> int:
             file=sys.stderr,
         )
         return 1
-    # Panel finding m-7: the access is logged AFTER successful completion
+    # The access is logged AFTER successful completion
     # of the evaluation (see end of main), not at run start, so a killed or
     # failed run does not count as a completed test-set evaluation.
 
@@ -121,7 +121,7 @@ def main() -> int:
             y[test], p_test, n_bootstrap=1000, seed=args.seed, k=10
         )
         results[m]["test"]["auroc_ci95"] = [lo_a, hi_a]
-        # Panel finding m-11: a bootstrap CI for top-k recall narrower than
+        # A bootstrap CI for top-k recall narrower than
         # one variant (1 / n_positive) is degenerate -- the top-k count is
         # saturated and the interval carries no information. Omit it (null).
         n_positive = int(y[test].sum())
@@ -271,7 +271,7 @@ def main() -> int:
     (REPO / "results/benchmark.md").write_text("\n".join(lines) + "\n")
     print("[10/11] wrote results/benchmark.json + results/benchmark.md")
     # Log the test-set access only now: the evaluation completed and its
-    # outputs are written (panel finding m-7).
+    # outputs are written.
     log_test_access("benchmark run (allow_rerun=%s)" % args.allow_rerun)
     return 0
 

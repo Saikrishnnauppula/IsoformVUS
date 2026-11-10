@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
-"""Build the annotation-based MANE Select exon atlas (workstream 1c).
+"""Build the annotation-based MANE Select exon atlas.
 
-Panel finding C-2 / questions Q3, Q4, Q5, Q10: script 18's 4x2x2 tensor is
+Script 18's 4x2x2 tensor is
 built on exons *reconstructed from observed variant positions* (clusters of
 coding variants split at >90 bp gaps; s_pos/e_pos are the first/last
 observed variant positions), not on annotated MANE/GENCODE coordinates.
