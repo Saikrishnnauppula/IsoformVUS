@@ -1,13 +1,13 @@
-"""Data-grounded tests for the 2026-11-09 journal-panel fix round.
+"""Data-grounded tests for the 2026-11-09 revision.
 
-These pin the numbers the fix round shipped: the corrected tensor sums,
-the gene-cluster bootstrap intervals for the CMH odds ratios, the
-bounding analysis over unresolved variants, the recomputed likelihood
-ratio table, the renamed statistics block, the CLNSIG composite
-sensitivity, the quarantined carried-over values, and the annotated
-tensor that manuscript Section 4.1 now reports as primary. Expected
-literals are the values produced by scripts 18, 19, and 21 on the
-pinned stack on 2026-11-09.
+These pin the numbers reported after the November 2026 review: the
+corrected tensor sums, the gene-cluster bootstrap intervals for the CMH
+odds ratios, the bounding analysis over unresolved variants, the
+recomputed likelihood ratio table, the renamed statistics block, the
+CLNSIG composite sensitivity, the withdrawn carried-over values, and
+the annotated tensor that manuscript Section 4.1 reports as primary.
+Expected literals are the values produced by scripts 18, 19, and 21 on
+the pinned stack on 2026-11-09.
 """
 
 import json
@@ -110,7 +110,7 @@ def test_lr_table_matches_tensor(stage18):
     assert cell4d["likelihood_ratio"] == pytest.approx(0.0088, abs=1e-4)
 
 
-def test_carried_over_values_quarantined(stage18):
+def test_carried_over_values_withdrawn(stage18):
     assert "causal_mediation" not in stage18
     sj = stage18["splice_junction_boundary_asymmetry"]
     assert "distance_profile" not in sj

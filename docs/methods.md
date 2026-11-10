@@ -14,8 +14,8 @@ We ran the pipeline in Python 3.11 with the pinned versions in
 `requirements.txt` (numpy 1.26.4, pandas 2.2.2, scikit-learn 1.5.1,
 pytest 8.3.3). We verified a clean install and 37/37 passing tests in a
 fresh Python 3.11.17 virtual environment on 2026-10-13; the suite is
-62/62 after the 2026-11-09 fix round, which added data-grounded tests
-over the review findings (tests/test_panel_fix_round.py). `pyproject.toml`
+62/62 after the 2026-11-09 revision, which added data-grounded tests
+for the points raised in review (tests/test_review_regressions.py). `pyproject.toml`
 pins the same packages with `==`, so `pip install -e .` and `pip install
 -r requirements.txt` describe the same environment; we used
 `requirements.txt` for every locked result.
